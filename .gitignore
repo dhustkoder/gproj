@@ -1,0 +1,15 @@
+build/
+objs/
+asm/
+compile_commands.json
+*.fns
+*.nes
+*.deb
+*.cdl
+*.o
+*.out
+*.exe
+*.dll
+*.lib
+*.obj
+*.a
