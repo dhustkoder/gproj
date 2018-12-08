@@ -8,6 +8,7 @@
 
 static bool platform_init(void)
 {
+	LOG_DEBUG("Initializing Platfrom\n");
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0) {
 		LOG_ERR("Couldn't initialize SDL2: %s\n", SDL_GetError());
 		return false;
@@ -18,6 +19,7 @@ static bool platform_init(void)
 
 static void platform_term(void)
 {
+	LOG_DEBUG("Terminating Platform\n");
 	SDL_Quit();
 }
 
@@ -27,9 +29,7 @@ int main(int argc, char** argv)
 	if (!platform_init())
 		return EXIT_FAILURE;
 	
-	const int ret = gproj(argc, argv);
+	atexit(platform_term);
 
-	platform_term();
-
-	return ret;
+	return gproj(argc, argv);
 }
