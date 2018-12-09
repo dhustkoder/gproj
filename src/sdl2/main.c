@@ -9,7 +9,7 @@
 #include "gproj.h"
 
 
-input_button_t input_buttons_states;
+extern input_button_t input_buttons_states;
 
 static SDL_Scancode sdl_keys[] = {
 	SDL_SCANCODE_W,
@@ -81,7 +81,7 @@ static void platform_term(void)
 	SDL_Quit();
 }
 
-bool input_bump_events(void)
+bool events_update(void)
 {
 	SDL_Event ev;
 	

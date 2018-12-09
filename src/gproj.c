@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include "log.h"
+#include "events.h"
 #include "input.h"
 #include "render.h"
 #include "gproj.h"
@@ -12,10 +13,42 @@ static struct sprite player = {
 	.y = GPROJ_FB_HEIGHT / 2,
 	.w = 20,
 	.h = 20,
-	.rgba = RGBA(0xFF, 0xFF, 0xFF, 0xFF)
+	.rgba = 0xFFFFFFFF
 };
 
-
+static const char* const map = 
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxx...xxxxxx...xxxxxxxxxxxxxxxxxxxx...xxxxxx...xxxxxxxxxxxx"
+	"xxxxxxxx.x.xxxxxx.x.xxxxxxxxxxxxxxxxxxxx.x.xxxxxx.x.xxxxxxxxxxxx"
+	"xxxxxxxx...xxxxxx...xxxxxxxxxxxxxxxxxxxx...xxxxxx...xxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxx........xxxxxxxxxxxxxxxxxxxxxxxx........xxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxx...xxxxxx...xxxxxxxxxxxxxxxxxxxx...xxxxxx...xxxxxxxxxxxx"
+	"xxxxxxxx.x.xxxxxx.x.xxxxxxxxxxxxxxxxxxxx.x.xxxxxx.x.xxxxxxxxxxxx"
+	"xxxxxxxx...xxxxxx...xxxxxxxxxxxxxxxxxxxx...xxxxxx...xxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxx........xxxxxxxxxxxxxxxxxxxxxxxx........xxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
 int gproj(int argc, char** argv)
 {
@@ -24,7 +57,11 @@ int gproj(int argc, char** argv)
 
 	Uint32 clk = SDL_GetTicks();
 	int fps = 0;
-	while (input_bump_events()) {
+
+	render_clear(true, true);
+	render_draw_map(map);
+
+	while (events_update()) {
 
 		if (input_buttons_states&INPUT_BUTTON_UP) {
 			player.y -= 1;

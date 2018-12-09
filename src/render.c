@@ -16,6 +16,46 @@ void render_clear(const bool clear_bkg, const bool clear_sprites)
 		memset(sprites, 0, sizeof(sprites));
 }
 
+void render_draw_map(const char* const map)
+{
+	struct sprite spr = {
+		.x = 0,
+		.y = 0,
+		.w = GPROJ_FB_WIDTH / 64,
+		.h = GPROJ_FB_HEIGHT / 32,
+		.rgba = 0x00
+	};
+
+	for (int i = 0; map[i] != '\0'; ++i) {
+		switch (map[i]) {
+		case '.':
+			spr.rgba = 0xABABABFF;
+			break;
+		case 'x':
+			spr.rgba = 0x000000FF;
+			break;
+		}
+
+		const int ybeg = spr.y;
+		const int xbeg = spr.x;
+		const int yend = spr.y + spr.h;
+		const int xend = spr.x + spr.w;
+		for (int y = ybeg; y < yend; ++y)
+			for (int x = xbeg; x < xend; ++x)
+				background[y][x] = spr.rgba;
+
+		spr.x += spr.w;
+		
+		if (spr.x >= GPROJ_FB_WIDTH) {
+			spr.y += spr.h;
+			spr.x = 0;
+		}
+		if (spr.y >= GPROJ_FB_HEIGHT) {
+			spr.y = 0;
+		}
+	}
+}
+
 void render_draw_sprites(const struct sprite* const spr, const int count)
 {
 	for (int i = 0; i < count; ++i) {
