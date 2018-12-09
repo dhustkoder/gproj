@@ -6,7 +6,8 @@
 
 
 extern input_button_t input_buttons_states;
-struct sprite player = {
+
+static struct sprite player = {
 	.x = GPROJ_FB_WIDTH / 2,
 	.y = GPROJ_FB_HEIGHT / 2,
 	.w = 20,
