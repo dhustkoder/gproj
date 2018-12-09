@@ -9,7 +9,7 @@
 #if defined(DEBUG) && defined(GPROJ_DEBUG)
 #define LOG_DEBUG(...) SDL_Log(__VA_ARGS__)
 #else
-#define LOG_DEBUG(...) (void)
+#define LOG_DEBUG(...) ((void)0)
 #endif
 
 

@@ -52,8 +52,8 @@ static bool platform_init(void)
 
 	rend = SDL_CreateRenderer(win,
 	                          -1,
-	                          SDL_RENDERER_ACCELERATED|
-	                          SDL_RENDERER_PRESENTVSYNC);
+	                          SDL_RENDERER_ACCELERATED
+	                          );
 	if (rend == NULL)
 		return false;
 

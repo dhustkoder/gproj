@@ -19,4 +19,5 @@ extern void render_clear(bool clear_bkg, bool clear_sprites);
 extern void render_draw_sprites(const struct sprite* spr, int count);
 extern void render_present(void);
 
+
 #endif

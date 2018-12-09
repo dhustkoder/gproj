@@ -8,7 +8,7 @@ static uint32_t sprites[GPROJ_FB_HEIGHT][GPROJ_FB_WIDTH];
 static uint32_t framebuffer[GPROJ_FB_HEIGHT][GPROJ_FB_WIDTH];
 
 
-void render_clear(bool clear_bkg, bool clear_sprites)
+void render_clear(const bool clear_bkg, const bool clear_sprites)
 {
 	if (clear_bkg)
 		memset(background, 0, sizeof(background));
@@ -31,5 +31,15 @@ void render_draw_sprites(const struct sprite* const spr, const int count)
 
 void render_present(void)
 {
-	video_present_framebuffer((void*)sprites);
+	memcpy(framebuffer, background, sizeof(framebuffer));
+	
+	for (int i = 0; i < GPROJ_FB_HEIGHT; ++i) {
+		for (int j = 0; j < GPROJ_FB_WIDTH; ++j) {
+			if ((sprites[i][j]&0xFF) != 0) {
+				framebuffer[i][j] = sprites[i][j];
+			}
+		}
+	}
+
+	video_present_framebuffer((void*)framebuffer);
 }
