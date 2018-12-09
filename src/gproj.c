@@ -4,13 +4,12 @@
 
 
 extern input_button_t input_buttons_states;
-
-static struct sprite player = {
-	.x = 1260 / 2,
-	.y = 720 / 2,
+struct sprite player = {
+	.x = GPROJ_FB_WIDTH / 2,
+	.y = GPROJ_FB_HEIGHT / 2,
 	.w = 20,
 	.h = 20,
-	.r = 0xFF, .g = 0xFF, .b = 0xFF
+	.rgba = RGBA(0xFF, 0xFF, 0xFF, 0xFF)
 };
 
 
@@ -31,12 +30,9 @@ int gproj(int argc, char** argv)
 			player.x += 1;
 		}
 
-
-		render_begin();
-
+		render_clear(false, true);
 		render_draw_sprites(&player, 1);
-
-		render_end();
+		render_present();
 	}
 
 	return 0;

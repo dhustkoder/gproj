@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include "log.h"
 #include "input.h"
+#include "video.h"
 #include "render.h"
 #include "gproj.h"
 
@@ -45,7 +46,7 @@ static bool platform_init(void)
 	win = SDL_CreateWindow("GProj",
 	                       SDL_WINDOWPOS_CENTERED,
 	                       SDL_WINDOWPOS_CENTERED,
-	                       1260, 720, 0);
+	                       1920, 1080, 0);
 	if (win == NULL)
 		return false;
 
@@ -59,7 +60,7 @@ static bool platform_init(void)
 	tex = SDL_CreateTexture(rend,
 	                        SDL_PIXELFORMAT_RGB888,
 	                        SDL_TEXTUREACCESS_STREAMING,
-	                        1260, 720);
+	                        GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT);
 	if (tex == NULL)
 		return false;
 
@@ -109,30 +110,13 @@ bool input_bump_events(void)
 	return true;
 }
 
-
-void render_begin(void)
+void video_present_framebuffer(const void* data)
 {
-	SDL_SetRenderDrawColor(rend, 0, 0, 0, 0xFF);
-	SDL_RenderClear(rend);
-}
-
-void render_end(void)
-{
+	SDL_UpdateTexture(tex, NULL, data, 4 * GPROJ_FB_WIDTH);
+	SDL_RenderCopy(rend, tex, NULL, NULL);
 	SDL_RenderPresent(rend);
 }
 
-void render_draw_sprites(const struct sprite* const spr, const int count)
-{
-	for (int i = 0; i < count; ++i) {
-		SDL_SetRenderDrawColor(rend, spr[i].r, spr[i].g, spr[i].b, 0xFF);
-		SDL_RenderFillRect(rend, &(SDL_Rect){
-			.x = spr[i].x,
-			.y = spr[i].y,
-			.w = spr[i].w,
-			.h = spr[i].h
-		});
-	}
-}
 
 int main(int argc, char** argv)
 {
