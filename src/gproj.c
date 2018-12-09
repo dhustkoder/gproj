@@ -1,7 +1,44 @@
+#include "input.h"
+#include "render.h"
 #include "gproj.h"
+
+
+extern input_button_t input_buttons_states;
+
+static struct sprite player = {
+	.x = 1260 / 2,
+	.y = 720 / 2,
+	.w = 20,
+	.h = 20,
+	.r = 0xFF, .g = 0xFF, .b = 0xFF
+};
+
+
 
 int gproj(int argc, char** argv)
 {
+
+	while (input_bump_events()) {
+		if (input_buttons_states&INPUT_BUTTON_UP) {
+			player.y -= 1;
+		} else if (input_buttons_states&INPUT_BUTTON_DOWN) {
+			player.y += 1;
+		}
+
+		if (input_buttons_states&INPUT_BUTTON_LEFT) {
+			player.x -= 1;
+		} else if (input_buttons_states&INPUT_BUTTON_RIGHT) {
+			player.x += 1;
+		}
+
+
+		render_begin();
+
+		render_draw_sprites(&player, 1);
+
+		render_end();
+	}
+
 	return 0;
 }
 
