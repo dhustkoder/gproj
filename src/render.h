@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include "types.h"
 
-#define GPROJ_FB_WIDTH   (1024)
-#define GPROJ_FB_HEIGHT  (720)
+#define GPROJ_FB_WIDTH   (64 * 16)
+#define GPROJ_FB_HEIGHT  (32 * 16)
 
 
 

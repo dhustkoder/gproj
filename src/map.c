@@ -47,9 +47,8 @@ void map_load(const char* data)
 		if (pos.x >= GPROJ_FB_WIDTH) {
 			pos.y += size.y;
 			pos.x = 0;
-		}
-		if (pos.y >= GPROJ_FB_HEIGHT) {
-			pos.y = 0;
+			if (pos.y >= GPROJ_FB_HEIGHT)
+				pos.y = 0;
 		}
 	}
 }
