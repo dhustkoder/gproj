@@ -44,7 +44,7 @@ static const char* const map0 =
 	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 	"xxxxxxxxxxxxxxxxxxxxxxxxx...xx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxx.p.x...xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxx.p.....xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 	"xxxxxxxxxxxxxxxxxxxxxxxxx...xx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
 int gproj(void)
