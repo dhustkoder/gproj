@@ -44,16 +44,13 @@ static bool platform_init(void)
 	}
 
 	win = SDL_CreateWindow("GProj",
-	                       SDL_WINDOWPOS_CENTERED,
-	                       SDL_WINDOWPOS_CENTERED,
-	                       GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT, SDL_WINDOW_RESIZABLE);
+	                       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+	                       GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT,
+	                       SDL_WINDOW_RESIZABLE);
 	if (win == NULL)
 		return false;
 
-	rend = SDL_CreateRenderer(win,
-	                          -1,
-	                          SDL_RENDERER_ACCELERATED
-	                          );
+	rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 	if (rend == NULL)
 		return false;
 
