@@ -117,6 +117,8 @@ void video_present_framebuffer(const void* data)
 
 int main(void)
 {
+	SDL_SetMainReady();
+	
 	atexit(platform_term);
 
 	if (!platform_init())
