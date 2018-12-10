@@ -46,7 +46,7 @@ static bool platform_init(void)
 	win = SDL_CreateWindow("GProj",
 	                       SDL_WINDOWPOS_CENTERED,
 	                       SDL_WINDOWPOS_CENTERED,
-	                       800, 600, 0);
+	                       GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT, 0);
 	if (win == NULL)
 		return false;
 
