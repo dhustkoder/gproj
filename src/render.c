@@ -20,10 +20,10 @@ void render_clear(const bool clear_map, const bool clear_sprites)
 void render_draw_sprites(const struct sprite* const spr, const int count)
 {
 	for (int i = 0; i < count; ++i) {
-		const int ybeg = spr[i].pos.y - spr[i].size.y;
-		const int xbeg = spr[i].pos.x - spr[i].size.x;
-		const int yend = spr[i].pos.y + spr[i].size.y;
-		const int xend = spr[i].pos.x + spr[i].size.x;
+		const int ybeg = spr[i].pos.y - spr[i].size.y / 2;
+		const int xbeg = spr[i].pos.x - spr[i].size.x / 2;
+		const int yend = spr[i].pos.y + spr[i].size.y / 2;
+		const int xend = spr[i].pos.x + spr[i].size.x / 2;
 		for (int y = ybeg; y < yend; ++y)
 			for (int x = xbeg; x < xend; ++x)
 				sprites[y][x] = spr[i].color.raw;

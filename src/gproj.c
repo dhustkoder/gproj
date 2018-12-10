@@ -18,7 +18,7 @@ static const char* const map0 =
 	"xxxxxxxx...xxxxxx...xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...."
 	"xxxxxxxx...xxxxxx...xxxxxxxxxxxxxxxxxxxxxxxxx..................."
 	"xxxxxxxx............xxxxxxxxxxxxxxxxxxxxxxxxx..................."
-	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxx...."
 	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
 	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
 	"xxxxxxxxxx........xxxxxxxxxxxxxxxxxxxxxxxx........xxxxxxxxxxxxxx"
@@ -43,9 +43,9 @@ static const char* const map0 =
 	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxx...xx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxx.p.....xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxx...xx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxx.p....xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
 int gproj(void)
 {

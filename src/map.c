@@ -51,7 +51,6 @@ void map_load(const char* data)
 			pos.y = 0;
 		}
 	}
-
 }
 
 struct vec2i map_get_player_init_pos(void)
