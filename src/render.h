@@ -6,7 +6,6 @@
 
 #define GPROJ_FB_WIDTH   (1024)
 #define GPROJ_FB_HEIGHT  (720)
-#define RGBA32(r, g, b, a) ((r<<24ul)|(g<<16ul)|(b<<8ul)|a)
 
 
 
