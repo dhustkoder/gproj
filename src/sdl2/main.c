@@ -3,8 +3,8 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include "log.h"
-#include "input.h"
 #include "video.h"
+#include "types.h"
 #include "render.h"
 #include "gproj.h"
 
@@ -46,7 +46,7 @@ static bool platform_init(void)
 	win = SDL_CreateWindow("GProj",
 	                       SDL_WINDOWPOS_CENTERED,
 	                       SDL_WINDOWPOS_CENTERED,
-	                       1920, 1080, 0);
+	                       800, 600, 0);
 	if (win == NULL)
 		return false;
 
@@ -118,12 +118,12 @@ void video_present_framebuffer(const void* data)
 }
 
 
-int main(int argc, char** argv)
+int main(void)
 {
 	atexit(platform_term);
 
 	if (!platform_init())
 		return EXIT_FAILURE;
 
-	return gproj(argc, argv);
+	return gproj();
 }

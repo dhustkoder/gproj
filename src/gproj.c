@@ -1,78 +1,74 @@
 #include <SDL2/SDL.h>
 #include "log.h"
 #include "events.h"
-#include "input.h"
 #include "render.h"
+#include "map.h"
 #include "gproj.h"
 
 
-extern input_button_t input_buttons_states;
+input_button_t input_buttons_states;
 
 static struct sprite player = {
-	.x = GPROJ_FB_WIDTH / 2,
-	.y = GPROJ_FB_HEIGHT / 2,
-	.w = 8,
-	.h = 8,
-	.rgba = 0xFFFFFFFF
+	.size = { 4, 4 },
+	.color = { .raw = 0xFFFFFFFF }
 };
 
-static const char* const map = 
+static const char* const map0 = 
 	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxx...xxxxxx...xxxxxxxxxxxxxxxxxxxx...xxxxxx...xxxxxxxxxxxx"
-	"xxxxxxxx.x.xxxxxx.x.xxxxxxxxxxxxxxxxxxxx.x.xxxxxx.x.xxxxxxxxxxxx"
-	"xxxxxxxx...xxxxxx...xxxxxxxxxxxxxxxxxxxx...xxxxxx...xxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxx...xxxxxx...xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...."
+	"xxxxxxxx...xxxxxx...xxxxxxxxxxxxxxxxxxxxxxxxx..................."
+	"xxxxxxxx............xxxxxxxxxxxxxxxxxxxxxxxxx..................."
 	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxx........xxxxxxxxxxxxxxxxxxxxxxxx........xxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxx...xxxxxx...xxxxxxxxxxxxxxxxxxxx...xxxxxx...xxxxxxxxxxxx"
-	"xxxxxxxx.x.xxxxxx.x.xxxxxxxxxxxxxxxxxxxx.x.xxxxxx.x.xxxxxxxxxxxx"
-	"xxxxxxxx...xxxxxx...xxxxxxxxxxxxxxxxxxxx...xxxxxx...xxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
 	"xxxxxxxxxx........xxxxxxxxxxxxxxxxxxxxxxxx........xxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxx.......xxxxxxxxxxxxxxxxxxxx............xxxxxxxxxxxx"
+	"xxxxxxxxxxxxx.......xxxxxxxxxxxxxxxxxxxx.x........x.xxxxxxxxxxxx"
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxx............xxxxxxxxxxxx"
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxx........................................xxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxx...xx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxx.p.x...xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	"xxxxxxxxxxxxxxxxxxxxxxxxx...xx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
-int gproj(int argc, char** argv)
+int gproj(void)
 {
-	((void)argc);
-	((void)argv);
-
 	Uint32 clk = SDL_GetTicks();
 	int fps = 0;
 
 	render_clear(true, true);
-	render_draw_map(map);
+	map_load(map0);
+
+	player.pos = map_get_player_init_pos();
 
 	while (events_update()) {
 
 		if (input_buttons_states&INPUT_BUTTON_UP) {
-			player.y -= 1;
+			player.pos.y -= 1;
 		} else if (input_buttons_states&INPUT_BUTTON_DOWN) {
-			player.y += 1;
+			player.pos.y += 1;
 		}
 
 		if (input_buttons_states&INPUT_BUTTON_LEFT) {
-			player.x -= 1;
+			player.pos.x -= 1;
 		} else if (input_buttons_states&INPUT_BUTTON_RIGHT) {
-			player.x += 1;
+			player.pos.x += 1;
 		}
 
 		render_clear(false, true);
