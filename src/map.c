@@ -5,6 +5,7 @@
 
 uint32_t map_gfx[GPROJ_FB_HEIGHT][GPROJ_FB_WIDTH];
 
+
 static struct {
 	const char* buf;
 	struct vec2i player_init_pos;
