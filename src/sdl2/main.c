@@ -35,7 +35,7 @@ SDL_Renderer* sdl_rend;
 SDL_Texture* sdl_tex_bkg;
 SDL_Texture* sdl_tex_sprs;
 
-static bool platform_init(void)
+static bool platform_init(bool vsync)
 {
 	LOG_DEBUG("Initializing Platfrom\n");
 	
@@ -53,7 +53,9 @@ static bool platform_init(void)
 	if (win == NULL)
 		return false;
 
-	sdl_rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+	sdl_rend = SDL_CreateRenderer(win, -1,
+	                             SDL_RENDERER_ACCELERATED|
+	                             (vsync ? SDL_RENDERER_PRESENTVSYNC : 0));
 	if (sdl_rend == NULL)
 		return false;
 
@@ -123,13 +125,14 @@ bool events_update(void)
 
 
 
-int main(void)
+int main(int argc, char** argv)
 {
+	((void)argv);
 	SDL_SetMainReady();
 	
 	atexit(platform_term);
 
-	if (!platform_init())
+	if (!platform_init(argc > 1))
 		return EXIT_FAILURE;
 
 	return gproj();
