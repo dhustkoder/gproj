@@ -13,7 +13,7 @@ static const char* const map0 =
 	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...."
 	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..................."
 	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..................."
-	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxx...."
+	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxpxxxxxxxxxxxxxx..xxxxxxxxxxxxx...."
 	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
 	"xxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxx"
 	"xxxxxxxxxxxxx......xxxxxxxxxxxxxxxxxxxxxxx........xxxxxxxxxxxxxx"
@@ -40,7 +40,7 @@ static const char* const map0 =
 	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 	"xxxxxxxxxxxxxxxxxxxxxxxxxx......xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	"xxxxxxxxxxxxxxxxxxxxxxxxxx.p....xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+	"xxxxxxxxxxxxxxxxxxxxxxxxxx......xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
 
 int gproj(void)
