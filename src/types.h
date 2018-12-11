@@ -14,15 +14,19 @@ struct vec2f {
 	float x, y;
 };
 
+struct recti {
+	struct vec2i pos;
+	struct vec2i size;
+};
+
+struct rectf {
+	struct vec2f pos;
+	struct vec2f size;
+};
+
 struct sprite {
-	struct {
-		struct vec2i pos;
-		struct vec2i size;
-	} scr;
-	struct {
-		struct vec2i pos;
-		struct vec2i size;
-	} ss;
+	struct recti scr;
+	struct recti ss;
 };
 
 

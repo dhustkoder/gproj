@@ -12,6 +12,14 @@
 
 extern input_button_t input_buttons_states;
 
+
+SDL_Renderer* sdl_rend;
+SDL_Texture* sdl_tex_bkg;
+SDL_Texture* sdl_tex_sprs;
+SDL_Texture* sdl_spr_sheet;
+
+static SDL_Window* win;
+
 static SDL_Scancode sdl_keys[] = {
 	SDL_SCANCODE_W,
 	SDL_SCANCODE_S,
@@ -30,10 +38,8 @@ static input_button_t game_buttons[] = {
 	INPUT_BUTTON_SHOOT
 };
 
-static SDL_Window* win;
-SDL_Renderer* sdl_rend;
-SDL_Texture* sdl_tex_bkg;
-SDL_Texture* sdl_tex_sprs;
+
+
 
 static bool platform_init(bool vsync)
 {
@@ -73,6 +79,24 @@ static bool platform_init(bool vsync)
 	if (sdl_tex_sprs == NULL)
 		return false;
 
+	
+	
+	SDL_Surface* const ssimg = IMG_Load("../assets/h_spr.png");
+
+	if (ssimg == NULL) {
+		LOG_ERR("Couldn't load IMG: %s\n", IMG_GetError());
+		return false;
+	}
+
+	sdl_spr_sheet= SDL_CreateTextureFromSurface(sdl_rend, ssimg);
+
+	SDL_FreeSurface(ssimg);
+
+	if (sdl_spr_sheet == NULL) {
+		LOG_ERR("Couldn't create Texture: %s\n", SDL_GetError());
+		return false;
+	}
+
 	SDL_SetTextureBlendMode(sdl_tex_sprs, SDL_BLENDMODE_BLEND);
 
 	return true;
@@ -81,6 +105,9 @@ static bool platform_init(bool vsync)
 static void platform_term(void)
 {
 	LOG_DEBUG("Terminating Platform\n");
+
+	if (sdl_spr_sheet != NULL)
+		SDL_DestroyTexture(sdl_spr_sheet);
 	if (sdl_tex_sprs != NULL)
 		SDL_DestroyTexture(sdl_tex_sprs);
 	if (sdl_tex_bkg != NULL)

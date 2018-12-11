@@ -45,27 +45,11 @@ static const char* const map0 =
 
 int gproj(void)
 {
-	Uint32 clk = SDL_GetTicks();
-	Uint32 anim_clk = clk;
-	int fps = 0;
-
-	sprite_sheet_t* const player_ss = render_load_spr_sheet("../assets/h_spr.png");
-	
-	render_set_spr_sheet(player_ss);
-
-	struct sprite player_spr = {
-		.ss.pos = { 0, 0 },
-		.ss.size = { 16, 16 }
-	};
-
 	render_clear(RENDER_CLEAR_BKG|RENDER_CLEAR_SPRS);
 	map_load(map0);
 
-	player_spr.scr.pos = map_get_player_init_pos();
-	player_spr.scr.size = (struct vec2i) { 64, 64 };
-
 	while (events_update()) {
-
+		/*
 		if (input_buttons_states&INPUT_BUTTON_UP) {
 			player_spr.ss.pos.y = 0;
 			if ((SDL_GetTicks() - anim_clk) > 150) {
@@ -95,21 +79,10 @@ int gproj(void)
 			}
 			player_spr.scr.pos.x += 3;
 		}
-
+		*/
 		render_clear(RENDER_CLEAR_SPRS);
-		render_sprs(&player_spr, 1);
 		render_present();
-		++fps;
-
-		if ((SDL_GetTicks() - clk) >= 1000) {
-			LOG("FPS: %d\n", fps);
-			fps = 0;
-			clk = SDL_GetTicks();
-		}
-
 	}
-
-	render_free_spr_sheet(player_ss);
 
 	return 0;
 }

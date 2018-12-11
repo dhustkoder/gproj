@@ -12,12 +12,6 @@
 #define RENDER_CLEAR_BKG  (0x01)
 #define RENDER_CLEAR_SPRS (0x02)
 
-typedef SDL_Texture sprite_sheet_t;
-
-extern sprite_sheet_t* render_load_spr_sheet(const char* name);
-extern void render_free_spr_sheet(sprite_sheet_t* ss);
-extern void render_set_spr_sheet(sprite_sheet_t* ss);
-
 extern void render_clear(uint8_t flags);
 extern void render_bkg(const uint32_t* pixels);
 extern void render_sprs(const struct sprite* sprs, int count);

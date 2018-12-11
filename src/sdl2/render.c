@@ -8,25 +8,8 @@
 extern SDL_Renderer* sdl_rend;
 extern SDL_Texture* sdl_tex_bkg;
 extern SDL_Texture* sdl_tex_sprs;
+extern SDL_Texture* sdl_spr_sheet;
 
-static SDL_Texture* curr_spr_sheet;
-
-sprite_sheet_t* render_load_spr_sheet(const char* name)
-{
-	SDL_Surface* const img = IMG_Load(name);
-	SDL_Texture* const tex = SDL_CreateTextureFromSurface(sdl_rend, img);
-	return tex;
-}
-
-void render_free_spr_sheet(sprite_sheet_t* const ss)
-{
-	SDL_DestroyTexture(ss);
-}
-
-void render_set_spr_sheet(sprite_sheet_t* const ss)
-{
-	curr_spr_sheet = ss;
-}
 
 void render_clear(const uint8_t flags)
 {
@@ -69,7 +52,7 @@ void render_sprs(const struct sprite* const sprs, const int count)
 			.w = sprs[i].ss.size.x,
 			.h = sprs[i].ss.size.y
 		};
-		SDL_RenderCopy(sdl_rend, curr_spr_sheet, &ss, &scr);
+		SDL_RenderCopy(sdl_rend, sdl_spr_sheet, &ss, &scr);
 	}
 
 	SDL_SetRenderTarget(sdl_rend, NULL);
