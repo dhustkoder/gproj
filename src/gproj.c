@@ -52,7 +52,7 @@ int gproj(void)
 	Uint32 clk = SDL_GetTicks();
 	int fps = 0;
 
-	render_clear(true, true);
+	render_clear(RENDER_CLEAR_BKG | RENDER_CLEAR_SPRS);
 	map_load(map0);
 
 	player.pos = map_get_player_init_pos();
@@ -71,8 +71,8 @@ int gproj(void)
 			player.pos.x += 1;
 		}
 
-		render_clear(false, true);
-		render_draw_sprites(&player, 1);
+		render_clear(RENDER_CLEAR_SPRS);
+		render_sprs(&player, 1);
 		render_present();
 		++fps;
 

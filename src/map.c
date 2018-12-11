@@ -3,7 +3,7 @@
 #include "map.h"
 
 
-uint32_t map_gfx[GPROJ_FB_HEIGHT][GPROJ_FB_WIDTH];
+static uint32_t map_gfx[GPROJ_FB_HEIGHT][GPROJ_FB_WIDTH];
 
 
 static struct {
@@ -51,6 +51,8 @@ void map_load(const char* data)
 				pos.y = 0;
 		}
 	}
+
+	render_bkg((void*)map_gfx);
 }
 
 struct vec2i map_get_player_init_pos(void)

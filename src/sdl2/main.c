@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include "log.h"
-#include "video.h"
+#include "render.h"
 #include "types.h"
 #include "render.h"
 #include "gproj.h"
@@ -30,9 +30,9 @@ static input_button_t game_buttons[] = {
 };
 
 static SDL_Window* win;
-static SDL_Renderer* rend;
-static SDL_Texture* tex;
-
+SDL_Renderer* sdl_rend;
+SDL_Texture* sdl_tex_bkg;
+SDL_Texture* sdl_tex_sprs;
 
 static bool platform_init(void)
 {
@@ -50,16 +50,25 @@ static bool platform_init(void)
 	if (win == NULL)
 		return false;
 
-	rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-	if (rend == NULL)
+	sdl_rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+	if (sdl_rend == NULL)
 		return false;
 
-	tex = SDL_CreateTexture(rend,
+	sdl_tex_bkg = SDL_CreateTexture(sdl_rend,
 	                        SDL_PIXELFORMAT_RGB888,
-	                        SDL_TEXTUREACCESS_STREAMING,
+	                        SDL_TEXTUREACCESS_STATIC,
 	                        GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT);
-	if (tex == NULL)
+	if (sdl_tex_bkg == NULL)
 		return false;
+
+	sdl_tex_sprs = SDL_CreateTexture(sdl_rend,
+	                        SDL_PIXELFORMAT_RGB888,
+	                        SDL_TEXTUREACCESS_TARGET,
+	                        GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT);
+	if (sdl_tex_sprs == NULL)
+		return false;
+
+	SDL_SetTextureBlendMode(sdl_tex_sprs, SDL_BLENDMODE_BLEND);
 
 	return true;
 }
@@ -67,11 +76,12 @@ static bool platform_init(void)
 static void platform_term(void)
 {
 	LOG_DEBUG("Terminating Platform\n");
-
-	if (tex != NULL)
-		SDL_DestroyTexture(tex);
-	if (rend != NULL)
-		SDL_DestroyRenderer(rend);
+	if (sdl_tex_sprs != NULL)
+		SDL_DestroyTexture(sdl_tex_sprs);
+	if (sdl_tex_bkg != NULL)
+		SDL_DestroyTexture(sdl_tex_bkg);
+	if (sdl_rend != NULL)
+		SDL_DestroyRenderer(sdl_rend);
 	if (win != NULL)
 		SDL_DestroyWindow(win);
 	
@@ -107,12 +117,6 @@ bool events_update(void)
 	return true;
 }
 
-void video_present_framebuffer(const void* data)
-{
-	SDL_UpdateTexture(tex, NULL, data, 4 * GPROJ_FB_WIDTH);
-	SDL_RenderCopy(rend, tex, NULL, NULL);
-	SDL_RenderPresent(rend);
-}
 
 
 int main(void)
