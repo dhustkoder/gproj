@@ -17,7 +17,7 @@ void map_load(const char* data)
 {
 	struct vec2i pos = {0, 0};
 	struct vec2i size = { GPROJ_FB_WIDTH / 64, GPROJ_FB_HEIGHT / 32 };
-	struct color color;
+	struct color color = { .raw = 0xFFFFFFFF };
 	for (int i = 0; data[i] != '\0'; ++i) {
 		switch (data[i]) {
 		case 'p':
@@ -25,6 +25,7 @@ void map_load(const char* data)
 				pos.x + size.x / 2,
 				pos.y + size.y / 2
 			};
+			// fall through
 		case '.':
 			color.raw = 0xABABABFF;
 			break;
