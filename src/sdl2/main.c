@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include "log.h"
 #include "render.h"
 #include "types.h"
@@ -38,10 +39,12 @@ static bool platform_init(void)
 {
 	LOG_DEBUG("Initializing Platfrom\n");
 	
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_JOYSTICK|SDL_INIT_TIMER) != 0) {
 		LOG_ERR("Couldn't initialize SDL2: %s\n", SDL_GetError());
 		return false;
 	}
+
+	IMG_Init(IMG_INIT_PNG);
 
 	win = SDL_CreateWindow("GProj",
 	                       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -85,6 +88,7 @@ static void platform_term(void)
 	if (win != NULL)
 		SDL_DestroyWindow(win);
 	
+	IMG_Quit();
 	SDL_Quit();
 }
 

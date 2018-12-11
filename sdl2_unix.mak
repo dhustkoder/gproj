@@ -10,7 +10,7 @@ CFLAGS_RELEASE=-Werror -O3 -march=native -ffast-math -fstrict-aliasing \
 
 CFLAGS_PERF=-g -O3 -fno-omit-frame-pointer
 
-LDFLAGS=$(shell sdl2-config --libs)
+LDFLAGS=$(shell sdl2-config --libs) -lSDL2_image
 LDFLAGS_DEBUG=-g
 LDFLAGS_RELEASE=
 LDFLAGS_PERF=-g

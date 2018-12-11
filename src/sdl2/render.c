@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include "render.h"
 #include "log.h"
 
@@ -8,6 +9,24 @@ extern SDL_Renderer* sdl_rend;
 extern SDL_Texture* sdl_tex_bkg;
 extern SDL_Texture* sdl_tex_sprs;
 
+static SDL_Texture* curr_spr_sheet;
+
+sprite_sheet_t* render_load_spr_sheet(const char* name)
+{
+	SDL_Surface* const img = IMG_Load(name);
+	SDL_Texture* const tex = SDL_CreateTextureFromSurface(sdl_rend, img);
+	return tex;
+}
+
+void render_free_spr_sheet(sprite_sheet_t* const ss)
+{
+	SDL_DestroyTexture(ss);
+}
+
+void render_set_spr_sheet(sprite_sheet_t* const ss)
+{
+	curr_spr_sheet = ss;
+}
 
 void render_clear(const uint8_t flags)
 {
@@ -33,22 +52,25 @@ void render_bkg(const uint32_t* const pixels)
 
 void render_sprs(const struct sprite* const sprs, const int count)
 {
-	if (SDL_SetRenderTarget(sdl_rend, sdl_tex_sprs) != 0) {
-		LOG_ERR("Could'nt set render target: %s\n", SDL_GetError());
-	}
+	SDL_SetRenderTarget(sdl_rend, sdl_tex_sprs);
 	SDL_SetRenderDrawColor(sdl_rend, 0xFF, 0xFF, 0xFF, 0xFF);
 
-	SDL_Rect rects[count];
+	SDL_Rect scr, ss;
 	for (int i = 0; i < count; ++i) {
-		rects[i] = (SDL_Rect) {
-			.x = sprs[i].pos.x,
-			.y = sprs[i].pos.y,
-			.w = sprs[i].size.x,
-			.h = sprs[i].size.y
+		scr = (SDL_Rect) {
+			.x = sprs[i].scr.pos.x,
+			.y = sprs[i].scr.pos.y,
+			.w = sprs[i].scr.size.x,
+			.h = sprs[i].scr.size.y
 		};
+		ss = (SDL_Rect) {
+			.x = sprs[i].ss.pos.x,
+			.y = sprs[i].ss.pos.y,
+			.w = sprs[i].ss.size.x,
+			.h = sprs[i].ss.size.y
+		};
+		SDL_RenderCopy(sdl_rend, curr_spr_sheet, &ss, &scr);
 	}
-
-	SDL_RenderFillRects(sdl_rend, rects, count);
 
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }

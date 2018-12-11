@@ -10,19 +10,19 @@ struct vec2i {
 	int x, y;
 };
 
-struct color {
-	union {
-		struct {
-			uint8_t r, g, b, a;
-		};
-		uint32_t raw;
-	};
+struct vec2f {
+	float x, y;
 };
 
 struct sprite {
-	struct vec2i pos;
-	struct vec2i size;
-	struct color color;
+	struct {
+		struct vec2i pos;
+		struct vec2i size;
+	} scr;
+	struct {
+		struct vec2i pos;
+		struct vec2i size;
+	} ss;
 };
 
 

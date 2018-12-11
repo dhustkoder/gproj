@@ -17,7 +17,7 @@ void map_load(const char* data)
 {
 	struct vec2i pos = {0, 0};
 	struct vec2i size = { GPROJ_FB_WIDTH / 64, GPROJ_FB_HEIGHT / 32 };
-	struct color color = { .raw = 0xFFFFFFFF };
+	uint32_t color = 0;
 	for (int i = 0; data[i] != '\0'; ++i) {
 		switch (data[i]) {
 		case 'p':
@@ -27,10 +27,10 @@ void map_load(const char* data)
 			};
 			// fall through
 		case '.':
-			color.raw = 0xABABABFF;
+			color = 0xABABABFF;
 			break;
 		case 'x':
-			color.raw = 0x000000FF;
+			color = 0xCECECECE;
 			break;
 		
 		}
@@ -41,7 +41,7 @@ void map_load(const char* data)
 		const int xend = pos.x + size.x;
 		for (int y = ybeg; y < yend; ++y)
 			for (int x = xbeg; x < xend; ++x)
-				map_gfx[y][x] = color.raw;
+				map_gfx[y][x] = color;
 
 		pos.x += size.x;
 		
