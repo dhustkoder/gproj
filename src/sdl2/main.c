@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <tmx.h>
 #include "log.h"
 #include "render.h"
 #include "types.h"
@@ -15,8 +16,8 @@ extern input_button_t input_buttons_states;
 
 SDL_Renderer* sdl_rend;
 SDL_Texture* sdl_tex_bkg;
-SDL_Texture* sdl_tex_sprs;
-SDL_Texture* sdl_spr_sheet;
+SDL_Texture* sdl_tex_fg;
+SDL_Texture* sdl_tex_tileset;
 
 static SDL_Window* win;
 
@@ -72,32 +73,19 @@ static bool platform_init(bool vsync)
 	if (sdl_tex_bkg == NULL)
 		return false;
 
-	sdl_tex_sprs = SDL_CreateTexture(sdl_rend,
+	sdl_tex_fg = SDL_CreateTexture(sdl_rend,
 	                        SDL_PIXELFORMAT_RGB888,
 	                        SDL_TEXTUREACCESS_TARGET,
 	                        GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT);
-	if (sdl_tex_sprs == NULL)
+	if (sdl_tex_fg == NULL)
 		return false;
 
-	
-	
-	SDL_Surface* const ssimg = IMG_Load("../assets/h_spr.png");
-
-	if (ssimg == NULL) {
-		LOG_ERR("Couldn't load IMG: %s\n", IMG_GetError());
+	sdl_tex_tileset = IMG_LoadTexture(sdl_rend, "../assets/tileset.png");
+	if (sdl_tex_tileset == NULL)
 		return false;
-	}
 
-	sdl_spr_sheet= SDL_CreateTextureFromSurface(sdl_rend, ssimg);
 
-	SDL_FreeSurface(ssimg);
-
-	if (sdl_spr_sheet == NULL) {
-		LOG_ERR("Couldn't create Texture: %s\n", SDL_GetError());
-		return false;
-	}
-
-	SDL_SetTextureBlendMode(sdl_tex_sprs, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureBlendMode(sdl_tex_tileset, SDL_BLENDMODE_BLEND);
 
 	return true;
 }
@@ -106,10 +94,10 @@ static void platform_term(void)
 {
 	LOG_DEBUG("Terminating Platform\n");
 
-	if (sdl_spr_sheet != NULL)
-		SDL_DestroyTexture(sdl_spr_sheet);
-	if (sdl_tex_sprs != NULL)
-		SDL_DestroyTexture(sdl_tex_sprs);
+	if (sdl_tex_tileset != NULL)
+		SDL_DestroyTexture(sdl_tex_tileset);
+	if (sdl_tex_fg != NULL)
+		SDL_DestroyTexture(sdl_tex_fg);
 	if (sdl_tex_bkg != NULL)
 		SDL_DestroyTexture(sdl_tex_bkg);
 	if (sdl_rend != NULL)
@@ -164,3 +152,5 @@ int main(int argc, char** argv)
 
 	return gproj();
 }
+
+

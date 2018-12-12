@@ -7,8 +7,8 @@
 
 extern SDL_Renderer* sdl_rend;
 extern SDL_Texture* sdl_tex_bkg;
-extern SDL_Texture* sdl_tex_sprs;
-extern SDL_Texture* sdl_spr_sheet;
+extern SDL_Texture* sdl_tex_fg;
+extern SDL_Texture* sdl_tex_tileset;
 
 
 void render_clear(const uint8_t flags)
@@ -19,8 +19,8 @@ void render_clear(const uint8_t flags)
 		SDL_RenderClear(sdl_rend);
 	}
 
-	if (flags&RENDER_CLEAR_SPRS) {
-		SDL_SetRenderTarget(sdl_rend, sdl_tex_sprs);
+	if (flags&RENDER_CLEAR_FG) {
+		SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
 		SDL_SetRenderDrawColor(sdl_rend, 0x00, 0x00, 0x00, 0x00);
 		SDL_RenderClear(sdl_rend);
 	}
@@ -35,7 +35,7 @@ void render_bkg(const uint32_t* const pixels)
 
 void render_sprs(const struct sprite* const sprs, const int count)
 {
-	SDL_SetRenderTarget(sdl_rend, sdl_tex_sprs);
+	SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
 	SDL_SetRenderDrawColor(sdl_rend, 0xFF, 0xFF, 0xFF, 0xFF);
 
 	SDL_Rect scr, ss;
@@ -52,7 +52,7 @@ void render_sprs(const struct sprite* const sprs, const int count)
 			.w = sprs[i].ss.size.x,
 			.h = sprs[i].ss.size.y
 		};
-		SDL_RenderCopy(sdl_rend, sdl_spr_sheet, &ss, &scr);
+		SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &ss, &scr);
 	}
 
 	SDL_SetRenderTarget(sdl_rend, NULL);
@@ -61,6 +61,6 @@ void render_sprs(const struct sprite* const sprs, const int count)
 void render_present(void)
 {
 	SDL_RenderCopy(sdl_rend, sdl_tex_bkg, NULL, NULL);
-	SDL_RenderCopy(sdl_rend, sdl_tex_sprs, NULL, NULL);
+	SDL_RenderCopy(sdl_rend, sdl_tex_fg, NULL, NULL);
 	SDL_RenderPresent(sdl_rend);
 }

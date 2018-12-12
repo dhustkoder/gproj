@@ -1,5 +1,5 @@
 CFLAGS=-std=c99 -Wall -Wextra -Wshadow \
-       -I $(SRC_DIR) -I $(SRC_DIR)/sdl2 $(shell sdl2-config --cflags) \
+       -I $(SRC_DIR) -I $(SRC_DIR)/sdl2 $(shell sdl2-config --cflags) -Iexternals/tmx/src \
        -DPLATFORM_SDL2
 
 CFLAGS_DEBUG=-g -O0 -fsanitize=address -DDEBUG -DGPROJ_DEBUG
@@ -10,7 +10,7 @@ CFLAGS_RELEASE=-Werror -O3 -march=native -ffast-math -fstrict-aliasing \
 
 CFLAGS_PERF=-g -O3 -fno-omit-frame-pointer
 
-LDFLAGS=$(shell sdl2-config --libs) -lSDL2_image
+LDFLAGS=-Lexternals/tmx/build $(shell sdl2-config --libs) -lSDL2_image -ltmx -lxml2
 LDFLAGS_DEBUG=-g
 LDFLAGS_RELEASE=
 LDFLAGS_PERF=-g

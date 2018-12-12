@@ -1,0 +1,3 @@
+[submodule "externals/tmx"]
+	path = externals/tmx
+	url = https://github.com/baylej/tmx
