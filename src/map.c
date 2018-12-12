@@ -50,9 +50,6 @@ void map_load(const char* path)
 					};
 				}
 			}
-			memcpy(&map_gids[layer_idx][y][0], 
-			       &layp->content.gids[y * 32],
-			       sizeof(int32_t) * GPROJ_X_TILES);
 		}
 		++layer_idx;
 		layp = layp->next;
