@@ -15,6 +15,8 @@ LDFLAGS_DEBUG=-g
 LDFLAGS_RELEASE=
 LDFLAGS_PERF=-g
 
+EXTERNALS_LIBS=externals/tmx/build/libtmx.a
+
 BUILD_DIR=./build
 OBJS_DIR=./objs
 ASM_DIR=./asm
@@ -61,7 +63,7 @@ endif
 .PHONY: all clean asm
 
 
-all: libtmx.a $(BUILD_DIR)/gproj
+all: $(EXTERNALS_LIBS) $(BUILD_DIR)/gproj
 asm: $(ASM) $(PLATFORM_ASM)
 
 	
@@ -77,9 +79,12 @@ $(ASM_DIR)/%.asm: $(SRC)
 	@mkdir -p $(PLATFORM_ASM_DIR)
 	$(CC) $(CFLAGS) -S $< -o $@
 
-libtmx.a:
+
+# LIBTMX build commands
+externals/tmx/build/libtmx.a:
 	@mkdir -p externals/tmx/build
 	@pushd externals/tmx/build && cmake .. && make && popd
+
 
 -include $(shell ls $(OBJS_DIR)/*.d 2>/dev/null)
 
