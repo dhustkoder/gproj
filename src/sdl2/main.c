@@ -150,52 +150,6 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 
 
-	tmx_map* map = tmx_load("../assets/test.tmx");
-
-	if (map == NULL) {
-		LOG_ERR("Couldn't load map: %s", tmx_strerr());
-		return EXIT_FAILURE;
-	}
-
-	tmx_layer* layp = map->ly_head;
-
-	render_clear(RENDER_CLEAR_BKG|RENDER_CLEAR_FG);
-
-	SDL_SetRenderTarget(sdl_rend, sdl_tex_bkg);
-	
-	SDL_Rect src, dst;
-
-	while (layp != NULL) {
-		for (int i = 0; i < GPROJ_Y_TILES; ++i) {
-			for (int j = 0; j < GPROJ_X_TILES; ++j) {
-				int32_t gid = (layp->content.gids[i * GPROJ_TILE_WIDTH + j] & TMX_FLIP_BITS_REMOVAL);
-				if (gid == 0)
-					continue;
-				--gid;
-				src = (SDL_Rect) {
-					.x = (gid * GPROJ_TILE_WIDTH) % GPROJ_TILESET_WIDTH,
-					.y = (gid / (GPROJ_TILESET_WIDTH / GPROJ_TILE_WIDTH)) * GPROJ_TILE_WIDTH,
-					.w = GPROJ_TILE_WIDTH,
-					.h = GPROJ_TILE_HEIGHT
-				};
-				dst = (SDL_Rect) {
-					.x = j * GPROJ_TILE_WIDTH,
-					.y = i * GPROJ_TILE_HEIGHT,
-					.w = GPROJ_TILE_WIDTH,
-					.h = GPROJ_TILE_HEIGHT
-				};
-				SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &src, &dst);
-			}
-		}
-		layp = layp->next;
-	}
-
-	SDL_SetRenderTarget(sdl_rend, NULL);
-
-
-	tmx_map_free(map);
-
-
 	return gproj();
 }
 

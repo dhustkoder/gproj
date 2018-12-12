@@ -2,6 +2,7 @@
 #include <string.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <tmx.h>
 #include "render.h"
 #include "log.h"
 
@@ -28,9 +29,37 @@ void render_clear(const uint8_t flags)
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }
 
-void render_bkg(const uint32_t* const pixels)
+void render_bkg(const int32_t* gids)
 {
-	SDL_UpdateTexture(sdl_tex_bkg, NULL, pixels, 4 * GPROJ_FB_WIDTH);
+	SDL_SetRenderTarget(sdl_rend, sdl_tex_bkg);
+
+	SDL_Rect src, dst;
+	for (int l = 0; l < 2; ++l) {
+		for (int y = 0; y < GPROJ_Y_TILES; ++y) {
+			for (int x = 0; x < GPROJ_X_TILES; ++x) {
+				int32_t gid = *gids & TMX_FLIP_BITS_REMOVAL;
+				++gids;
+				if (gid == 0)
+					continue;
+				--gid;
+				src = (SDL_Rect) {
+					.x = (gid * GPROJ_TILE_WIDTH) % GPROJ_TILESET_WIDTH,
+					.y = (gid / (GPROJ_TILESET_WIDTH / GPROJ_TILE_WIDTH)) * GPROJ_TILE_WIDTH,
+					.w = GPROJ_TILE_WIDTH,
+					.h = GPROJ_TILE_HEIGHT
+				};
+				dst = (SDL_Rect) {
+					.x = x * GPROJ_TILE_WIDTH,
+					.y = y * GPROJ_TILE_HEIGHT,
+					.w = GPROJ_TILE_WIDTH,
+					.h = GPROJ_TILE_HEIGHT
+				};
+				SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &src, &dst);
+			}
+		}
+	}
+
+	SDL_SetRenderTarget(sdl_rend, NULL);
 }
 
 void render_sprs(const struct sprite* const sprs, const int count)
@@ -61,5 +90,6 @@ void render_sprs(const struct sprite* const sprs, const int count)
 void render_present(void)
 {
 	SDL_RenderCopy(sdl_rend, sdl_tex_bkg, NULL, NULL);
+	SDL_RenderCopy(sdl_rend, sdl_tex_fg, NULL, NULL);
 	SDL_RenderPresent(sdl_rend);
 }

@@ -12,6 +12,7 @@ input_button_t input_buttons_states;
 int gproj(void)
 {
 
+	map_load("../assets/test.tmx");
 	while (events_update()) {
 		/*
 		if (input_buttons_states&INPUT_BUTTON_UP) {
