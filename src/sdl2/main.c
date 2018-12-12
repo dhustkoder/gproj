@@ -168,21 +168,21 @@ int main(int argc, char** argv)
 	while (layp != NULL) {
 		for (int i = 0; i < GPROJ_Y_TILES; ++i) {
 			for (int j = 0; j < GPROJ_X_TILES; ++j) {
-				int32_t gid = (layp->content.gids[i * 32 + j] & TMX_FLIP_BITS_REMOVAL);
+				int32_t gid = (layp->content.gids[i * GPROJ_TILE_WIDTH + j] & TMX_FLIP_BITS_REMOVAL);
 				if (gid == 0)
 					continue;
 				--gid;
 				src = (SDL_Rect) {
-					.x = (gid * 32) % GPROJ_TILESET_WIDTH,
-					.y = (gid / (GPROJ_TILESET_WIDTH / 32)) * 32,
-					.w = 32,
-					.h = 32
+					.x = (gid * GPROJ_TILE_WIDTH) % GPROJ_TILESET_WIDTH,
+					.y = (gid / (GPROJ_TILESET_WIDTH / GPROJ_TILE_WIDTH)) * GPROJ_TILE_WIDTH,
+					.w = GPROJ_TILE_WIDTH,
+					.h = GPROJ_TILE_HEIGHT
 				};
 				dst = (SDL_Rect) {
-					.x = j * 32,
-					.y = i * 32,
-					.w = 32,
-					.h = 32
+					.x = j * GPROJ_TILE_WIDTH,
+					.y = i * GPROJ_TILE_HEIGHT,
+					.w = GPROJ_TILE_WIDTH,
+					.h = GPROJ_TILE_HEIGHT
 				};
 				SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &src, &dst);
 			}
