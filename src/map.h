@@ -4,6 +4,6 @@
 
 
 extern void map_load(const char* path);
-
+extern void map_update(void);
 
 #endif

@@ -15,6 +15,9 @@ int gproj(void)
 
 	while (events_update()) {
 		render_clear(RENDER_CLEAR_FG);
+		
+		map_update();
+		
 		render_present();
 	}
 
