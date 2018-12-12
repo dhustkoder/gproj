@@ -6,24 +6,22 @@
 
 // 2 layers
 static int32_t map_gids[2][GPROJ_Y_TILES][GPROJ_X_TILES];
-
-
-static struct {
-	const char* buf;
-	struct vec2i player_init_pos;
-} map_info;
+static tmx_map* tmxmap = NULL;
 
 
 void map_load(const char* path)
 {
-	tmx_map* map = tmx_load(path);
+	if (tmxmap != NULL)
+		tmx_map_free(tmxmap);
 
-	if (map == NULL) {
+	tmxmap = tmx_load(path);
+
+	if (tmxmap == NULL) {
 		LOG_ERR("Couldn't load map: %s", tmx_strerr());
 		return;
 	}
 
-	tmx_layer* layp = map->ly_head;
+	const tmx_layer* layp = tmxmap->ly_head;
 	int layer_idx = 0;
 
 	while (layp != NULL) {
@@ -36,13 +34,7 @@ void map_load(const char* path)
 		layp = layp->next;
 	}
 
-	tmx_map_free(map);
-
 	render_bkg((int32_t*)map_gids);
 }
 
-struct vec2i map_get_player_init_pos(void)
-{
-	return map_info.player_init_pos;
-}
 

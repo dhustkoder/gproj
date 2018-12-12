@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <tmx.h>
 #include "log.h"
 #include "render.h"
 #include "types.h"
@@ -87,6 +86,9 @@ static bool platform_init(bool vsync)
 	SDL_SetTextureBlendMode(sdl_tex_fg, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(sdl_tex_tileset, SDL_BLENDMODE_BLEND);
 
+	render_clear(RENDER_CLEAR_BKG|RENDER_CLEAR_FG);
+	render_present();
+
 	return true;
 }
 
@@ -148,7 +150,6 @@ int main(int argc, char** argv)
 
 	if (!platform_init(argc > 1))
 		return EXIT_FAILURE;
-
 
 	return gproj();
 }
