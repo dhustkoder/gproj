@@ -64,7 +64,7 @@ void map_update(void)
 	bool need_render = false;
 	Uint32 clk = SDL_GetTicks();
 	for (int i = 0; i < animated_tiles_cnt; ++i) {
-		struct animated_tile* at = &animated_tiles[i];
+		struct animated_tile* const at = &animated_tiles[i];
 		if ((clk - at->frame_clk) >= at->tmx_tile->animation[at->current_frame_idx].duration) {
 			at->frame_clk = clk;
 			at->current_frame_idx = (at->current_frame_idx + 1) % at->tmx_tile->animation_len;
