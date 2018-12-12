@@ -44,10 +44,10 @@ static input_button_t game_buttons[] = {
 
 static bool platform_init(bool vsync)
 {
-	LOG_DEBUG("Initializing Platfrom\n");
+	LOG_DEBUG("Initializing Platfrom");
 	
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_JOYSTICK|SDL_INIT_TIMER) != 0) {
-		LOG_ERR("Couldn't initialize SDL2: %s\n", SDL_GetError());
+		LOG_ERR("Couldn't initialize SDL2: %s", SDL_GetError());
 		return false;
 	}
 
@@ -61,14 +61,13 @@ static bool platform_init(bool vsync)
 		return false;
 
 	sdl_rend = SDL_CreateRenderer(win, -1,
-	                             SDL_RENDERER_ACCELERATED|
 	                             (vsync ? SDL_RENDERER_PRESENTVSYNC : 0));
 	if (sdl_rend == NULL)
 		return false;
 
 	sdl_tex_bkg = SDL_CreateTexture(sdl_rend,
 	                        SDL_PIXELFORMAT_RGB888,
-	                        SDL_TEXTUREACCESS_STATIC,
+	                        SDL_TEXTUREACCESS_TARGET,
 	                        GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT);
 	if (sdl_tex_bkg == NULL)
 		return false;
@@ -85,6 +84,7 @@ static bool platform_init(bool vsync)
 		return false;
 
 
+	SDL_SetTextureBlendMode(sdl_tex_fg, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(sdl_tex_tileset, SDL_BLENDMODE_BLEND);
 
 	return true;
@@ -92,7 +92,7 @@ static bool platform_init(bool vsync)
 
 static void platform_term(void)
 {
-	LOG_DEBUG("Terminating Platform\n");
+	LOG_DEBUG("Terminating Platform");
 
 	if (sdl_tex_tileset != NULL)
 		SDL_DestroyTexture(sdl_tex_tileset);
@@ -139,7 +139,6 @@ bool events_update(void)
 }
 
 
-
 int main(int argc, char** argv)
 {
 	((void)argv);
@@ -149,6 +148,50 @@ int main(int argc, char** argv)
 
 	if (!platform_init(argc > 1))
 		return EXIT_FAILURE;
+
+
+	tmx_map* map = tmx_load("../assets/test.tmx");
+
+	if (map == NULL) {
+		LOG_ERR("Couldn't load map: %s", tmx_strerr());
+		return EXIT_FAILURE;
+	}
+
+	tmx_layer* layp = map->ly_head;
+
+	render_clear(RENDER_CLEAR_BKG|RENDER_CLEAR_FG);
+
+	SDL_SetRenderTarget(sdl_rend, sdl_tex_bkg);
+	
+	SDL_Rect src, dst;
+
+	while (layp != NULL) {
+		for (int i = 0; i < 32; ++i) {
+			for (int j = 0; j < 32; ++j) {
+				const int32_t gid = (layp->content.gids[i * 32 + j] & TMX_FLIP_BITS_REMOVAL) - 1;
+				src = (SDL_Rect) {
+					.x = (gid * 32) % GPROJ_TILESET_WIDTH,
+					.y = (gid / (GPROJ_TILESET_WIDTH / 32)) * 32,
+					.w = 32,
+					.h = 32
+				};
+				dst = (SDL_Rect) {
+					.x = j * 32,
+					.y = i * 32,
+					.w = 32,
+					.h = 32
+				};
+				SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &src, &dst);
+			}
+		}
+		layp = layp->next;
+	}
+
+	SDL_SetRenderTarget(sdl_rend, NULL);
+
+
+	tmx_map_free(map);
+
 
 	return gproj();
 }

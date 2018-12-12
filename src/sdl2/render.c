@@ -61,6 +61,5 @@ void render_sprs(const struct sprite* const sprs, const int count)
 void render_present(void)
 {
 	SDL_RenderCopy(sdl_rend, sdl_tex_bkg, NULL, NULL);
-	SDL_RenderCopy(sdl_rend, sdl_tex_fg, NULL, NULL);
 	SDL_RenderPresent(sdl_rend);
 }

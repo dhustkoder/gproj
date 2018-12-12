@@ -11,7 +11,6 @@ input_button_t input_buttons_states;
 
 int gproj(void)
 {
-	render_clear(RENDER_CLEAR_BKG|RENDER_CLEAR_FG);
 
 	while (events_update()) {
 		/*
