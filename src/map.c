@@ -6,22 +6,22 @@
 
 // 2 layers
 static int32_t map_gids[2][GPROJ_Y_TILES][GPROJ_X_TILES];
-static tmx_map* tmxmap = NULL;
+static tmx_map* map = NULL;
 
 
 void map_load(const char* path)
 {
-	if (tmxmap != NULL)
-		tmx_map_free(tmxmap);
+	if (map != NULL)
+		tmx_map_free(map);
 
-	tmxmap = tmx_load(path);
+	map = tmx_load(path);
 
-	if (tmxmap == NULL) {
+	if (map == NULL) {
 		LOG_ERR("Couldn't load map: %s", tmx_strerr());
 		return;
 	}
 
-	const tmx_layer* layp = tmxmap->ly_head;
+	const tmx_layer* layp = map->ly_head;
 	int layer_idx = 0;
 
 	while (layp != NULL) {

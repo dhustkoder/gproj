@@ -19,8 +19,8 @@
 #define GPROJ_TILESET_HEIGHT (5088)
 
 
-#define RENDER_CLEAR_BKG  (0x01)
-#define RENDER_CLEAR_FG   (0x02)
+#define RENDER_CLEAR_BKG     (0x01)
+#define RENDER_CLEAR_FG      (0x02)
 
 extern void render_clear(uint8_t flags);
 extern void render_bkg(const int32_t* gids);
