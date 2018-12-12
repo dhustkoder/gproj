@@ -10,12 +10,13 @@ CFLAGS_RELEASE=-Werror -O3 -march=native -ffast-math -fstrict-aliasing \
 
 CFLAGS_PERF=-g -O3 -fno-omit-frame-pointer
 
-LDFLAGS=-Lexternals/tmx/build $(shell sdl2-config --libs) -lSDL2_image -ltmx -lxml2 -lz
+EXTERNALS_LIBS=externals/tmx/build/libtmx.a
+LD_INCLUDES=-Lexternals/tmx/build
+LDFLAGS=$(LD_INCLUDES) $(shell sdl2-config --libs) -lSDL2_image -ltmx -lxml2 -lz
 LDFLAGS_DEBUG=-g
 LDFLAGS_RELEASE=
 LDFLAGS_PERF=-g
 
-EXTERNALS_LIBS=externals/tmx/build/libtmx.a
 
 BUILD_DIR=./build
 OBJS_DIR=./objs
