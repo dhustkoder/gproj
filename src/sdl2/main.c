@@ -166,8 +166,8 @@ int main(int argc, char** argv)
 	SDL_Rect src, dst;
 
 	while (layp != NULL) {
-		for (int i = 0; i < 32; ++i) {
-			for (int j = 0; j < 32; ++j) {
+		for (int i = 0; i < GPROJ_Y_TILES; ++i) {
+			for (int j = 0; j < GPROJ_X_TILES; ++j) {
 				int32_t gid = (layp->content.gids[i * 32 + j] & TMX_FLIP_BITS_REMOVAL);
 				if (gid == 0)
 					continue;
