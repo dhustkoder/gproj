@@ -168,7 +168,10 @@ int main(int argc, char** argv)
 	while (layp != NULL) {
 		for (int i = 0; i < 32; ++i) {
 			for (int j = 0; j < 32; ++j) {
-				const int32_t gid = (layp->content.gids[i * 32 + j] & TMX_FLIP_BITS_REMOVAL) - 1;
+				int32_t gid = (layp->content.gids[i * 32 + j] & TMX_FLIP_BITS_REMOVAL);
+				if (gid == 0)
+					continue;
+				--gid;
 				src = (SDL_Rect) {
 					.x = (gid * 32) % GPROJ_TILESET_WIDTH,
 					.y = (gid / (GPROJ_TILESET_WIDTH / 32)) * 32,
