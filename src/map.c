@@ -14,9 +14,9 @@ static struct {
 } map_info;
 
 
-void map_load(const char* name)
+void map_load(const char* path)
 {
-	tmx_map* map = tmx_load(name);
+	tmx_map* map = tmx_load(path);
 
 	if (map == NULL) {
 		LOG_ERR("Couldn't load map: %s", tmx_strerr());
@@ -38,7 +38,7 @@ void map_load(const char* name)
 
 	tmx_map_free(map);
 
-	render_bkg(map_gids);
+	render_bkg((int32_t*)map_gids);
 }
 
 struct vec2i map_get_player_init_pos(void)

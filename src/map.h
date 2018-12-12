@@ -3,7 +3,7 @@
 #include "types.h"
 
 
-extern void map_load(const char* data);
+extern void map_load(const char* path);
 extern struct vec2i map_get_player_init_pos(void);
 
 #endif

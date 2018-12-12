@@ -13,6 +13,8 @@ int gproj(void)
 {
 
 	map_load("../assets/test.tmx");
+
+
 	while (events_update()) {
 		/*
 		if (input_buttons_states&INPUT_BUTTON_UP) {
@@ -45,6 +47,7 @@ int gproj(void)
 			player_spr.scr.pos.x += 3;
 		}
 		*/
+		
 		render_clear(RENDER_CLEAR_FG);
 		render_present();
 	}
