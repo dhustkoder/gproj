@@ -31,9 +31,9 @@ void map_load(const char* path)
 	while (layp != NULL) {
 		for (int y = 0; y < GPROJ_Y_TILES; ++y) {
 			for (int x = 0; x < GPROJ_X_TILES; ++x) {
-				const int32_t gid = layp->content.gids[y * 32 + x];
+				const int32_t gid = layp->content.gids[y * 32 + x] & TMX_FLIP_BITS_REMOVAL;
 				bkg_layers_ids[layer_idx][y][x] = gid - 1;
-				if (map->tiles[gid] != NULL && map->tiles[gid]->animation != NULL) {
+				if (map->tiles != NULL && map->tiles[gid] != NULL && map->tiles[gid]->animation != NULL) {
 					animated_tiles[animated_tiles_cnt++] = (struct animated_tile) {
 						.tmx_tile = map->tiles[gid],
 						.ids_buff_ptr = &bkg_layers_ids[layer_idx][y][x],
