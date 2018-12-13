@@ -24,7 +24,7 @@
             "objs/sdl2/render.o",
             "src/sdl2/render.c"
         ],
-        "directory": "/home/rsxglobal/gproj",
+        "directory": "/Users/rsxglobal/Documents/myprojs/gproj",
         "file": "src/sdl2/render.c"
     },
     {
@@ -52,7 +52,7 @@
             "objs/sdl2/main.o",
             "src/sdl2/main.c"
         ],
-        "directory": "/home/rsxglobal/gproj",
+        "directory": "/Users/rsxglobal/Documents/myprojs/gproj",
         "file": "src/sdl2/main.c"
     },
     {
@@ -80,7 +80,7 @@
             "objs/gproj.o",
             "src/gproj.c"
         ],
-        "directory": "/home/rsxglobal/gproj",
+        "directory": "/Users/rsxglobal/Documents/myprojs/gproj",
         "file": "src/gproj.c"
     },
     {
@@ -108,7 +108,7 @@
             "objs/map.o",
             "src/map.c"
         ],
-        "directory": "/home/rsxglobal/gproj",
+        "directory": "/Users/rsxglobal/Documents/myprojs/gproj",
         "file": "src/map.c"
     }
 ]

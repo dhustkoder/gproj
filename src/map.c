@@ -5,7 +5,7 @@
 #include "map.h"
 
 // 2 layers
-static int32_t map_gids[2][GPROJ_Y_TILES][GPROJ_X_TILES];
+static int32_t bkg_layers_ids[2][GPROJ_Y_TILES][GPROJ_X_TILES];
 static struct animated_tile animated_tiles[16];
 static int animated_tiles_cnt = 0;
 static tmx_map* map = NULL;
@@ -32,11 +32,11 @@ void map_load(const char* path)
 		for (int y = 0; y < GPROJ_Y_TILES; ++y) {
 			for (int x = 0; x < GPROJ_X_TILES; ++x) {
 				const int32_t gid = layp->content.gids[y * 32 + x];
-				map_gids[layer_idx][y][x] = gid;
+				bkg_layers_ids[layer_idx][y][x] = gid - 1;
 				if (map->tiles[gid] != NULL && map->tiles[gid]->animation != NULL) {
 					animated_tiles[animated_tiles_cnt++] = (struct animated_tile) {
 						.tmx_tile = map->tiles[gid],
-						.map_gids_ptr = &map_gids[layer_idx][y][x],
+						.map_gids_ptr = &bkg_layers_ids[layer_idx][y][x],
 						.current_frame_idx = 0,
 						.frame_clk = 0
 					};
@@ -47,25 +47,38 @@ void map_load(const char* path)
 		layp = layp->next;
 	}
 
-	render_bkg((int32_t*)map_gids);
+	render_bkg_tiles((int32_t*)bkg_layers_ids);
 }
 
 
 void map_update(void)
 {
-	bool need_render = false;
+	int update_len = 0;
+	int32_t* ids_to_update[32];
+
 	uint32_t clk = timer_now();
 	for (int i = 0; i < animated_tiles_cnt; ++i) {
 		struct animated_tile* const at = &animated_tiles[i];
 		if ((clk - at->frame_clk) >= at->tmx_tile->animation[at->current_frame_idx].duration) {
 			at->frame_clk = clk;
 			at->current_frame_idx = (at->current_frame_idx + 1) % at->tmx_tile->animation_len;
-			*at->map_gids_ptr = at->tmx_tile->animation[at->current_frame_idx].tile_id + 1;
-			need_render = true;
+			*at->map_gids_ptr = at->tmx_tile->animation[at->current_frame_idx].tile_id;
+			if ((at->map_gids_ptr - (int32_t*)bkg_layers_ids) >= (GPROJ_X_TILES * GPROJ_Y_TILES)) {
+				ids_to_update[update_len++] = at->map_gids_ptr - (GPROJ_X_TILES * GPROJ_Y_TILES);
+				ids_to_update[update_len++] = at->map_gids_ptr;
+			} else {
+				ids_to_update[update_len++] = at->map_gids_ptr;
+				ids_to_update[update_len++] = at->map_gids_ptr + (GPROJ_X_TILES * GPROJ_Y_TILES);
+			}
+			
 		}
 	}
 
-	if (need_render)
-		render_bkg((int32_t*)map_gids);
+	if (update_len > 0) {
+		render_update_bkg_tiles((int32_t*)bkg_layers_ids,
+		                        (const int32_t**)ids_to_update,
+		                        update_len);
+	}
+
 }
 

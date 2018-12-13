@@ -14,8 +14,10 @@ int gproj(void)
 {
 	map_load("../assets/test.tmx");
 
+	uint32_t clk = timer_now();
+	int fps = 0;
+
 	while (events_update()) {
-		uint32_t clk = timer_now();
 
 		render_clear(RENDER_CLEAR_FG);
 		
@@ -23,7 +25,14 @@ int gproj(void)
 		
 		render_present();
 
-		LOG("Frames Per Second: %u", (timer_now() - clk));
+		++fps;
+
+		if ((timer_now() - clk) >= 1000) {
+			LOG("FPS: %d", fps);
+			fps = 0;
+			clk = timer_now();
+		}
+
 	}
 
 	return 0;
