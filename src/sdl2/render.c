@@ -12,6 +12,35 @@ extern SDL_Texture* sdl_tex_fg;
 extern SDL_Texture* sdl_tex_tileset;
 
 
+static void draw_flipped_gid(const int32_t gid,
+                             const SDL_Rect* const src,
+                             const SDL_Rect* const dst)
+{
+	SDL_RendererFlip flips = SDL_FLIP_NONE;
+	double degrees = 0;
+
+	if (gid&TMX_FLIPPED_DIAGONALLY) {
+		degrees = 90;
+		flips |= SDL_FLIP_VERTICAL;
+		if (gid&TMX_FLIPPED_VERTICALLY)
+			flips |= SDL_FLIP_HORIZONTAL;
+		if (gid&TMX_FLIPPED_HORIZONTALLY)
+			flips &= ~SDL_FLIP_VERTICAL;
+	} else {
+		if (gid&TMX_FLIPPED_VERTICALLY)
+			flips |= SDL_FLIP_VERTICAL;
+
+		if (gid&TMX_FLIPPED_HORIZONTALLY)
+			flips |= SDL_FLIP_HORIZONTAL;
+	}
+
+	SDL_RenderCopyEx(sdl_rend,
+	                 sdl_tex_tileset,
+	                 src, dst, degrees,
+	                 NULL, flips);	
+}
+
+
 void render_clear(const uint8_t flags)
 {
 	if (flags&RENDER_CLEAR_BKG) {
@@ -28,6 +57,7 @@ void render_clear(const uint8_t flags)
 
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }
+
 
 void render_bkg_tiles(const int32_t* gids)
 {
@@ -56,32 +86,10 @@ void render_bkg_tiles(const int32_t* gids)
 					.h = GPROJ_TILE_HEIGHT
 				};
 
-				if ((gid&(~TMX_FLIP_BITS_REMOVAL)) == 0x00) {
+				if ((gid&(~TMX_FLIP_BITS_REMOVAL)) == 0x00)
 					SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &src, &dst);
-				} else {
-					SDL_RendererFlip flips = SDL_FLIP_NONE;
-					double degrees = 0;
-
-					if (gid&TMX_FLIPPED_DIAGONALLY) {
-						degrees = 90;
-						flips |= SDL_FLIP_VERTICAL;
-						if (gid&TMX_FLIPPED_VERTICALLY)
-							flips |= SDL_FLIP_HORIZONTAL;
-						if (gid&TMX_FLIPPED_HORIZONTALLY)
-							flips &= ~SDL_FLIP_VERTICAL;
-					} else {
-						if (gid&TMX_FLIPPED_VERTICALLY)
-							flips |= SDL_FLIP_VERTICAL;
-
-						if (gid&TMX_FLIPPED_HORIZONTALLY)
-							flips |= SDL_FLIP_HORIZONTAL;
-					}
-
-					SDL_RenderCopyEx(sdl_rend,
-					                 sdl_tex_tileset,
-					                 &src, &dst, degrees,
-					                 NULL, flips);
-				}
+				else
+					draw_flipped_gid(gid, &src, &dst);
 			}
 		}
 	}
@@ -124,32 +132,10 @@ void render_update_bkg_tiles(const int32_t* const gids,
 			.h = 32
 		};
 
-		if ((gid&(~TMX_FLIP_BITS_REMOVAL)) == 0x00) {
+		if ((gid&(~TMX_FLIP_BITS_REMOVAL)) == 0x00)
 			SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &src, &dst);
-		} else {
-			SDL_RendererFlip flips = SDL_FLIP_NONE;
-			double degrees = 0;
-
-			if (gid&TMX_FLIPPED_DIAGONALLY) {
-				degrees = 90;
-				flips |= SDL_FLIP_VERTICAL;
-				if (gid&TMX_FLIPPED_VERTICALLY)
-					flips |= SDL_FLIP_HORIZONTAL;
-				if (gid&TMX_FLIPPED_HORIZONTALLY)
-					flips &= ~SDL_FLIP_VERTICAL;
-			} else {
-				if (gid&TMX_FLIPPED_VERTICALLY)
-					flips |= SDL_FLIP_VERTICAL;
-
-				if (gid&TMX_FLIPPED_HORIZONTALLY)
-					flips |= SDL_FLIP_HORIZONTAL;
-			}
-
-			SDL_RenderCopyEx(sdl_rend,
-			                 sdl_tex_tileset,
-			                 &src, &dst, degrees,
-			                 NULL, flips);
-		}
+		else
+			draw_flipped_gid(gid, &src, &dst);
 	}
 
 	SDL_SetRenderTarget(sdl_rend, NULL);
