@@ -78,8 +78,10 @@ static bool platform_init(bool vsync)
 		return false;
 
 	sdl_tex_tileset = IMG_LoadTexture(sdl_rend, "../assets/tileset.png");
-	if (sdl_tex_tileset == NULL)
+	if (sdl_tex_tileset == NULL) {
+		LOG_ERR("Couldn't load assets: %s", IMG_GetError());
 		return false;
+	}
 
 	SDL_SetTextureBlendMode(sdl_tex_fg, SDL_BLENDMODE_BLEND);
 
