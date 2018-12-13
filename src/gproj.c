@@ -3,6 +3,7 @@
 #include "events.h"
 #include "render.h"
 #include "map.h"
+#include "timer.h"
 #include "gproj.h"
 
 
@@ -13,9 +14,8 @@ int gproj(void)
 {
 	map_load("../assets/test.tmx");
 
-
 	while (events_update()) {
-		Uint32 clk = SDL_GetTicks();
+		uint32_t clk = timer_now();
 
 		render_clear(RENDER_CLEAR_FG);
 		
@@ -23,7 +23,7 @@ int gproj(void)
 		
 		render_present();
 
-		LOG("Frames Per Second: %u", (SDL_GetTicks() - clk));
+		LOG("Frames Per Second: %u", (timer_now() - clk));
 	}
 
 	return 0;

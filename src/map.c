@@ -6,16 +6,8 @@
 
 // 2 layers
 static int32_t map_gids[2][GPROJ_Y_TILES][GPROJ_X_TILES];
-
-static struct animated_tile {
-	const tmx_tile* tmx_tile;
-	int32_t* map_gids_ptr;
-	unsigned int current_frame_idx;
-	Uint32 frame_clk;
-} animated_tiles[16];
-
+static struct animated_tile animated_tiles[16];
 static int animated_tiles_cnt = 0;
-
 static tmx_map* map = NULL;
 
 
@@ -62,7 +54,7 @@ void map_load(const char* path)
 void map_update(void)
 {
 	bool need_render = false;
-	Uint32 clk = SDL_GetTicks();
+	uint32_t clk = timer_now();
 	for (int i = 0; i < animated_tiles_cnt; ++i) {
 		struct animated_tile* const at = &animated_tiles[i];
 		if ((clk - at->frame_clk) >= at->tmx_tile->animation[at->current_frame_idx].duration) {

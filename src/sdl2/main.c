@@ -12,13 +12,13 @@
 
 extern input_button_t input_buttons_states;
 
+SDL_Renderer* sdl_rend = NULL;
+SDL_Texture* sdl_tex_bkg = NULL;
+SDL_Texture* sdl_tex_fg = NULL;
+SDL_Texture* sdl_tex_tileset = NULL;
 
-SDL_Renderer* sdl_rend;
-SDL_Texture* sdl_tex_bkg;
-SDL_Texture* sdl_tex_fg;
-SDL_Texture* sdl_tex_tileset;
 
-static SDL_Window* win;
+static SDL_Window* win = NULL;
 
 static SDL_Scancode sdl_keys[] = {
 	SDL_SCANCODE_W,
