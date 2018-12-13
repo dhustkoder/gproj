@@ -16,7 +16,6 @@ SDL_Renderer* sdl_rend = NULL;
 SDL_Texture* sdl_tex_bkg = NULL;
 SDL_Texture* sdl_tex_fg = NULL;
 SDL_Texture* sdl_tex_tileset = NULL;
-SDL_Texture* sdl_tex_aux = NULL;
 
 static SDL_Window* win = NULL;
 
@@ -82,15 +81,7 @@ static bool platform_init(bool vsync)
 	if (sdl_tex_tileset == NULL)
 		return false;
 
-	sdl_tex_aux = SDL_CreateTexture(sdl_rend,
-	                                SDL_PIXELFORMAT_RGB888,
-	                                SDL_TEXTUREACCESS_TARGET,
-	                                GPROJ_TILE_WIDTH, GPROJ_TILE_HEIGHT);
-	if (sdl_tex_aux == NULL)
-		return false;
-
 	SDL_SetTextureBlendMode(sdl_tex_fg, SDL_BLENDMODE_BLEND);
-	SDL_SetTextureBlendMode(sdl_tex_aux, SDL_BLENDMODE_BLEND);
 
 	render_clear(RENDER_CLEAR_BKG|RENDER_CLEAR_FG);
 	render_present();
@@ -102,8 +93,6 @@ static void platform_term(void)
 {
 	LOG_DEBUG("Terminating Platform");
 
-	if (sdl_tex_aux != NULL)
-		SDL_DestroyTexture(sdl_tex_aux);
 	if (sdl_tex_tileset != NULL)
 		SDL_DestroyTexture(sdl_tex_tileset);
 	if (sdl_tex_fg != NULL)
