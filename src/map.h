@@ -7,7 +7,7 @@
 
 struct animated_tile {
 	const tmx_tile* tmx_tile;
-	int32_t* ids_buff_ptr;
+	int32_t* gid_ptr;
 	unsigned int current_frame_idx;
 	uint32_t frame_clk;
 };

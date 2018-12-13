@@ -2,6 +2,7 @@
 #include <string.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <tmx.h>
 #include "render.h"
 #include "log.h"
 
@@ -28,7 +29,7 @@ void render_clear(const uint8_t flags)
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }
 
-void render_bkg_tiles(const int32_t* tile_ids)
+void render_bkg_tiles(const int32_t* gids)
 {
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_bkg);
 
@@ -36,9 +37,10 @@ void render_bkg_tiles(const int32_t* tile_ids)
 	for (int l = 0; l < 2; ++l) {
 		for (int y = 0; y < GPROJ_Y_TILES; ++y) {
 			for (int x = 0; x < GPROJ_X_TILES; ++x) {
-				const int32_t id = *tile_ids++;
-				if (id < 0)
+				const int32_t gid = *gids++;
+				if (gid == 0)
 					continue;
+				const int32_t id = (gid&TMX_FLIP_BITS_REMOVAL) - 1;
 
 				src = (SDL_Rect) {
 					.x = (id * GPROJ_TILE_WIDTH) % GPROJ_TILESET_WIDTH,
@@ -54,7 +56,30 @@ void render_bkg_tiles(const int32_t* tile_ids)
 					.h = GPROJ_TILE_HEIGHT
 				};
 
-				SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &src, &dst);
+				if ((gid&(~TMX_FLIP_BITS_REMOVAL)) == 0x00) {
+					SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &src, &dst);
+				} else {
+					SDL_RendererFlip flips = SDL_FLIP_NONE;
+					double degrees = 0;
+					
+					if (gid&TMX_FLIPPED_DIAGONALLY) {
+						if (gid&TMX_FLIPPED_HORIZONTALLY)
+							degrees = -90;
+						else
+							degrees = 90;
+						flips = SDL_FLIP_HORIZONTAL|SDL_FLIP_VERTICAL;
+					} else {
+						if (gid&TMX_FLIPPED_VERTICALLY)
+							flips |= SDL_FLIP_VERTICAL;
+						if (gid&TMX_FLIPPED_HORIZONTALLY)
+							flips |= SDL_FLIP_HORIZONTAL;
+					}
+					
+					SDL_RenderCopyEx(sdl_rend,
+					                 sdl_tex_tileset,
+					                 &src, &dst, degrees,
+					                 NULL, flips);
+				}
 			}
 		}
 	}
@@ -62,27 +87,30 @@ void render_bkg_tiles(const int32_t* tile_ids)
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }
 
-void render_update_bkg_tiles(const int32_t* const tile_ids,
-                             const int32_t** const ids_to_update,
+void render_update_bkg_tiles(const int32_t* const gids,
+                             const int32_t** const gids_to_update,
                              const int update_len)
 {
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_bkg);
 
 	SDL_Rect src, dst;
 	for (int i = 0; i < update_len; ++i) {
-		const int32_t* const idptr = ids_to_update[i];
+		const int32_t* const gid_ptr = gids_to_update[i];
+		const int32_t gid = *gid_ptr;
 
-		if (*idptr < 0)
+		if (gid == 0)
 			continue;
 
+		const int id = (gid&TMX_FLIP_BITS_REMOVAL) - 1;
+
 		src = (SDL_Rect) {
-			.x = (*idptr * GPROJ_TILE_WIDTH) % GPROJ_TILESET_WIDTH,
-			.y = (*idptr / (GPROJ_TILESET_WIDTH / GPROJ_TILE_WIDTH)) * GPROJ_TILE_WIDTH,
+			.x = (id * GPROJ_TILE_WIDTH) % GPROJ_TILESET_WIDTH,
+			.y = (id / (GPROJ_TILESET_WIDTH / GPROJ_TILE_WIDTH)) * GPROJ_TILE_WIDTH,
 			.w = 32,
 			.h = 32
 		};
 
-		int diff = idptr - tile_ids;
+		int diff = gid_ptr - gids;
 		
 		if (diff >= (GPROJ_X_TILES * GPROJ_Y_TILES))
 			diff -= (GPROJ_X_TILES * GPROJ_Y_TILES);
@@ -94,7 +122,30 @@ void render_update_bkg_tiles(const int32_t* const tile_ids,
 			.h = 32
 		};
 
-		SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &src, &dst);
+		if ((gid&(~TMX_FLIP_BITS_REMOVAL)) == 0x00) {
+			SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &src, &dst);
+		} else {
+			SDL_RendererFlip flips = SDL_FLIP_NONE;
+			double degrees = 0;
+			
+			if (gid&TMX_FLIPPED_DIAGONALLY) {
+				if (gid&TMX_FLIPPED_HORIZONTALLY)
+					degrees = -90;
+				else
+					degrees = 90;
+				flips = SDL_FLIP_HORIZONTAL|SDL_FLIP_VERTICAL;
+			} else {
+				if (gid&TMX_FLIPPED_VERTICALLY)
+					flips |= SDL_FLIP_VERTICAL;
+				if (gid&TMX_FLIPPED_HORIZONTALLY)
+					flips |= SDL_FLIP_HORIZONTAL;
+			}
+			
+			SDL_RenderCopyEx(sdl_rend,
+			                 sdl_tex_tileset,
+			                 &src, &dst, degrees,
+			                 NULL, flips);
+		}
 	}
 
 	SDL_SetRenderTarget(sdl_rend, NULL);
