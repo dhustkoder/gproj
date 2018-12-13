@@ -25,10 +25,10 @@
 
 extern void render_clear(uint8_t flags);
 
-extern void render_bkg_tiles(const int32_t* tile_ids);
+extern void render_bkg_tiles(const int32_t* gids);
 
-void render_update_bkg_tiles(const int32_t* tile_ids,
-                             const int32_t** ids_to_update,
+void render_update_bkg_tiles(const int32_t* gids,
+                             const int32_t** gids_to_update,
                              int update_len);
 
 extern void render_actors(const struct actor* actors, int count);
