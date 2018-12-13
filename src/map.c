@@ -36,7 +36,7 @@ void map_load(const char* path)
 				if (map->tiles[gid] != NULL && map->tiles[gid]->animation != NULL) {
 					animated_tiles[animated_tiles_cnt++] = (struct animated_tile) {
 						.tmx_tile = map->tiles[gid],
-						.map_gids_ptr = &bkg_layers_ids[layer_idx][y][x],
+						.ids_buff_ptr = &bkg_layers_ids[layer_idx][y][x],
 						.current_frame_idx = 0,
 						.frame_clk = 0
 					};
@@ -56,21 +56,23 @@ void map_update(void)
 	int update_len = 0;
 	int32_t* ids_to_update[32];
 
+	const int32_t* const frst_layer = &bkg_layers_ids[0][0][0];
+	const int32_t* const scnd_layer = &bkg_layers_ids[1][0][0];
+
 	uint32_t clk = timer_now();
 	for (int i = 0; i < animated_tiles_cnt; ++i) {
 		struct animated_tile* const at = &animated_tiles[i];
 		if ((clk - at->frame_clk) >= at->tmx_tile->animation[at->current_frame_idx].duration) {
 			at->frame_clk = clk;
 			at->current_frame_idx = (at->current_frame_idx + 1) % at->tmx_tile->animation_len;
-			*at->map_gids_ptr = at->tmx_tile->animation[at->current_frame_idx].tile_id;
-			if ((at->map_gids_ptr - (int32_t*)bkg_layers_ids) >= (GPROJ_X_TILES * GPROJ_Y_TILES)) {
-				ids_to_update[update_len++] = at->map_gids_ptr - (GPROJ_X_TILES * GPROJ_Y_TILES);
-				ids_to_update[update_len++] = at->map_gids_ptr;
+			*at->ids_buff_ptr = at->tmx_tile->animation[at->current_frame_idx].tile_id;
+			if (at->ids_buff_ptr >= scnd_layer) {
+				ids_to_update[update_len++] = at->ids_buff_ptr - (scnd_layer - frst_layer);
+				ids_to_update[update_len++] = at->ids_buff_ptr;
 			} else {
-				ids_to_update[update_len++] = at->map_gids_ptr;
-				ids_to_update[update_len++] = at->map_gids_ptr + (GPROJ_X_TILES * GPROJ_Y_TILES);
+				ids_to_update[update_len++] = at->ids_buff_ptr;
+				ids_to_update[update_len++] = at->ids_buff_ptr + (scnd_layer - frst_layer);
 			}
-			
 		}
 	}
 

@@ -59,7 +59,7 @@ static bool platform_init(bool vsync)
 	if (win == NULL)
 		return false;
 
-	sdl_rend = SDL_CreateRenderer(win, -1,
+	sdl_rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED|
 	                             (vsync ? SDL_RENDERER_PRESENTVSYNC : 0));
 	if (sdl_rend == NULL)
 		return false;
