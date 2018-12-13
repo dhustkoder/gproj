@@ -84,7 +84,6 @@ static bool platform_init(bool vsync)
 
 
 	SDL_SetTextureBlendMode(sdl_tex_fg, SDL_BLENDMODE_BLEND);
-	SDL_SetTextureBlendMode(sdl_tex_tileset, SDL_BLENDMODE_BLEND);
 
 	render_clear(RENDER_CLEAR_BKG|RENDER_CLEAR_FG);
 	render_present();

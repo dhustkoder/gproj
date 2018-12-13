@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <SDL2/SDL.h>
 #include "types.h"
+#include "actors.h"
 
 
 #define GPROJ_X_TILES        (24)
@@ -21,14 +22,16 @@
 #define RENDER_CLEAR_BKG     (0x01)
 #define RENDER_CLEAR_FG      (0x02)
 
+
 extern void render_clear(uint8_t flags);
+
 extern void render_bkg_tiles(const int32_t* tile_ids);
 
 void render_update_bkg_tiles(const int32_t* tile_ids,
                              const int32_t** ids_to_update,
                              int update_len);
 
-extern void render_sprs(const struct sprite* sprs, int count);
+extern void render_actors(const struct actor* actors, int count);
 extern void render_present(void);
 
 

@@ -24,11 +24,6 @@ struct rectf {
 	struct vec2f size;
 };
 
-struct sprite {
-	struct recti scr;
-	struct recti ss;
-};
-
 
 enum input_button {
 	INPUT_BUTTON_UP       = 0x01,

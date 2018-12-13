@@ -100,26 +100,26 @@ void render_update_bkg_tiles(const int32_t* const tile_ids,
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }
 
-void render_sprs(const struct sprite* const sprs, const int count)
+void render_actors(const struct actor* const actors, const int count)
 {
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
 	SDL_SetRenderDrawColor(sdl_rend, 0xFF, 0xFF, 0xFF, 0xFF);
 
-	SDL_Rect scr, ss;
+	SDL_Rect scr, ts;
 	for (int i = 0; i < count; ++i) {
 		scr = (SDL_Rect) {
-			.x = sprs[i].scr.pos.x,
-			.y = sprs[i].scr.pos.y,
-			.w = sprs[i].scr.size.x,
-			.h = sprs[i].scr.size.y
+			.x = actors[i].scr.pos.x,
+			.y = actors[i].scr.pos.y,
+			.w = actors[i].scr.size.x,
+			.h = actors[i].scr.size.y
 		};
-		ss = (SDL_Rect) {
-			.x = sprs[i].ss.pos.x,
-			.y = sprs[i].ss.pos.y,
-			.w = sprs[i].ss.size.x,
-			.h = sprs[i].ss.size.y
+		ts = (SDL_Rect) {
+			.x = actors[i].ts.pos.x,
+			.y = actors[i].ts.pos.y,
+			.w = actors[i].ts.size.x,
+			.h = actors[i].ts.size.y
 		};
-		SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &ss, &scr);
+		SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &ts, &scr);
 	}
 
 	SDL_SetRenderTarget(sdl_rend, NULL);
