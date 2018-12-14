@@ -21,15 +21,16 @@
 
 #define RENDER_CLEAR_BKG     (0x01)
 #define RENDER_CLEAR_FG      (0x02)
+#define RENDER_CLEAR_ACTORS  (0x04)
 
 
 extern void render_clear(uint8_t flags);
 
-extern void render_bkg_tiles(const int32_t* gids);
+extern void render_tile_layers(const int32_t* gids);
 
-void render_update_bkg_tiles(const int32_t* gids,
-                             const int32_t** gids_to_update,
-                             int update_len);
+void render_update_tile_layers(const int32_t* gids,
+                               const int32_t** gids_to_update,
+                               int update_len);
 
 extern void render_actors(const struct actor* actors, int count);
 extern void render_present(void);

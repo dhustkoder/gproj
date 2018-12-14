@@ -5,10 +5,12 @@
 #include <tmx.h>
 #include "render.h"
 #include "log.h"
+#include "map.h"
 
 extern SDL_Renderer* sdl_rend;
-extern SDL_Texture* sdl_tex_bkg;
+extern SDL_Texture* sdl_tex_bg;
 extern SDL_Texture* sdl_tex_fg;
+extern SDL_Texture* sdl_tex_actors;
 extern SDL_Texture* sdl_tex_tileset;
 
 
@@ -40,29 +42,8 @@ static void draw_flipped_gid(const int32_t gid,
 	                 NULL, flips);	
 }
 
-
-void render_clear(const uint8_t flags)
+static void draw_tile_layers(const int32_t* gids)
 {
-	if (flags&RENDER_CLEAR_BKG) {
-		SDL_SetRenderTarget(sdl_rend, sdl_tex_bkg);
-		SDL_SetRenderDrawColor(sdl_rend, 0x00, 0x00, 0x00, 0x00);
-		SDL_RenderClear(sdl_rend);
-	}
-
-	if (flags&RENDER_CLEAR_FG) {
-		SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
-		SDL_SetRenderDrawColor(sdl_rend, 0x00, 0x00, 0x00, 0x00);
-		SDL_RenderClear(sdl_rend);
-	}
-
-	SDL_SetRenderTarget(sdl_rend, NULL);
-}
-
-
-void render_bkg_tiles(const int32_t* gids)
-{
-	SDL_SetRenderTarget(sdl_rend, sdl_tex_bkg);
-
 	SDL_Rect src, dst;
 	for (int l = 0; l < 2; ++l) {
 		for (int y = 0; y < GPROJ_Y_TILES; ++y) {
@@ -93,16 +74,46 @@ void render_bkg_tiles(const int32_t* gids)
 			}
 		}
 	}
+}
+
+
+void render_clear(const uint8_t flags)
+{
+	if (flags&RENDER_CLEAR_BKG) {
+		SDL_SetRenderTarget(sdl_rend, sdl_tex_bg);
+		SDL_SetRenderDrawColor(sdl_rend, 0x00, 0x00, 0x00, 0x00);
+		SDL_RenderClear(sdl_rend);
+	}
+
+	if (flags&RENDER_CLEAR_FG) {
+		SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
+		SDL_SetRenderDrawColor(sdl_rend, 0x00, 0x00, 0x00, 0x00);
+		SDL_RenderClear(sdl_rend);
+	}
+
+	if (flags&RENDER_CLEAR_ACTORS) {
+		SDL_SetRenderTarget(sdl_rend, sdl_tex_actors);
+		SDL_SetRenderDrawColor(sdl_rend, 0x00, 0x00, 0x00, 0x00);
+		SDL_RenderClear(sdl_rend);
+	}
 
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }
 
-void render_update_bkg_tiles(const int32_t* const gids,
-                             const int32_t** const gids_to_update,
-                             const int update_len)
-{
-	SDL_SetRenderTarget(sdl_rend, sdl_tex_bkg);
 
+void render_tile_layers(const int32_t* gids)
+{
+	SDL_SetRenderTarget(sdl_rend, sdl_tex_bg);
+	draw_tile_layers(gids);
+	SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
+	draw_tile_layers(gids + GPROJ_MAP_LAYER_FG * GPROJ_X_TILES * GPROJ_Y_TILES);
+	SDL_SetRenderTarget(sdl_rend, NULL);
+}
+
+void render_update_tile_layers(const int32_t* const gids,
+                               const int32_t** const gids_to_update,
+                               const int update_len)
+{
 	SDL_Rect src, dst;
 	for (int i = 0; i < update_len; ++i) {
 		const int32_t* const gid_ptr = gids_to_update[i];
@@ -120,10 +131,13 @@ void render_update_bkg_tiles(const int32_t* const gids,
 			.h = 32
 		};
 
-		int diff = gid_ptr - gids;
-		
-		if (diff >= (GPROJ_X_TILES * GPROJ_Y_TILES))
-			diff -= (GPROJ_X_TILES * GPROJ_Y_TILES);
+		const uintptr_t layer_idx = (gid_ptr - gids) / (GPROJ_X_TILES * GPROJ_Y_TILES);
+		const uintptr_t diff = (gid_ptr - gids) - (layer_idx * GPROJ_X_TILES * GPROJ_Y_TILES);
+		if (layer_idx < GPROJ_MAP_LAYER_FG)
+			SDL_SetRenderTarget(sdl_rend, sdl_tex_bg);
+		else
+			SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
+
 
 		dst = (SDL_Rect) {
 			.x = (diff % GPROJ_X_TILES) * GPROJ_TILE_WIDTH,
@@ -131,6 +145,9 @@ void render_update_bkg_tiles(const int32_t* const gids,
 			.w = 32,
 			.h = 32
 		};
+
+		if ((layer_idx&0x01) == 0)
+			SDL_RenderFillRect(sdl_rend, &dst);
 
 		if ((gid&(~TMX_FLIP_BITS_REMOVAL)) == 0x00)
 			SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &src, &dst);
@@ -143,7 +160,7 @@ void render_update_bkg_tiles(const int32_t* const gids,
 
 void render_actors(const struct actor* const actors, const int count)
 {
-	SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
+	SDL_SetRenderTarget(sdl_rend, sdl_tex_actors);
 	SDL_SetRenderDrawColor(sdl_rend, 0xFF, 0xFF, 0xFF, 0xFF);
 
 	SDL_Rect scr, ts;
@@ -168,7 +185,8 @@ void render_actors(const struct actor* const actors, const int count)
 
 void render_present(void)
 {
-	SDL_RenderCopy(sdl_rend, sdl_tex_bkg, NULL, NULL);
+	SDL_RenderCopy(sdl_rend, sdl_tex_bg, NULL, NULL);
+	SDL_RenderCopy(sdl_rend, sdl_tex_actors, NULL, NULL);
 	SDL_RenderCopy(sdl_rend, sdl_tex_fg, NULL, NULL);
 	SDL_RenderPresent(sdl_rend);
 }

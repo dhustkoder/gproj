@@ -26,11 +26,10 @@ int gproj(void)
 
 	while (events_update()) {
 
-		render_clear(RENDER_CLEAR_FG);
+		render_clear(RENDER_CLEAR_ACTORS);
 		
 		map_update();
 		actors_update();
-
 		render_present();
 
 		++fps;

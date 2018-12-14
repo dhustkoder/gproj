@@ -13,7 +13,8 @@
 extern input_button_t input_buttons_states;
 
 SDL_Renderer* sdl_rend = NULL;
-SDL_Texture* sdl_tex_bkg = NULL;
+SDL_Texture* sdl_tex_bg = NULL;
+SDL_Texture* sdl_tex_actors = NULL;
 SDL_Texture* sdl_tex_fg = NULL;
 SDL_Texture* sdl_tex_tileset = NULL;
 
@@ -63,11 +64,18 @@ static bool platform_init(bool vsync)
 	if (sdl_rend == NULL)
 		return false;
 
-	sdl_tex_bkg = SDL_CreateTexture(sdl_rend,
+	sdl_tex_bg = SDL_CreateTexture(sdl_rend,
 	                        SDL_PIXELFORMAT_RGB888,
 	                        SDL_TEXTUREACCESS_TARGET,
 	                        GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT);
-	if (sdl_tex_bkg == NULL)
+	if (sdl_tex_bg == NULL)
+		return false;
+
+	sdl_tex_actors = SDL_CreateTexture(sdl_rend,
+	                        SDL_PIXELFORMAT_RGB888,
+	                        SDL_TEXTUREACCESS_TARGET,
+	                        GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT);
+	if (sdl_tex_actors == NULL)
 		return false;
 
 	sdl_tex_fg = SDL_CreateTexture(sdl_rend,
@@ -83,9 +91,11 @@ static bool platform_init(bool vsync)
 		return false;
 	}
 
+	SDL_SetTextureBlendMode(sdl_tex_actors, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(sdl_tex_fg, SDL_BLENDMODE_BLEND);
 
-	render_clear(RENDER_CLEAR_BKG|RENDER_CLEAR_FG);
+
+	render_clear(RENDER_CLEAR_BKG|RENDER_CLEAR_FG|RENDER_CLEAR_ACTORS);
 	render_present();
 
 	return true;
@@ -99,8 +109,10 @@ static void platform_term(void)
 		SDL_DestroyTexture(sdl_tex_tileset);
 	if (sdl_tex_fg != NULL)
 		SDL_DestroyTexture(sdl_tex_fg);
-	if (sdl_tex_bkg != NULL)
-		SDL_DestroyTexture(sdl_tex_bkg);
+	if (sdl_tex_actors != NULL)
+		SDL_DestroyTexture(sdl_tex_actors);
+	if (sdl_tex_bg != NULL)
+		SDL_DestroyTexture(sdl_tex_bg);
 	if (sdl_rend != NULL)
 		SDL_DestroyRenderer(sdl_rend);
 	if (win != NULL)
