@@ -4,10 +4,10 @@
 #include "render.h"
 #include "map.h"
 
-// 2 layers
+
 static int32_t map_layers[GPROJ_MAP_NLAYERS][GPROJ_Y_TILES][GPROJ_X_TILES] = { 0 };
 static int map_layer_cnt = 0;
-static struct animated_tile animated_tiles[16];
+static struct animated_tile animated_tiles[32];
 static int animated_tiles_cnt = 0;
 static tmx_map* map = NULL;
 
@@ -54,8 +54,8 @@ void map_load(const char* path)
 
 void map_update(void)
 {
+	static int32_t* ids_to_update[64];
 	int update_len = 0;
-	int32_t* ids_to_update[32];
 
 	uint32_t clk = timer_now();
 	for (int i = 0; i < animated_tiles_cnt; ++i) {
