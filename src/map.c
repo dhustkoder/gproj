@@ -15,7 +15,7 @@ static tmx_map* map = NULL;
 void map_load(const char* path)
 {
 	if (map != NULL)
-		tmx_map_free(map);
+		map_free();
 
 	map = tmx_load(path);
 
@@ -51,6 +51,10 @@ void map_load(const char* path)
 	render_tile_layers((int32_t*)map_layers);
 }
 
+void map_free(void)
+{
+	tmx_map_free(map);
+}
 
 void map_update(const uint32_t now)
 {
