@@ -5,11 +5,14 @@
 
 #define ACTOR_TYPE_PLAYER (0x00)
 
+struct actor_frame {
+	uint32_t duration;
+	struct recti ts;
+};
 
 struct actor {
-	int type;
-	struct recti ts;
 	struct recti scr;
+	struct recti ts;
 };
 
 

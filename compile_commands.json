@@ -24,7 +24,7 @@
             "objs/actors.o",
             "src/actors.c"
         ],
-        "directory": "/Users/rsxglobal/Documents/myprojs/gproj",
+        "directory": "/home/rafael/Documents/Projects/gproj",
         "file": "src/actors.c"
     },
     {
@@ -52,36 +52,8 @@
             "objs/sdl2/main.o",
             "src/sdl2/main.c"
         ],
-        "directory": "/Users/rsxglobal/Documents/myprojs/gproj",
+        "directory": "/home/rafael/Documents/Projects/gproj",
         "file": "src/sdl2/main.c"
-    },
-    {
-        "arguments": [
-            "cc",
-            "-c",
-            "-std=c99",
-            "-Wall",
-            "-Wextra",
-            "-Wshadow",
-            "-I",
-            "./src",
-            "-I",
-            "./src/sdl2",
-            "-I/usr/include/SDL2",
-            "-D_REENTRANT",
-            "-Iexternals/tmx/src",
-            "-DPLATFORM_SDL2",
-            "-g",
-            "-O0",
-            "-fsanitize=address",
-            "-DDEBUG",
-            "-DGPROJ_DEBUG",
-            "-o",
-            "objs/sdl2/render.o",
-            "src/sdl2/render.c"
-        ],
-        "directory": "/Users/rsxglobal/Documents/myprojs/gproj",
-        "file": "src/sdl2/render.c"
     },
     {
         "arguments": [
@@ -108,8 +80,36 @@
             "objs/gproj.o",
             "src/gproj.c"
         ],
-        "directory": "/Users/rsxglobal/Documents/myprojs/gproj",
+        "directory": "/home/rafael/Documents/Projects/gproj",
         "file": "src/gproj.c"
+    },
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wshadow",
+            "-I",
+            "./src",
+            "-I",
+            "./src/sdl2",
+            "-I/usr/include/SDL2",
+            "-D_REENTRANT",
+            "-Iexternals/tmx/src",
+            "-DPLATFORM_SDL2",
+            "-g",
+            "-O0",
+            "-fsanitize=address",
+            "-DDEBUG",
+            "-DGPROJ_DEBUG",
+            "-o",
+            "objs/sdl2/render.o",
+            "src/sdl2/render.c"
+        ],
+        "directory": "/home/rafael/Documents/Projects/gproj",
+        "file": "src/sdl2/render.c"
     },
     {
         "arguments": [
@@ -136,7 +136,7 @@
             "objs/map.o",
             "src/map.c"
         ],
-        "directory": "/Users/rsxglobal/Documents/myprojs/gproj",
+        "directory": "/home/rafael/Documents/Projects/gproj",
         "file": "src/map.c"
     }
 ]

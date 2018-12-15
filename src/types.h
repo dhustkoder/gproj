@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #define RGBA32(r, g, b, a) ((r<<24ul)|(g<<16ul)|(b<<8ul)|a)
-
+#define ARRSZ(array) (sizeof(array)/sizeof(array[0]))
 
 struct vec2i {
 	int x, y;

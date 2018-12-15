@@ -106,7 +106,7 @@ void render_tile_layers(const int32_t* gids)
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_bg);
 	draw_tile_layers(gids);
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
-	draw_tile_layers(gids + GPROJ_MAP_LAYER_FG * GPROJ_X_TILES * GPROJ_Y_TILES);
+	draw_tile_layers(gids + MAP_LAYER_FG * GPROJ_X_TILES * GPROJ_Y_TILES);
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }
 
@@ -133,7 +133,7 @@ void render_update_tile_layers(const int32_t* const gids,
 
 		const uintptr_t layer_idx = (gid_ptr - gids) / (GPROJ_X_TILES * GPROJ_Y_TILES);
 		const uintptr_t diff = (gid_ptr - gids) - (layer_idx * GPROJ_X_TILES * GPROJ_Y_TILES);
-		if (layer_idx < GPROJ_MAP_LAYER_FG)
+		if (layer_idx < MAP_LAYER_FG)
 			SDL_SetRenderTarget(sdl_rend, sdl_tex_bg);
 		else
 			SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
@@ -158,7 +158,7 @@ void render_update_tile_layers(const int32_t* const gids,
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }
 
-void render_actors(const struct actor* const actors, const int count)
+void render_actors(const struct actor* const * const actors, const int count)
 {
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_actors);
 	SDL_SetRenderDrawColor(sdl_rend, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -166,16 +166,16 @@ void render_actors(const struct actor* const actors, const int count)
 	SDL_Rect scr, ts;
 	for (int i = 0; i < count; ++i) {
 		scr = (SDL_Rect) {
-			.x = actors[i].scr.pos.x,
-			.y = actors[i].scr.pos.y,
-			.w = actors[i].scr.size.x,
-			.h = actors[i].scr.size.y
+			.x = actors[i]->scr.pos.x,
+			.y = actors[i]->scr.pos.y,
+			.w = actors[i]->scr.size.x,
+			.h = actors[i]->scr.size.y
 		};
 		ts = (SDL_Rect) {
-			.x = actors[i].ts.pos.x,
-			.y = actors[i].ts.pos.y,
-			.w = actors[i].ts.size.x,
-			.h = actors[i].ts.size.y
+			.x = actors[i]->ts.pos.x,
+			.y = actors[i]->ts.pos.y,
+			.w = actors[i]->ts.size.x,
+			.h = actors[i]->ts.size.y
 		};
 		SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &ts, &scr);
 	}

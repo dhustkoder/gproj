@@ -6,11 +6,11 @@
 
 
 enum map_layer {
-	GPROJ_MAP_LAYER_BG  = 0,
-	GPROJ_MAP_LAYER_BG2 = 1,
-	GPROJ_MAP_LAYER_FG  = 2,
-	GPROJ_MAP_LAYER_FG2 = 3,
-	GPROJ_MAP_NLAYERS   = 4
+	MAP_LAYER_BG  = 0,
+	MAP_LAYER_BG2 = 1,
+	MAP_LAYER_FG  = 2,
+	MAP_LAYER_FG2 = 3,
+	MAP_NLAYERS   = 4
 };
 
 struct animated_tile {
