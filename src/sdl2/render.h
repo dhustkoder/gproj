@@ -32,7 +32,7 @@ void render_update_tile_layers(const int32_t* gids,
                                const int32_t** gids_to_update,
                                int update_len);
 
-extern void render_actors(const struct actor* const * actors, int count);
+extern void render_actors(const struct actor* const* actors, int count);
 extern void render_present(void);
 
 

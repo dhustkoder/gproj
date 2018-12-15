@@ -158,7 +158,7 @@ void render_update_tile_layers(const int32_t* const gids,
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }
 
-void render_actors(const struct actor* const * const actors, const int count)
+void render_actors(const struct actor* const* actors, const int count)
 {
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_actors);
 	SDL_SetRenderDrawColor(sdl_rend, 0xFF, 0xFF, 0xFF, 0xFF);

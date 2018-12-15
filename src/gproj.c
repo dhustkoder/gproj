@@ -31,7 +31,7 @@ int gproj(void)
 
 		map_update(now);
 		player_update(now, dt);
-		actors_update();
+		actors_update(now);
 		
 		render_present();
 

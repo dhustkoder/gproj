@@ -2,6 +2,7 @@ build/
 objs/
 asm/
 compile_commands.json
+car.sh
 *.fns
 *.nes
 *.deb

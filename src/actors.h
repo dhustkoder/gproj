@@ -3,21 +3,34 @@
 #include "types.h"
 
 
-#define ACTOR_TYPE_PLAYER (0x00)
-
-struct actor_frame {
-	uint32_t duration;
-	struct recti ts;
+enum animation_flags {
+	ANIM_FLAG_ENABLED = (0x01),
+	ANIM_FLAG_LOOP    = (0x02)
 };
+
 
 struct actor {
 	struct rectf scr;
 	struct recti ts;
 };
 
+struct actor_frame {
+	uint32_t duration;
+	struct recti ts;
+};
 
-extern int actors_add(const struct actor* actor);
-extern void actors_update(void);
+struct actor_animation {
+	const struct actor_frame* frames;
+	uint32_t clk;
+	int cnt;
+	int idx;
+	uint8_t flags;
+};
+
+
+extern int actors_add(struct actor* actor);
+extern void actors_set_animation(int actor_id, struct actor_animation* anim);
+extern void actors_update(uint32_t now);
 
 
 #endif
