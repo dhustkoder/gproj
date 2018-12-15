@@ -49,7 +49,7 @@ static const struct actor_frame attack_down[] = {
 };
 */
 static struct actor actor = {
-	.scr = { .size = { 32, 32 }, .pos = { 64, 64 }    },
+	.scr = { .size = { 32, 32 }, .pos = { GPROJ_SCR_WIDTH / 2, GPROJ_SCR_HEIGHT / 2 } },
 	.anim = {
 		.frames = walk_down,
 		.clk    = 0,

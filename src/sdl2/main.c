@@ -54,7 +54,7 @@ static bool platform_init(bool vsync)
 
 	win = SDL_CreateWindow("GProj",
 	                       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-	                       GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT,
+	                       GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT,
 	                       SDL_WINDOW_RESIZABLE);
 	if (win == NULL)
 		return false;
@@ -67,21 +67,21 @@ static bool platform_init(bool vsync)
 	sdl_tex_bg = SDL_CreateTexture(sdl_rend,
 	                        SDL_PIXELFORMAT_RGB888,
 	                        SDL_TEXTUREACCESS_TARGET,
-	                        GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT);
+	                        GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	if (sdl_tex_bg == NULL)
 		return false;
 
 	sdl_tex_actors = SDL_CreateTexture(sdl_rend,
 	                        SDL_PIXELFORMAT_RGB888,
 	                        SDL_TEXTUREACCESS_TARGET,
-	                        GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT);
+	                        GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	if (sdl_tex_actors == NULL)
 		return false;
 
 	sdl_tex_fg = SDL_CreateTexture(sdl_rend,
 	                        SDL_PIXELFORMAT_RGB888,
 	                        SDL_TEXTUREACCESS_TARGET,
-	                        GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT);
+	                        GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	if (sdl_tex_fg == NULL)
 		return false;
 
