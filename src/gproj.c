@@ -15,6 +15,7 @@ int gproj(void)
 	map_load("../assets/test.tmx");
 
 	uint32_t clk = timer_now();
+	uint32_t lastclk = clk;
 	int fps = 0;
 
 
@@ -24,8 +25,12 @@ int gproj(void)
 
 		render_clear(RENDER_CLEAR_ACTORS);
 		
-		map_update();
-		player_update();
+
+		const uint32_t now = timer_now();
+		const float dt = (((float)now) - ((float)lastclk)) / 1000;
+
+		map_update(now);
+		player_update(now, dt);
 		actors_update();
 		
 		render_present();
@@ -37,6 +42,8 @@ int gproj(void)
 			fps = 0;
 			clk = timer_now();
 		}
+
+		lastclk = now;
 
 	}
 

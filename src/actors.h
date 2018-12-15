@@ -11,7 +11,7 @@ struct actor_frame {
 };
 
 struct actor {
-	struct recti scr;
+	struct rectf scr;
 	struct recti ts;
 };
 

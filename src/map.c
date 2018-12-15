@@ -52,16 +52,15 @@ void map_load(const char* path)
 }
 
 
-void map_update(void)
+void map_update(const uint32_t now)
 {
 	static int32_t* ids_to_update[64];
 	int update_len = 0;
 
-	uint32_t clk = timer_now();
 	for (int i = 0; i < animated_tiles_cnt; ++i) {
 		struct animated_tile* const at = &animated_tiles[i];
-		if ((clk - at->frame_clk) >= at->tmx_tile->animation[at->current_frame_idx].duration) {
-			at->frame_clk = clk;
+		if ((now - at->frame_clk) >= at->tmx_tile->animation[at->current_frame_idx].duration) {
+			at->frame_clk = now;
 			at->current_frame_idx = (at->current_frame_idx + 1) % at->tmx_tile->animation_len;
 			*at->gid_ptr = (*at->gid_ptr&(~TMX_FLIP_BITS_REMOVAL)) | (at->tmx_tile->animation[at->current_frame_idx].tile_id + 1);
 			const uintptr_t layer_idx = (at->gid_ptr - &map_layers[0][0][0]) / (GPROJ_X_TILES * GPROJ_Y_TILES);

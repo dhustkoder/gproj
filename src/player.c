@@ -1,4 +1,6 @@
 #include "types.h"
+#include "render.h"
+#include "log.h"
 #include "actors.h"
 #include "timer.h"
 #include "player.h"
@@ -39,8 +41,7 @@ static int frame_idx = 0;
 static uint32_t frame_clk = 0;
 static uint32_t frame_duration = 0;
 static int is_attacking = 0;
-static float velocity = 2.5;
-
+static double velocity = 5 * GPROJ_TILE_WIDTH;
 
 
 void player_init(void)
@@ -49,13 +50,16 @@ void player_init(void)
 }
 
 
-void player_update(void)
+void player_update(const uint32_t now, const float dt)
 {
-
-	const uint32_t now = timer_now();
 	const struct actor_frame* nextf = NULL;
-	int arrsz = 0;
+	static uint32_t lastclk = 0;
 
+	if (lastclk == 0)
+		lastclk = now;
+
+
+	int arrsz = 0;
 
 	if (is_attacking) {
 		arrsz = ARRSZ(attack_right);
@@ -66,24 +70,23 @@ void player_update(void)
 		nextf = attack_right;
 		
 	} else {
-
 		if (input_buttons_states&INPUT_BUTTON_SHOOT) {
 			is_attacking = 1;
 			frame_idx = -1;
 		} else if (input_buttons_states&INPUT_BUTTON_UP) {
-			actor.scr.pos.y -= velocity * 1;
+			actor.scr.pos.y -= velocity * dt;
 			nextf = walk_up;
 			arrsz = ARRSZ(walk_up);
 		} else if (input_buttons_states&INPUT_BUTTON_DOWN) {
-			actor.scr.pos.y += velocity * 1;
+			actor.scr.pos.y += velocity * dt;
 			nextf = walk_down;
 			arrsz = ARRSZ(walk_down);
 		} else if (input_buttons_states&INPUT_BUTTON_LEFT) {
-			actor.scr.pos.x -= velocity * 1;
+			actor.scr.pos.x -= velocity * dt;
 			nextf = walk_left;
 			arrsz = ARRSZ(walk_left);
 		} else if (input_buttons_states&INPUT_BUTTON_RIGHT) {
-			actor.scr.pos.x += velocity * 1;
+			actor.scr.pos.x += velocity * dt;
 			nextf = walk_right;
 			arrsz = ARRSZ(walk_right);
 		}
@@ -99,5 +102,6 @@ void player_update(void)
 		}
 	}
 
+	lastclk = now;
 }
 
