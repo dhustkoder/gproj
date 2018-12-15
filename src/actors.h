@@ -9,11 +9,6 @@ enum animation_flags {
 };
 
 
-struct actor {
-	struct rectf scr;
-	struct recti ts;
-};
-
 struct actor_frame {
 	uint32_t duration;
 	struct recti ts;
@@ -27,9 +22,12 @@ struct actor_animation {
 	uint8_t flags;
 };
 
+struct actor {
+	struct rectf scr;
+	struct actor_animation anim;
+};
 
 extern int actors_add(struct actor* actor);
-extern void actors_set_animation(int actor_id, struct actor_animation* anim);
 extern void actors_update(uint32_t now);
 
 

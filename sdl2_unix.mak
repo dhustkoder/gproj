@@ -1,4 +1,4 @@
-CFLAGS=-std=c99 -Wall -Wextra -Wshadow -Wno-incompatible-pointer-types-discards-qualifiers \
+CFLAGS=-std=c99 -Wall -Wextra -Wshadow \
        -I $(SRC_DIR) -I $(SRC_DIR)/sdl2 $(shell sdl2-config --cflags) -Iexternals/tmx/src  \
        -DPLATFORM_SDL2
 
