@@ -48,6 +48,9 @@ void map_load(const char* path)
 		layp = layp->next;
 	}
 
+	LOG_DEBUG("MAP ANIMATED TILES CNT: %d", animated_tiles_cnt);
+	LOG_DEBUG("MAP LAYER CNT: %d", map_layer_cnt);
+
 	render_tile_layers((int32_t*)map_layers);
 }
 
