@@ -1,0 +1,15 @@
+Documentation on development on gproj.
+
+
+Note: 
+This project aims for a very simple game with a very simple angine that targets for good performance even on old systems;
+Platform specific code goes only on src/$(platform), The rest must be portable.
+
+
+1 Map:
+
+Mapping is done with a limited subset of TMX format.
+The first 2 layers are known as BG and BG2 layers, used for sprites that appears behind Actors (animated character sprites).
+The other 2 layers are known as FG and FG2 layers, used for sprites that appears on top of Actors.
+
+

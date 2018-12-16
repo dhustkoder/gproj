@@ -36,11 +36,12 @@ void map_load(const char* path)
 				map_layers[map_layer_cnt][y][x] = gidfull;
 				if (map->tiles[gid] != NULL && map->tiles[gid]->animation != NULL) {
 					animated_tiles[animated_tiles_cnt++] = (struct animated_tile) {
-						.tmx_tile = map->tiles[gid],
+						.frames = map->tiles[gid]->animation,
+						.cnt = map->tiles[gid]->animation_len,
 						.gid_ptr = &map_layers[map_layer_cnt][y][x],
-						.current_frame_idx = 0,
-						.frame_clk = 0
-					};
+						.idx = 0,
+						.clk = 0
+											};
 				}
 			}
 		}
@@ -83,10 +84,10 @@ void map_update(const uint32_t now)
 
 	for (int i = 0; i < animated_tiles_cnt; ++i) {
 		struct animated_tile* const at = &animated_tiles[i];
-		if ((now - at->frame_clk) >= at->tmx_tile->animation[at->current_frame_idx].duration) {
-			at->frame_clk = now;
-			at->current_frame_idx = (at->current_frame_idx + 1) % at->tmx_tile->animation_len;
-			*at->gid_ptr = (*at->gid_ptr&(~TMX_FLIP_BITS_REMOVAL)) | (at->tmx_tile->animation[at->current_frame_idx].tile_id + 1);
+		if ((now - at->clk) >= at->frames[at->idx].duration) {
+			at->clk = now;
+			at->idx = (at->idx + 1) % at->cnt;
+			*at->gid_ptr = (*at->gid_ptr&(~TMX_FLIP_BITS_REMOVAL)) | (at->frames[at->idx].tile_id + 1);
 			const uintptr_t layer_idx = (at->gid_ptr - &map_layers[0][0][0]) / (GPROJ_X_TILES * GPROJ_Y_TILES);
 			if (layer_idx == MAP_LAYER_BG2 || layer_idx == MAP_LAYER_FG2) {
 				ids_to_update[update_len++] = (at->gid_ptr - (GPROJ_X_TILES * GPROJ_Y_TILES));

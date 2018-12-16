@@ -14,10 +14,11 @@ enum map_layer {
 };
 
 struct animated_tile {
-	const tmx_tile* tmx_tile;
+	const tmx_anim_frame* frames;
 	int32_t* gid_ptr;
-	unsigned int current_frame_idx;
-	uint32_t frame_clk;
+	uint32_t clk;
+	unsigned int idx;
+	int cnt;
 };
 
 
