@@ -2,6 +2,7 @@
 #include "render.h"
 #include "log.h"
 #include "actors.h"
+#include "map.h"
 #include "timer.h"
 #include "player.h"
 
@@ -76,6 +77,13 @@ void player_update(const uint32_t now, const float dt)
 	                          INPUT_BUTTON_RIGHT|
 	                          INPUT_BUTTON_UP   |
 	                          INPUT_BUTTON_DOWN)) {
+		struct rectf origin = {
+			.pos = { 
+				actor.scr.pos.x + actor.scr.size.x / 2.f,
+				actor.scr.pos.y + actor.scr.size.y / 2.f
+			},
+			.size =  { 32, 32 }
+		};
 		actor.anim.flags |= ANIM_FLAG_ENABLED;
 		if (input_buttons_states&INPUT_BUTTON_DOWN) {
 			actor.scr.pos.y += velocity * dt;
@@ -101,7 +109,7 @@ void player_update(const uint32_t now, const float dt)
 				actor.anim.idx = 0;
 				actor.anim.clk = now;
 			}
-		} else if (input_buttons_states&INPUT_BUTTON_RIGHT) {
+		} else if (input_buttons_states&INPUT_BUTTON_RIGHT && !map_is_blocking(&origin)) {
 			actor.scr.pos.x += velocity * dt;
 			if (actor.anim.frames != walk_right) {
 				actor.anim.frames = walk_right;

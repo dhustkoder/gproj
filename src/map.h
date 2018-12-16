@@ -23,6 +23,7 @@ struct animated_tile {
 
 extern void map_load(const char* path);
 extern void map_free(void);
+extern bool map_is_blocking(const struct rectf* origin);
 extern void map_update(uint32_t now);
 
 

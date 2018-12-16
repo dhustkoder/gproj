@@ -59,6 +59,23 @@ void map_free(void)
 	tmx_map_free(map);
 }
 
+bool map_is_blocking(const struct rectf* origin)
+{
+	const int x = origin->pos.x / GPROJ_TILE_WIDTH;
+	const int y = origin->pos.y / GPROJ_TILE_HEIGHT;
+
+	for (int i = 0; i < MAP_NLAYERS; ++i) {
+		const int32_t gid = map_layers[i][y][x] & TMX_FLIP_BITS_REMOVAL;
+		if (map->tiles[gid] != NULL && map->tiles[gid]->properties != NULL) {
+			const tmx_property* p = tmx_get_property(map->tiles[gid]->properties, "blocking");
+			if (p->value.boolean)
+				return true;
+		}
+	}
+
+	return false;
+}
+
 void map_update(const uint32_t now)
 {
 	static int32_t* ids_to_update[64];
