@@ -25,7 +25,7 @@
             "objs/map.o",
             "src/map.c"
         ],
-        "directory": "/home/rafael/Documents/Projects/gproj",
+        "directory": "/Users/rsxglobal/Documents/myprojs/gproj",
         "file": "src/map.c"
     },
     {
@@ -54,7 +54,7 @@
             "objs/sdl2/render.o",
             "src/sdl2/render.c"
         ],
-        "directory": "/home/rafael/Documents/Projects/gproj",
+        "directory": "/Users/rsxglobal/Documents/myprojs/gproj",
         "file": "src/sdl2/render.c"
     },
     {
@@ -83,7 +83,7 @@
             "objs/actors.o",
             "src/actors.c"
         ],
-        "directory": "/home/rafael/Documents/Projects/gproj",
+        "directory": "/Users/rsxglobal/Documents/myprojs/gproj",
         "file": "src/actors.c"
     },
     {
@@ -112,7 +112,7 @@
             "objs/player.o",
             "src/player.c"
         ],
-        "directory": "/home/rafael/Documents/Projects/gproj",
+        "directory": "/Users/rsxglobal/Documents/myprojs/gproj",
         "file": "src/player.c"
     },
     {
@@ -141,7 +141,7 @@
             "objs/gproj.o",
             "src/gproj.c"
         ],
-        "directory": "/home/rafael/Documents/Projects/gproj",
+        "directory": "/Users/rsxglobal/Documents/myprojs/gproj",
         "file": "src/gproj.c"
     },
     {
@@ -170,7 +170,7 @@
             "objs/sdl2/main.o",
             "src/sdl2/main.c"
         ],
-        "directory": "/home/rafael/Documents/Projects/gproj",
+        "directory": "/Users/rsxglobal/Documents/myprojs/gproj",
         "file": "src/sdl2/main.c"
     }
 ]

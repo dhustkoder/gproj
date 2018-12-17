@@ -27,7 +27,7 @@ struct actor {
 	struct actor_animation anim;
 };
 
-extern int actors_add(struct actor* actor);
+extern struct actor* actors_create(int cnt);
 extern void actors_update(uint32_t now);
 
 

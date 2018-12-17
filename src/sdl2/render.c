@@ -158,7 +158,7 @@ void render_update_tile_layers(const int32_t* const gids,
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }
 
-void render_actors(const struct actor* const* actors, const int count)
+void render_actors(const struct actor* actors, const int count)
 {
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_actors);
 	SDL_SetRenderDrawColor(sdl_rend, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -166,16 +166,16 @@ void render_actors(const struct actor* const* actors, const int count)
 	SDL_Rect scr, ts;
 	for (int i = 0; i < count; ++i) {
 		scr = (SDL_Rect) {
-			.x = actors[i]->scr.pos.x,
-			.y = actors[i]->scr.pos.y,
-			.w = actors[i]->scr.size.x,
-			.h = actors[i]->scr.size.y
+			.x = actors[i].scr.pos.x,
+			.y = actors[i].scr.pos.y,
+			.w = actors[i].scr.size.x,
+			.h = actors[i].scr.size.y
 		};
 		ts = (SDL_Rect) {
-			.x = actors[i]->anim.frames[actors[i]->anim.idx].ts.pos.x,
-			.y = actors[i]->anim.frames[actors[i]->anim.idx].ts.pos.y,
-			.w = actors[i]->anim.frames[actors[i]->anim.idx].ts.size.x,
-			.h = actors[i]->anim.frames[actors[i]->anim.idx].ts.size.y
+			.x = actors[i].anim.frames[actors[i].anim.idx].ts.pos.x,
+			.y = actors[i].anim.frames[actors[i].anim.idx].ts.pos.y,
+			.w = actors[i].anim.frames[actors[i].anim.idx].ts.size.x,
+			.h = actors[i].anim.frames[actors[i].anim.idx].ts.size.y
 		};
 		SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &ts, &scr);
 	}

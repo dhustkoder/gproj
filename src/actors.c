@@ -4,20 +4,21 @@
 #include "actors.h"
 
 
-static struct actor* actors[64];
+static struct actor actors[64];
 static int actors_cnt;
 
 
-int actors_add(struct actor* const actor)
+struct actor* actors_create(const int cnt)
 {
-	actors[actors_cnt] = actor;
-	return actors_cnt++;
+	struct actor* const ret = &actors[actors_cnt];
+	actors_cnt += cnt;
+	return ret;
 }
 
 void actors_update(const uint32_t now)
 {
 	for (int i = 0; i < actors_cnt; ++i) {
-		struct actor_animation* const anim = &actors[i]->anim;
+		struct actor_animation* const anim = &actors[i].anim;
 		
 		assert(anim != NULL);
 		
@@ -35,6 +36,6 @@ void actors_update(const uint32_t now)
 		}
 	}
 
-	render_actors((const struct actor**)actors, actors_cnt);
+	render_actors(actors, actors_cnt);
 }
 

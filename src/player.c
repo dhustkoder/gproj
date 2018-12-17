@@ -49,25 +49,24 @@ static const struct actor_frame attack_down[] = {
 	{ 100, { .size = { 16, 16 }, .pos = { 575, 3056 } } }
 };
 */
-static struct actor actor = {
-	.scr = { .size = { 32, 32 }, .pos = { GPROJ_SCR_WIDTH / 2, GPROJ_SCR_HEIGHT / 2 } },
-	.anim = {
-		.frames = walk_down,
-		.clk    = 0,
-		.cnt    = ARRSZ(walk_down),
-		.idx    = 0,
-		.flags  = ANIM_FLAG_LOOP|ANIM_FLAG_ENABLED
-	}
-};
-
-
+static struct actor* actor;
 static double velocity = 5 * GPROJ_TILE_WIDTH;
-static int actor_id = 0;
 
 
 void player_init(void)
 {
-	actor_id = actors_add(&actor);
+	actor = actors_create(1);
+
+	*actor = (struct actor) {
+		.scr = { .size = { 32, 32 }, .pos = { GPROJ_SCR_WIDTH / 2, GPROJ_SCR_HEIGHT / 2 } },
+		.anim = {
+			.frames = walk_down,
+			.clk    = 0,
+			.cnt    = ARRSZ(walk_down),
+			.idx    = 0,
+			.flags  = ANIM_FLAG_LOOP|ANIM_FLAG_ENABLED
+		}
+	};
 }
 
 
@@ -79,47 +78,47 @@ void player_update(const uint32_t now, const float dt)
 	                          INPUT_BUTTON_DOWN)) {
 		struct rectf origin = {
 			.pos = { 
-				actor.scr.pos.x + actor.scr.size.x / 2.f,
-				actor.scr.pos.y + actor.scr.size.y / 2.f
+				actor->scr.pos.x + actor->scr.size.x / 2.f,
+				actor->scr.pos.y + actor->scr.size.y / 2.f
 			},
 			.size =  { 32, 32 }
 		};
-		actor.anim.flags |= ANIM_FLAG_ENABLED;
+		actor->anim.flags |= ANIM_FLAG_ENABLED;
 		if (input_buttons_states&INPUT_BUTTON_DOWN) {
-			actor.scr.pos.y += velocity * dt;
-			if (actor.anim.frames != walk_down) {
-				actor.anim.frames = walk_down;
-				actor.anim.cnt = ARRSZ(walk_down);
-				actor.anim.idx = 0;
-				actor.anim.clk = now;
+			actor->scr.pos.y += velocity * dt;
+			if (actor->anim.frames != walk_down) {
+				actor->anim.frames = walk_down;
+				actor->anim.cnt = ARRSZ(walk_down);
+				actor->anim.idx = 0;
+				actor->anim.clk = now;
 			}
 		} else if (input_buttons_states&INPUT_BUTTON_UP) {
-			actor.scr.pos.y -= velocity * dt;
-			if (actor.anim.frames != walk_up) {
-				actor.anim.frames = walk_up;
-				actor.anim.cnt = ARRSZ(walk_up);
-				actor.anim.idx = 0;
-				actor.anim.clk = now;
+			actor->scr.pos.y -= velocity * dt;
+			if (actor->anim.frames != walk_up) {
+				actor->anim.frames = walk_up;
+				actor->anim.cnt = ARRSZ(walk_up);
+				actor->anim.idx = 0;
+				actor->anim.clk = now;
 			}
 		} else if (input_buttons_states&INPUT_BUTTON_LEFT) {
-			actor.scr.pos.x -= velocity * dt;
-			if (actor.anim.frames != walk_left) {
-				actor.anim.frames = walk_left;
-				actor.anim.cnt = ARRSZ(walk_left);
-				actor.anim.idx = 0;
-				actor.anim.clk = now;
+			actor->scr.pos.x -= velocity * dt;
+			if (actor->anim.frames != walk_left) {
+				actor->anim.frames = walk_left;
+				actor->anim.cnt = ARRSZ(walk_left);
+				actor->anim.idx = 0;
+				actor->anim.clk = now;
 			}
 		} else if (input_buttons_states&INPUT_BUTTON_RIGHT && !map_is_blocking(&origin)) {
-			actor.scr.pos.x += velocity * dt;
-			if (actor.anim.frames != walk_right) {
-				actor.anim.frames = walk_right;
-				actor.anim.cnt = ARRSZ(walk_right);
-				actor.anim.idx = 0;
-				actor.anim.clk = now;
+			actor->scr.pos.x += velocity * dt;
+			if (actor->anim.frames != walk_right) {
+				actor->anim.frames = walk_right;
+				actor->anim.cnt = ARRSZ(walk_right);
+				actor->anim.idx = 0;
+				actor->anim.clk = now;
 			}
 		}
 	} else {
-		actor.anim.flags &= ~ANIM_FLAG_ENABLED;
+		actor->anim.flags &= ~ANIM_FLAG_ENABLED;
 	}
 
 }
