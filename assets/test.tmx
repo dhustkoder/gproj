@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.1" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="32" tileheight="32" infinite="0" nextlayerid="7" nextobjectid="1">
+<map version="1.2" tiledversion="1.2.1" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="32" tileheight="32" infinite="0" nextlayerid="9" nextobjectid="1">
  <tileset firstgid="1" name="test" tilewidth="32" tileheight="32" tilecount="10176" columns="64">
   <image source="tileset.png" width="2048" height="5088"/>
   <tile id="47">
@@ -27,12 +27,42 @@
     <frame tileid="6468" duration="215"/>
    </animation>
   </tile>
+  <tile id="6544">
+   <properties>
+    <property name="blocking" type="bool" value="true"/>
+   </properties>
+  </tile>
+  <tile id="6546">
+   <properties>
+    <property name="blocking" type="bool" value="true"/>
+   </properties>
+  </tile>
   <tile id="6605">
    <animation>
     <frame tileid="6605" duration="100"/>
     <frame tileid="6606" duration="100"/>
     <frame tileid="6607" duration="100"/>
    </animation>
+  </tile>
+  <tile id="6608">
+   <properties>
+    <property name="blocking" type="bool" value="true"/>
+   </properties>
+  </tile>
+  <tile id="6609">
+   <properties>
+    <property name="blocking" type="bool" value="true"/>
+   </properties>
+  </tile>
+  <tile id="6610">
+   <properties>
+    <property name="blocking" type="bool" value="true"/>
+   </properties>
+  </tile>
+  <tile id="6672">
+   <properties>
+    <property name="blocking" type="bool" value="true"/>
+   </properties>
   </tile>
   <tile id="6736">
    <properties>

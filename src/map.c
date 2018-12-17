@@ -4,7 +4,7 @@
 #include "render.h"
 #include "map.h"
 
-
+static uint8_t map_blk[GPROJ_Y_TILES][GPROJ_X_TILES];
 static int32_t map_layers[MAP_NLAYERS][GPROJ_Y_TILES][GPROJ_X_TILES] = { 0 };
 static int map_layer_cnt = 0;
 static struct animated_tile animated_tiles[32];
@@ -34,15 +34,21 @@ void map_load(const char* path)
 				const int32_t gidfull = layp->content.gids[y * 32 + x];
 				const int32_t gid = gidfull & TMX_FLIP_BITS_REMOVAL;
 				map_layers[map_layer_cnt][y][x] = gidfull;
-				if (map->tiles[gid] != NULL && map->tiles[gid]->animation != NULL) {
-					animated_tiles[animated_tiles_cnt++] = (struct animated_tile) {
-						.frames = map->tiles[gid]->animation,
-						.cnt = map->tiles[gid]->animation_len,
-						.gid_ptr = &map_layers[map_layer_cnt][y][x],
-						.idx = 0,
-						.clk = 0
-											};
-				}
+				if (map->tiles[gid] != NULL) {
+					if (map->tiles[gid]->animation != NULL) {
+						animated_tiles[animated_tiles_cnt++] = (struct animated_tile) {
+							.frames = map->tiles[gid]->animation,
+							.cnt = map->tiles[gid]->animation_len,
+							.gid_ptr = &map_layers[map_layer_cnt][y][x],
+							.idx = 0,
+							.clk = 0
+						};
+					}
+					if (map->tiles[gid]->properties != NULL) {
+						map_blk[y][x] = 1;
+					}
+				} 
+
 			}
 		}
 		++map_layer_cnt;
@@ -64,17 +70,7 @@ bool map_is_blocking(const struct rectf* origin)
 {
 	const int x = origin->pos.x / GPROJ_TILE_WIDTH;
 	const int y = origin->pos.y / GPROJ_TILE_HEIGHT;
-
-	for (int i = 0; i < MAP_NLAYERS; ++i) {
-		const int32_t gid = map_layers[i][y][x] & TMX_FLIP_BITS_REMOVAL;
-		if (map->tiles[gid] != NULL && map->tiles[gid]->properties != NULL) {
-			const tmx_property* p = tmx_get_property(map->tiles[gid]->properties, "blocking");
-			if (p->value.boolean)
-				return true;
-		}
-	}
-
-	return false;
+	return map_blk[y][x] != 0;
 }
 
 void map_update(const uint32_t now)
