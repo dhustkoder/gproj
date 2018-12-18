@@ -172,10 +172,10 @@ void render_actors(const struct actor* actors, const int count)
 			.h = actors[i].scr.size.y
 		};
 		ts = (SDL_Rect) {
-			.x = actors[i].anim.frames[actors[i].anim.idx].ts.pos.x,
-			.y = actors[i].anim.frames[actors[i].anim.idx].ts.pos.y,
-			.w = actors[i].anim.frames[actors[i].anim.idx].ts.size.x,
-			.h = actors[i].anim.frames[actors[i].anim.idx].ts.size.y
+			.x = actors[i].ts.pos.x,
+			.y = actors[i].ts.pos.y,
+			.w = actors[i].ts.size.x,
+			.h = actors[i].ts.size.y
 		};
 		SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &ts, &scr);
 	}

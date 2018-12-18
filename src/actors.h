@@ -9,25 +9,25 @@ enum animation_flags {
 };
 
 
+
 struct actor_frame {
 	uint32_t duration;
 	struct recti ts;
 };
 
-struct actor_animation {
-	const struct actor_frame* frames;
-	uint32_t clk;
-	int cnt;
-	int idx;
-	uint8_t flags;
-};
-
 struct actor {
 	struct rectf scr;
-	struct actor_animation anim;
+	struct recti ts;
 };
 
 extern struct actor* actors_create(int cnt);
+extern int actors_anim_create(struct actor* actor,
+                              const struct actor_frame* frames,
+                              int cnt);
+extern void actors_anim_set(const int anim_id,
+                            uint32_t clk,
+                            const struct actor_frame* frames,
+                            int cnt);
 extern void actors_update(uint32_t now);
 
 
