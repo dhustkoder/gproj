@@ -112,7 +112,6 @@ void player_update(const uint32_t now, const float dt)
 		case FACING_RIGHT:
 			actors_anim_set(anim_id, now, attack_right, ARRSZ(attack_right), 0);
 			break;
-
 		}
 	} else if (input_buttons_states&(INPUT_BUTTON_LEFT |
 	                                 INPUT_BUTTON_RIGHT|
