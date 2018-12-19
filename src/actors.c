@@ -7,6 +7,7 @@
 struct animation {
 	const struct actor_frame* frames;
 	uint32_t clk;
+	uint32_t duration;
 	int cnt;
 	int idx;
 	int actor_id;
@@ -44,13 +45,13 @@ int actors_create(const int w, const int h,
 
 int actors_anim_create(const int actor_id,
                        const struct actor_frame* frames,
-                       const int cnt)
+                       const int cnt, const int flags)
 {
 	memset(&anims[anims_cnt], 0, sizeof(anims[0]));
 	const int id = anims_cnt;
 	++anims_cnt;
 	anims[id].actor_id = actor_id;
-	actors_anim_set(id, timer_now(), frames, cnt);
+	actors_anim_set(id, timer_now(), frames, cnt, flags);
 	return id;
 }
 
@@ -59,13 +60,18 @@ int actors_anim_create(const int actor_id,
 void actors_anim_set(const int anim_id,
                      const uint32_t clk,
                      const struct actor_frame* frames,
-                     const int cnt)
+                     const int cnt,
+                     const int flags)
 {
+	anims[anim_id].idx = 0;
 	anims[anim_id].clk = clk;
 	anims[anim_id].frames = frames;
 	anims[anim_id].cnt = cnt;
-	anims[anim_id].flags = ANIM_FLAG_LOOP|ANIM_FLAG_ENABLED;
-	actors[anims[anim_id].actor_id].ts = frames[0].ts;
+	anims[anim_id].flags = flags;
+	if (frames != NULL) {
+		anims[anim_id].duration = frames[0].duration;
+		actors[anims[anim_id].actor_id].ts = frames[0].ts;
+	}
 }
 
 int actors_mov_create(const int actor_id,
@@ -99,24 +105,19 @@ void actors_update(const uint32_t now, const float dt)
 
 	for (int i = 0; i < anims_cnt; ++i) {
 		struct animation* const anim = &anims[i];
-		
-		assert(anim != NULL);
-
-		if (!(anim->flags&ANIM_FLAG_ENABLED))
+		if (anim->flags&ANIM_FLAG_DISABLED)
 			continue;
-		
-		if ((now - anim->clk) >= anim->frames[anim->idx].duration) {
+		if ((now - anim->clk) >= anim->duration) {
 			anim->clk = now;
 			anim->idx++;
 			if (anim->idx >= anim->cnt) {
-				if (anim->flags&ANIM_FLAG_LOOP)
-					anim->idx = 0;
-				else
-					continue;
+				anim->idx = 0;
+				if (!(anim->flags&ANIM_FLAG_LOOP))
+					anim->flags |= ANIM_FLAG_DISABLED;
 			}
+			anim->duration = anim->frames[anim->idx].duration;
 			actors[anim->actor_id].ts = anim->frames[anim->idx].ts;
 		}
-
 	}
 
 	render_actors(actors, actors_cnt);

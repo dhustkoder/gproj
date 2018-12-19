@@ -11,20 +11,20 @@ input_button_t input_buttons_states;
 
 
 static const struct actor_frame walk_up[] = {
-	{ 144, { .size = { 16, 16 }, .pos = { 511, 3040 } } },
-	{ 144, { .size = { 16, 16 }, .pos = { 526, 3040 } } }
+	{ 128, { .size = { 16, 16 }, .pos = { 511, 3040 } } },
+	{ 128, { .size = { 16, 16 }, .pos = { 526, 3040 } } }
 };
 static const struct actor_frame walk_down[] = {
-	{ 144, { .size = { 16, 16 }, .pos = { 512, 3072 } } },
-	{ 144, { .size = { 16, 16 }, .pos = { 527, 3072 } } }
+	{ 128, { .size = { 16, 16 }, .pos = { 512, 3072 } } },
+	{ 128, { .size = { 16, 16 }, .pos = { 527, 3072 } } }
 };
 static const struct actor_frame walk_left[] = {
-	{ 144, { .size = { 16, 16 }, .pos = { 510, 3088 } } },
-	{ 144, { .size = { 16, 16 }, .pos = { 527, 3088 } } }
+	{ 128, { .size = { 16, 16 }, .pos = { 510, 3088 } } },
+	{ 128, { .size = { 16, 16 }, .pos = { 527, 3088 } } }
 };
 static const struct actor_frame walk_right[] = {
-	{ 144, { .size = { 16, 16 }, .pos = { 512, 3056 } } },
-	{ 144, { .size = { 16, 16 }, .pos = { 527, 3056 } } }
+	{ 128, { .size = { 16, 16 }, .pos = { 512, 3056 } } },
+	{ 128, { .size = { 16, 16 }, .pos = { 527, 3056 } } }
 };
 /*
 static const struct actor_frame attack_right[] = {
@@ -61,7 +61,7 @@ void player_init(void)
 {
 
 	actor_id = actors_create(32, 32, GPROJ_SCR_WIDTH / 2, GPROJ_SCR_HEIGHT / 2);
-	anim_id = actors_anim_create(actor_id, walk_down, ARRSZ(walk_down));
+	anim_id = actors_anim_create(actor_id, walk_down, 1, ANIM_FLAG_DISABLED);
 	mov_id = actors_mov_create(actor_id, 0, 0);
 
 }
@@ -80,20 +80,21 @@ void player_update(const uint32_t now, const float dt)
 
 		if (input_buttons_states&INPUT_BUTTON_DOWN && !(prev_buttons_states&INPUT_BUTTON_DOWN)) {
 			actors_mov_set(mov_id, 0, velocity);
-			actors_anim_set(anim_id, now, walk_down, ARRSZ(walk_down));
+			actors_anim_set(anim_id, now, walk_down, ARRSZ(walk_down), ANIM_FLAG_LOOP);
 		} else if (input_buttons_states&INPUT_BUTTON_UP && !(prev_buttons_states&INPUT_BUTTON_UP)) {
 			actors_mov_set(mov_id, 0, -velocity);
-			actors_anim_set(anim_id, now, walk_up, ARRSZ(walk_up));
+			actors_anim_set(anim_id, now, walk_up, ARRSZ(walk_up), ANIM_FLAG_LOOP);
 		} else if (input_buttons_states&INPUT_BUTTON_LEFT && !(prev_buttons_states&INPUT_BUTTON_LEFT)) {
 			actors_mov_set(mov_id, -velocity, 0);
-			actors_anim_set(anim_id, now, walk_left, ARRSZ(walk_left));
+			actors_anim_set(anim_id, now, walk_left, ARRSZ(walk_left), ANIM_FLAG_LOOP);
 		} else if (input_buttons_states&INPUT_BUTTON_RIGHT && !(prev_buttons_states&INPUT_BUTTON_RIGHT)) {
 			actors_mov_set(mov_id, velocity, 0);
-			actors_anim_set(anim_id, now, walk_right, ARRSZ(walk_right));
+			actors_anim_set(anim_id, now, walk_right, ARRSZ(walk_right), ANIM_FLAG_LOOP);
 		}
 		
 	} else {
 		actors_mov_set(mov_id, 0, 0);
+		actors_anim_set(anim_id, 0, NULL, 0, ANIM_FLAG_DISABLED);
 	}
 
 	prev_buttons_states = input_buttons_states;
