@@ -21,24 +21,24 @@ struct movement {
 };
 
 
-static struct actor actors[64];
+static struct {
+	struct recti ts[64];
+	struct rectf scr[64];
+	int cnt;
+} actors;
 static struct animation anims[64];
 static struct movement movs[64];
-static int actors_cnt = 0;
 static int anims_cnt  = 0;
 static int movs_cnt   = 0;
 
 
-int actors_create(const int w, const int h,
-                  const int x, const int y)
+int actors_create(const struct rectf* const scr, const struct recti* const ts)
 {
-	const int id = actors_cnt;
-	++actors_cnt;
+	const int id = actors.cnt;
+	++actors.cnt;
 
-	actors[id].scr = (struct rectf) {
-		.size = { w, h },
-		.pos  = { x, y }
-	};
+	actors.scr[id] = *scr;
+	actors.ts[id]  = *ts;
 
 	return id;
 }
@@ -70,7 +70,7 @@ void actors_anim_set(const int anim_id,
 	anims[anim_id].flags = flags;
 	if (frames != NULL) {
 		anims[anim_id].duration = frames[0].duration;
-		actors[anims[anim_id].actor_id].ts = frames[0].ts;
+		actors.ts[anims[anim_id].actor_id] = frames[0].ts;
 	}
 }
 
@@ -99,8 +99,8 @@ void actors_update(const uint32_t now, const float dt)
 {
 
 	for (int i = 0; i < movs_cnt; ++i) {
-		actors[movs[i].actor_id].scr.pos.x += movs[i].velx * dt;
-		actors[movs[i].actor_id].scr.pos.y += movs[i].vely * dt;
+		actors.scr[movs[i].actor_id].pos.x += movs[i].velx * dt;
+		actors.scr[movs[i].actor_id].pos.y += movs[i].vely * dt;
 	}
 
 	for (int i = 0; i < anims_cnt; ++i) {
@@ -116,10 +116,10 @@ void actors_update(const uint32_t now, const float dt)
 					anim->flags |= ANIM_FLAG_DISABLED;
 			}
 			anim->duration = anim->frames[anim->idx].duration;
-			actors[anim->actor_id].ts = anim->frames[anim->idx].ts;
+			actors.ts[anim->actor_id] = anim->frames[anim->idx].ts;
 		}
 	}
 
-	render_actors(actors, actors_cnt);
+	render_ts(actors.ts, actors.scr, actors.cnt);
 }
 

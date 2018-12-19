@@ -13,14 +13,6 @@ enum map_layer {
 	MAP_NLAYERS   = 4
 };
 
-struct animated_tile {
-	const tmx_anim_frame* frames;
-	int32_t* gid_ptr;
-	uint32_t clk;
-	unsigned int idx;
-	int cnt;
-};
-
 
 extern void map_load(const char* path);
 extern void map_free(void);

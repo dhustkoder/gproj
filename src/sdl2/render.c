@@ -158,27 +158,29 @@ void render_update_tile_layers(const int32_t* const gids,
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }
 
-void render_actors(const struct actor* actors, const int count)
+void render_ts(const struct recti* const srcs,
+               const struct rectf* const dsts,
+               const int count)
 {
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_actors);
 	SDL_SetRenderDrawColor(sdl_rend, 0xFF, 0xFF, 0xFF, 0xFF);
-
 	SDL_Rect scr, ts;
 	for (int i = 0; i < count; ++i) {
 		scr = (SDL_Rect) {
-			.x = actors[i].scr.pos.x,
-			.y = actors[i].scr.pos.y,
-			.w = actors[i].scr.size.x,
-			.h = actors[i].scr.size.y
+			.x = dsts[i].pos.x,
+			.y = dsts[i].pos.y,
+			.w = dsts[i].size.x,
+			.h = dsts[i].size.y
 		};
 		ts = (SDL_Rect) {
-			.x = actors[i].ts.pos.x,
-			.y = actors[i].ts.pos.y,
-			.w = actors[i].ts.size.x,
-			.h = actors[i].ts.size.y
+			.x = srcs[i].pos.x,
+			.y = srcs[i].pos.y,
+			.w = srcs[i].size.x,
+			.h = srcs[i].size.y
 		};
 		SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &ts, &scr);
 	}
+
 
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }

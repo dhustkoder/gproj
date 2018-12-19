@@ -15,12 +15,8 @@ struct actor_frame {
 	struct recti ts;
 };
 
-struct actor {
-	struct rectf scr;
-	struct recti ts;
-};
 
-extern int actors_create(int w, int h, int x, int y);
+extern int actors_create(const struct rectf* scr, const struct recti* ts);
 
 extern int actors_anim_create(int actor_id,
                               const struct actor_frame* frames,

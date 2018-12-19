@@ -4,6 +4,16 @@
 #include "render.h"
 #include "map.h"
 
+
+struct animated_tile {
+	const tmx_anim_frame* frames;
+	int32_t* gid_ptr;
+	uint32_t clk;
+	unsigned int idx;
+	int cnt;
+};
+
+
 static uint8_t map_blk[GPROJ_Y_TILES][GPROJ_X_TILES];
 static int32_t map_layers[MAP_NLAYERS][GPROJ_Y_TILES][GPROJ_X_TILES] = { 0 };
 static int map_layer_cnt = 0;

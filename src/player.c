@@ -59,11 +59,16 @@ static input_button_t prev_buttons_states;
 
 void player_init(void)
 {
+	actor_id = actors_create(
+		&(struct rectf) {
+			.size = { 32, 32 },
+			.pos  = {GPROJ_SCR_WIDTH / 2, GPROJ_SCR_HEIGHT / 2 }
+		},
+		&walk_down[0].ts
+	);
 
-	actor_id = actors_create(32, 32, GPROJ_SCR_WIDTH / 2, GPROJ_SCR_HEIGHT / 2);
 	anim_id = actors_anim_create(actor_id, walk_down, 1, ANIM_FLAG_DISABLED);
 	mov_id = actors_mov_create(actor_id, 0, 0);
-
 }
 
 
