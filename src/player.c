@@ -74,39 +74,29 @@ void player_update(const uint32_t now, const float dt)
 	                          INPUT_BUTTON_RIGHT|
 	                          INPUT_BUTTON_UP   |
 	                          INPUT_BUTTON_DOWN)) {
-	
-		struct rectf mov = actor->scr;
 
 		if (input_buttons_states&INPUT_BUTTON_DOWN) {
-			mov.pos.y += velocity * dt;
+			actor->scr.pos.y += velocity * dt;
 			if (!(prev_buttons_states&INPUT_BUTTON_DOWN)) {
 				actors_anim_set(anim_id, now, walk_down, ARRSZ(walk_down));
 			}
 		} else if (input_buttons_states&INPUT_BUTTON_UP) {
-			mov.pos.y -= velocity * dt;
+			actor->scr.pos.y -= velocity * dt;
 			if (!(prev_buttons_states&INPUT_BUTTON_UP)) {
 				actors_anim_set(anim_id, now, walk_up, ARRSZ(walk_up));
 			}
 		} else if (input_buttons_states&INPUT_BUTTON_LEFT) {
-			mov.pos.x -= velocity * dt;
+			actor->scr.pos.x -= velocity * dt;
 			if (!(prev_buttons_states&INPUT_BUTTON_LEFT)) {
 				actors_anim_set(anim_id, now, walk_left, ARRSZ(walk_left));
 			}
 		} else if (input_buttons_states&INPUT_BUTTON_RIGHT) {
-			mov.pos.x += velocity * dt;
+			actor->scr.pos.x += velocity * dt;
 			if (!(prev_buttons_states&INPUT_BUTTON_RIGHT)) {
 				actors_anim_set(anim_id, now, walk_right, ARRSZ(walk_right));
 			}
 		}
-
-		mov.pos.x += mov.size.x / 2.f;
-		mov.pos.y += mov.size.y / 2.f;
-		if (!map_is_blocking(&mov)) {
-			mov.pos.x -= mov.size.x / 2.f;
-			mov.pos.y -= mov.size.y / 2.f;
-			actor->scr = mov;
-		}
-
+		
 	}
 
 	prev_buttons_states = input_buttons_states;
