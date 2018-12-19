@@ -5,6 +5,7 @@
 
 enum animation_flags {
 	ANIM_FLAG_DISABLED = (0x01),
+	ANIM_FLAG_ENDED    = ANIM_FLAG_DISABLED,
 	ANIM_FLAG_LOOP     = (0x02)
 };
 
@@ -26,6 +27,7 @@ extern void actors_anim_set(const int anim_id,
                             const struct actor_frame* frames,
                             int cnt, int flags);
 
+extern int actors_anim_flags(int anim_id);
 
 extern int actors_mov_create(int actor_id, float velx, float vely);
 extern void actors_mov_set(int mov_id, float velx, float vely);

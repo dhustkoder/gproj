@@ -35,7 +35,7 @@ static input_button_t game_buttons[] = {
 	INPUT_BUTTON_LEFT,
 	INPUT_BUTTON_RIGHT,
 	INPUT_BUTTON_RUN,
-	INPUT_BUTTON_SHOOT
+	INPUT_BUTTON_ACTION
 };
 
 

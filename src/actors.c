@@ -74,6 +74,13 @@ void actors_anim_set(const int anim_id,
 	}
 }
 
+
+int actors_anim_flags(const int anim_id)
+{
+	return anims[anim_id].flags;
+}
+
+
 int actors_mov_create(const int actor_id,
                       const float velx,
                       const float vely)
