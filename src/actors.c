@@ -28,7 +28,8 @@ static int anims_cnt  = 0;
 static int movs_cnt   = 0;
 
 
-int actors_create(int w, int h, int x, int y)
+int actors_create(const int w, const int h,
+                  const int x, const int y)
 {
 	const int id = actors_cnt;
 	++actors_cnt;
