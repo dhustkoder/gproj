@@ -20,15 +20,17 @@ struct actor {
 	struct recti ts;
 };
 
-extern struct actor* actors_create(int cnt);
-extern int actors_anim_create(struct actor* actor,
+extern int actors_create(int w, int h, int x, int y);
+extern int actors_anim_create(int actor_id,
                               const struct actor_frame* frames,
                               int cnt);
 extern void actors_anim_set(const int anim_id,
                             uint32_t clk,
                             const struct actor_frame* frames,
                             int cnt);
-extern void actors_update(uint32_t now);
+extern int actors_mov_create(int actor_id, float velx, float vely);
+extern void actors_mov_set(int mov_id, float velx, float vely);
+extern void actors_update(uint32_t now, float dt);
 
 
 #endif
