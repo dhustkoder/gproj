@@ -64,6 +64,7 @@ static int anim_id = 0;
 static int mov_id  = 0;
 static float velocity = 5 * GPROJ_TILE_WIDTH;
 static uint8_t states = 0;
+static const struct actor_frame* curr_frames = NULL;
 static input_button_t prev_buttons_states;
 
 
@@ -79,6 +80,7 @@ void player_init(void)
 
 	anim_id = actors_anim_create(actor_id, walk_down, 1, ANIM_FLAG_DISABLED);
 	states |= FACING_DOWN;
+	curr_frames = NULL;
 	mov_id = actors_mov_create(actor_id, 0, 0);
 }
 
@@ -135,22 +137,22 @@ void player_update(const uint32_t now, const float dt)
 		int cnt = 0, facing = 0;
 		float vx = 0, vy = 0;
 
-		if (input_buttons_states&INPUT_BUTTON_DOWN && !(prev_buttons_states&INPUT_BUTTON_DOWN)) {
+		if (input_buttons_states&INPUT_BUTTON_DOWN && curr_frames != walk_down) {
 			facing = FACING_DOWN;
 			frames = walk_down;
 			vy = velocity;
 			cnt = ARRSZ(walk_down);
-		} else if (input_buttons_states&INPUT_BUTTON_UP && !(prev_buttons_states&INPUT_BUTTON_UP)) {
+		} else if (input_buttons_states&INPUT_BUTTON_UP && curr_frames != walk_up) {
 			facing = FACING_UP;
 			frames = walk_up;
 			vy = -velocity;
 			cnt = ARRSZ(walk_up);
-		} else if (input_buttons_states&INPUT_BUTTON_LEFT && !(prev_buttons_states&INPUT_BUTTON_LEFT)) {
+		} else if (input_buttons_states&INPUT_BUTTON_LEFT && curr_frames != walk_left) {
 			facing = FACING_LEFT;
 			frames = walk_left;
 			vx = -velocity;
 			cnt = ARRSZ(walk_left);
-		} else if (input_buttons_states&INPUT_BUTTON_RIGHT && !(prev_buttons_states&INPUT_BUTTON_RIGHT)) {
+		} else if (input_buttons_states&INPUT_BUTTON_RIGHT && curr_frames != walk_right) {
 			facing = FACING_RIGHT;
 			frames = walk_right;
 			vx = velocity;
@@ -162,11 +164,13 @@ void player_update(const uint32_t now, const float dt)
 			states |= facing;
 			actors_mov_set(mov_id, vx, vy);
 			actors_anim_set(anim_id, now, frames, cnt, ANIM_FLAG_LOOP);
+			curr_frames = frames;
 		}
 
 	} else {
 		actors_mov_set(mov_id, 0, 0);
 		actors_anim_set(anim_id, 0, NULL, 0, ANIM_FLAG_DISABLED);
+		curr_frames = NULL;
 	}
 
 	prev_buttons_states = input_buttons_states;
