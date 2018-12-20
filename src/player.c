@@ -28,23 +28,23 @@ static const struct actor_frame walk_right[] = {
 };
 
 static const struct actor_frame attack_right[] = {
-	{ 155, { .size = { 16, 16 }, .pos = { 544, 3056 } } },
+	{ 155, { .size = { 16, 16 },  .pos = { 544, 3056 } } },
 	{ 155, { .size = { 16, 16 },  .pos = { 559, 3056 } } },
 	{ 155, { .size = { 16, 16 },  .pos = { 575, 3056 } } }
 };
 
 static const struct actor_frame attack_left[] = {
-	{ 155, { .size = { 16, 16 }, .pos = { 542, 3088 } } },
+	{ 155, { .size = { 16, 16 },  .pos = { 542, 3088 } } },
 	{ 155, { .size = { 16, 16 },  .pos = { 559, 3088 } } },
 	{ 155, { .size = { 16, 16 },  .pos = { 575, 3088 } } }
 };
 static const struct actor_frame attack_up[] = {
-	{ 155, { .size = { 16, 16 }, .pos = { 543, 3040 } } },
+	{ 155, { .size = { 16, 16 },  .pos = { 543, 3040 } } },
 	{ 155, { .size = { 16, 16 },  .pos = { 560, 3040 } } },
 	{ 155, { .size = { 16, 16 },  .pos = { 574, 3040 } } }
 };
 static const struct actor_frame attack_down[] = {
-	{ 155, { .size = { 16, 16 }, .pos = { 543, 3072 } } },
+	{ 155, { .size = { 16, 16 },  .pos = { 543, 3072 } } },
 	{ 155, { .size = { 16, 16 },  .pos = { 558, 3072 } } },
 	{ 155, { .size = { 16, 16 },  .pos = { 575, 3072 } } }
 };
@@ -78,6 +78,7 @@ void player_init(void)
 	);
 
 	anim_id = actors_anim_create(actor_id, walk_down, 1, ANIM_FLAG_DISABLED);
+	states |= FACING_DOWN;
 	mov_id = actors_mov_create(actor_id, 0, 0);
 }
 
@@ -89,53 +90,80 @@ void player_update(const uint32_t now, const float dt)
 	if (states&ATTACKING) {
 		if (actors_anim_flags(anim_id)&ANIM_FLAG_ENDED)
 			states &= ~ATTACKING;
-		return;
+		else
+			return;
 	}
-
 
 	if (prev_buttons_states == input_buttons_states)
 		return;
 
 	if (input_buttons_states&INPUT_BUTTON_ACTION) {
-		states |= ATTACKING;
-		actors_mov_set(mov_id, 0, 0);
-		switch (states&(FACING_STATES)) {
+		const struct actor_frame* frames = NULL;
+		int cnt = 0;
+		
+		switch (states&FACING_STATES) {
 		case FACING_UP:
-			actors_anim_set(anim_id, now, attack_up, ARRSZ(attack_up), 0);
+			frames = attack_up;
+			cnt = ARRSZ(attack_up);
 			break;
 		case FACING_DOWN:
-			actors_anim_set(anim_id, now, attack_down, ARRSZ(attack_down), 0);
+			frames = attack_down;
+			cnt = ARRSZ(attack_down);
 			break;
 		case FACING_LEFT:
-			actors_anim_set(anim_id, now, attack_left, ARRSZ(attack_left), 0);
+			frames = attack_left;
+			cnt = ARRSZ(attack_left);
 			break;
 		case FACING_RIGHT:
-			actors_anim_set(anim_id, now, attack_right, ARRSZ(attack_right), 0);
+			frames = attack_right;
+			cnt = ARRSZ(attack_right);
 			break;
 		}
+		
+		if (frames != NULL) {
+			states |= ATTACKING;
+			actors_anim_set(anim_id, now, frames, cnt, 0);
+			actors_mov_set(mov_id, 0, 0);
+		}
+
 	} else if (input_buttons_states&(INPUT_BUTTON_LEFT |
 	                                 INPUT_BUTTON_RIGHT|
 	                                 INPUT_BUTTON_UP   |
 	                                 INPUT_BUTTON_DOWN)) {
-		states &= ~FACING_STATES;
+
+		const struct actor_frame* frames = NULL;
+		int cnt = 0, facing = 0;
+		float vx = 0, vy = 0;
+
 		if (input_buttons_states&INPUT_BUTTON_DOWN && !(prev_buttons_states&INPUT_BUTTON_DOWN)) {
-			states |= FACING_DOWN;
-			actors_mov_set(mov_id, 0, velocity);
-			actors_anim_set(anim_id, now, walk_down, ARRSZ(walk_down), ANIM_FLAG_LOOP);
+			facing = FACING_DOWN;
+			frames = walk_down;
+			vy = velocity;
+			cnt = ARRSZ(walk_down);
 		} else if (input_buttons_states&INPUT_BUTTON_UP && !(prev_buttons_states&INPUT_BUTTON_UP)) {
-			states |= FACING_UP;
-			actors_mov_set(mov_id, 0, -velocity);
-			actors_anim_set(anim_id, now, walk_up, ARRSZ(walk_up), ANIM_FLAG_LOOP);
+			facing = FACING_UP;
+			frames = walk_up;
+			vy = -velocity;
+			cnt = ARRSZ(walk_up);
 		} else if (input_buttons_states&INPUT_BUTTON_LEFT && !(prev_buttons_states&INPUT_BUTTON_LEFT)) {
-			states |= FACING_LEFT;
-			actors_mov_set(mov_id, -velocity, 0);
-			actors_anim_set(anim_id, now, walk_left, ARRSZ(walk_left), ANIM_FLAG_LOOP);
+			facing = FACING_LEFT;
+			frames = walk_left;
+			vx = -velocity;
+			cnt = ARRSZ(walk_left);
 		} else if (input_buttons_states&INPUT_BUTTON_RIGHT && !(prev_buttons_states&INPUT_BUTTON_RIGHT)) {
-			states |= FACING_RIGHT;
-			actors_mov_set(mov_id, velocity, 0);
-			actors_anim_set(anim_id, now, walk_right, ARRSZ(walk_right), ANIM_FLAG_LOOP);
+			facing = FACING_RIGHT;
+			frames = walk_right;
+			vx = velocity;
+			cnt = ARRSZ(walk_right);
 		}
-		
+
+		if (frames != NULL) {
+			states &= ~FACING_STATES;
+			states |= facing;
+			actors_mov_set(mov_id, vx, vy);
+			actors_anim_set(anim_id, now, frames, cnt, ANIM_FLAG_LOOP);
+		}
+
 	} else {
 		actors_mov_set(mov_id, 0, 0);
 		actors_anim_set(anim_id, 0, NULL, 0, ANIM_FLAG_DISABLED);

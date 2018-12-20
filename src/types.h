@@ -1,5 +1,6 @@
 #ifndef GPROJ_TYPES_H_
 #define GPROJ_TYPES_H_
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 
