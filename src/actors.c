@@ -44,7 +44,7 @@ int actors_create(const struct rectf* const scr, const struct recti* const ts)
 }
 
 int actors_anim_create(const int actor_id,
-                       const struct actor_frame* frames,
+                       const struct actor_frame* const frames,
                        const int cnt, const int flags)
 {
 	memset(&anims[anims_cnt], 0, sizeof(anims[0]));
@@ -59,7 +59,7 @@ int actors_anim_create(const int actor_id,
 
 void actors_anim_set(const int anim_id,
                      const uint32_t clk,
-                     const struct actor_frame* frames,
+                     const struct actor_frame* const frames,
                      const int cnt,
                      const int flags)
 {

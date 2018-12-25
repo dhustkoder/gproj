@@ -101,7 +101,7 @@ void render_clear(const uint8_t flags)
 }
 
 
-void render_tile_layers(const int32_t* gids)
+void render_tile_layers(const int32_t* const gids)
 {
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_bg);
 	draw_tile_layers(gids);

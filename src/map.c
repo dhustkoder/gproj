@@ -22,7 +22,7 @@ static int animated_tiles_cnt = 0;
 static tmx_map* map = NULL;
 
 
-void map_load(const char* path)
+void map_load(const char* const path)
 {
 	if (map != NULL)
 		map_free();
@@ -76,7 +76,7 @@ void map_free(void)
 	tmx_map_free(map);
 }
 
-bool map_is_blocking(const struct rectf* origin)
+bool map_is_blocking(const struct rectf* const origin)
 {
 	const int x = origin->pos.x / GPROJ_TILE_WIDTH;
 	const int y = origin->pos.y / GPROJ_TILE_HEIGHT;
