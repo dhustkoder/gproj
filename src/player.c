@@ -29,8 +29,15 @@ static const struct actor_frame walk_left[] = {
 
 
 static const struct actor_frame walk_right[] = {
-	{ 128, { .size = { 21, 44 }, .pos = { 15, 11 } } },
-	{ 128, { .size = { 21, 44 }, .pos = { 15, 11 } } }
+	{ 98, { .size = { 26, 43 }, .pos = { 270, 11 } }},
+	{ 98, { .size = { 26, 43 }, .pos = { 308, 11 } }},
+	{ 98, { .size = { 26, 43 }, .pos = { 340, 11 } }},
+	{ 98, { .size = { 26, 43 }, .pos = { 367, 11 } }},
+	{ 98, { .size = { 26, 43 }, .pos = { 394, 11 } }},
+	{ 98, { .size = { 26, 43 }, .pos = { 430, 11 } }},
+	{ 98, { .size = { 26, 43 }, .pos = { 459, 11 } }},
+	{ 98, { .size = { 26, 43 }, .pos = { 484, 11 } }},
+
 };
 
 
