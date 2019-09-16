@@ -14,7 +14,7 @@ CFLAGS_PERF=-g -O3 -fno-omit-frame-pointer
 
 EXTERNALS_LIBS=externals/tmx/build/libtmx.a
 LD_INCLUDES=-Lexternals/tmx/build
-LDFLAGS=$(LD_INCLUDES) $(shell sdl2-config --libs) -lSDL2_image -ltmx -lxml2 -lz
+LDFLAGS=$(LD_INCLUDES) $(shell sdl2-config --libs) -lSDL2_image -lSDL2_mixer -ltmx -lxml2 -lz
 LDFLAGS_DEBUG=-g
 LDFLAGS_RELEASE=
 LDFLAGS_PERF=-g
@@ -69,7 +69,7 @@ endif
 all: $(EXTERNALS_LIBS) $(BUILD_DIR)/gproj
 asm: $(ASM) $(PLATFORM_ASM)
 
-	
+
 $(BUILD_DIR)/gproj: $(OBJS) $(PLATFORM_OBJS)
 	@mkdir -p $(BUILD_DIR)
 	$(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS)

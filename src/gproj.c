@@ -2,6 +2,7 @@
 #include "log.h"
 #include "events.h"
 #include "render.h"
+#include "audio.h"
 #include "map.h"
 #include "timer.h"
 #include "actors.h"
@@ -13,7 +14,9 @@
 int gproj(void)
 {
 	player_init();
-	map_load("../assets/test.tmx");
+	map_load("../assets/castle.tmx");
+	audio_play_bgm(audio_load_bgm("../assets/bloodlines.ogg"));
+
 
 	uint32_t clk = timer_now();
 	uint32_t lastclk = clk;
@@ -21,14 +24,14 @@ int gproj(void)
 
 	while (events_update()) {
 		render_clear(RENDER_CLEAR_ACTORS);
-		
+
 		const uint32_t now = timer_now();
 		const float dt = (((float)now) - ((float)lastclk)) / 1000;
 
 		player_update(now, dt);
 		map_update(now);
 		actors_update(now, dt);
-		
+
 		render_present();
 
 		++fps;

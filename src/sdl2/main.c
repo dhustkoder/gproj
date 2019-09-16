@@ -3,8 +3,10 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 #include "log.h"
 #include "render.h"
+#include "audio.h"
 #include "types.h"
 #include "render.h"
 #include "gproj.h"
@@ -17,6 +19,13 @@ SDL_Texture* sdl_tex_bg = NULL;
 SDL_Texture* sdl_tex_actors = NULL;
 SDL_Texture* sdl_tex_fg = NULL;
 SDL_Texture* sdl_tex_tileset = NULL;
+
+int sfx_cnt = 0;
+int bgms_cnt = 0;
+Mix_Chunk* sfxs[MAX_SFXS];
+Mix_Music* bgms[MAX_BGMS];
+
+
 
 static SDL_Window* win = NULL;
 
@@ -44,11 +53,15 @@ static input_button_t game_buttons[] = {
 static bool platform_init(bool vsync)
 {
 	LOG_DEBUG("Initializing Platfrom");
-	
+
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_JOYSTICK|SDL_INIT_TIMER) != 0) {
 		LOG_ERR("Couldn't initialize SDL2: %s", SDL_GetError());
 		return false;
 	}
+
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) != 0)
+		return false;
+
 
 	IMG_Init(IMG_INIT_PNG);
 
@@ -85,7 +98,7 @@ static bool platform_init(bool vsync)
 	if (sdl_tex_fg == NULL)
 		return false;
 
-	sdl_tex_tileset = IMG_LoadTexture(sdl_rend, "../assets/tileset.png");
+	sdl_tex_tileset = IMG_LoadTexture(sdl_rend, "../assets/richter.png");
 	if (sdl_tex_tileset == NULL) {
 		LOG_ERR("Couldn't load assets: %s", IMG_GetError());
 		return false;
@@ -105,6 +118,12 @@ static void platform_term(void)
 {
 	LOG_DEBUG("Terminating Platform");
 
+	for (int i = 0; i < bgms_cnt; ++i)
+		Mix_FreeMusic(bgms[i]);
+	for (int i = 0; i < sfx_cnt; ++i)
+		Mix_FreeChunk(sfxs[i]);
+
+
 	if (sdl_tex_tileset != NULL)
 		SDL_DestroyTexture(sdl_tex_tileset);
 	if (sdl_tex_fg != NULL)
@@ -117,15 +136,16 @@ static void platform_term(void)
 		SDL_DestroyRenderer(sdl_rend);
 	if (win != NULL)
 		SDL_DestroyWindow(win);
-	
+
 	IMG_Quit();
+	Mix_CloseAudio();
 	SDL_Quit();
 }
 
 bool events_update(void)
 {
 	SDL_Event ev;
-	
+
 	while (SDL_PollEvent(&ev)) {
 		switch (ev.type) {
 		case SDL_QUIT: return false;
@@ -144,7 +164,7 @@ bool events_update(void)
 
 		}
 
-			
+
 		}
 	}
 
@@ -156,7 +176,7 @@ int main(int argc, char** argv)
 {
 	((void)argv);
 	SDL_SetMainReady();
-	
+
 	atexit(platform_term);
 
 	if (!platform_init(argc > 1))

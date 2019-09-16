@@ -41,7 +41,7 @@ void map_load(const char* const path)
 	while (layp != NULL && map_layer_cnt < MAP_NLAYERS) {
 		for (int y = 0; y < GPROJ_Y_TILES; ++y) {
 			for (int x = 0; x < GPROJ_X_TILES; ++x) {
-				const int32_t gidfull = layp->content.gids[y * 32 + x];
+				const int32_t gidfull = layp->content.gids[y * GPROJ_X_TILES + x];
 				const int32_t gid = gidfull & TMX_FLIP_BITS_REMOVAL;
 				map_layers[map_layer_cnt][y][x] = gidfull;
 				if (map->tiles[gid] != NULL) {
@@ -57,7 +57,7 @@ void map_load(const char* const path)
 					if (map->tiles[gid]->properties != NULL) {
 						map_blk[y][x] = 1;
 					}
-				} 
+				}
 
 			}
 		}

@@ -11,43 +11,28 @@ input_button_t input_buttons_states;
 
 
 static const struct actor_frame walk_up[] = {
-	{ 128, { .size = { 16, 16 }, .pos = { 511, 3040 } } },
-	{ 128, { .size = { 16, 16 }, .pos = { 526, 3040 } } }
+	{ 128, { .size = { 21, 44 }, .pos = { 15, 11 } } },
+	{ 128, { .size = { 21, 44 }, .pos = { 15, 11 } } }
 };
+
+
 static const struct actor_frame walk_down[] = {
-	{ 128, { .size = { 16, 16 }, .pos = { 512, 3072 } } },
-	{ 128, { .size = { 16, 16 }, .pos = { 527, 3072 } } }
+	{ 128, { .size = { 21, 44 }, .pos = { 15, 11 } } },
+	{ 128, { .size = { 21, 44 }, .pos = { 15, 11 } } }
 };
+
+
 static const struct actor_frame walk_left[] = {
-	{ 128, { .size = { 16, 16 }, .pos = { 510, 3088 } } },
-	{ 128, { .size = { 16, 16 }, .pos = { 527, 3088 } } }
+	{ 128, { .size = { 21, 44 }, .pos = { 15, 11 } } },
+	{ 128, { .size = { 21, 44 }, .pos = { 15, 11 } } }
 };
+
+
 static const struct actor_frame walk_right[] = {
-	{ 128, { .size = { 16, 16 }, .pos = { 512, 3056 } } },
-	{ 128, { .size = { 16, 16 }, .pos = { 527, 3056 } } }
+	{ 128, { .size = { 21, 44 }, .pos = { 15, 11 } } },
+	{ 128, { .size = { 21, 44 }, .pos = { 15, 11 } } }
 };
 
-static const struct actor_frame attack_right[] = {
-	{ 155, { .size = { 16, 16 },  .pos = { 544, 3056 } } },
-	{ 155, { .size = { 16, 16 },  .pos = { 559, 3056 } } },
-	{ 155, { .size = { 16, 16 },  .pos = { 575, 3056 } } }
-};
-
-static const struct actor_frame attack_left[] = {
-	{ 155, { .size = { 16, 16 },  .pos = { 542, 3088 } } },
-	{ 155, { .size = { 16, 16 },  .pos = { 559, 3088 } } },
-	{ 155, { .size = { 16, 16 },  .pos = { 575, 3088 } } }
-};
-static const struct actor_frame attack_up[] = {
-	{ 155, { .size = { 16, 16 },  .pos = { 543, 3040 } } },
-	{ 155, { .size = { 16, 16 },  .pos = { 560, 3040 } } },
-	{ 155, { .size = { 16, 16 },  .pos = { 574, 3040 } } }
-};
-static const struct actor_frame attack_down[] = {
-	{ 155, { .size = { 16, 16 },  .pos = { 543, 3072 } } },
-	{ 155, { .size = { 16, 16 },  .pos = { 558, 3072 } } },
-	{ 155, { .size = { 16, 16 },  .pos = { 575, 3072 } } }
-};
 
 
 enum {
@@ -99,36 +84,7 @@ void player_update(const uint32_t now, const float dt)
 	if (prev_buttons_states == input_buttons_states)
 		return;
 
-	if (input_buttons_states&INPUT_BUTTON_ACTION) {
-		const struct actor_frame* frames = NULL;
-		int cnt = 0;
-		
-		switch (states&FACING_STATES) {
-		case FACING_UP:
-			frames = attack_up;
-			cnt = ARRSZ(attack_up);
-			break;
-		case FACING_DOWN:
-			frames = attack_down;
-			cnt = ARRSZ(attack_down);
-			break;
-		case FACING_LEFT:
-			frames = attack_left;
-			cnt = ARRSZ(attack_left);
-			break;
-		case FACING_RIGHT:
-			frames = attack_right;
-			cnt = ARRSZ(attack_right);
-			break;
-		}
-		
-		if (frames != NULL) {
-			states |= ATTACKING;
-			actors_anim_set(anim_id, now, frames, cnt, 0);
-			actors_mov_set(mov_id, 0, 0);
-		}
-
-	} else if (input_buttons_states&(INPUT_BUTTON_LEFT |
+	if (input_buttons_states&(INPUT_BUTTON_LEFT |
 	                                 INPUT_BUTTON_RIGHT|
 	                                 INPUT_BUTTON_UP   |
 	                                 INPUT_BUTTON_DOWN)) {
