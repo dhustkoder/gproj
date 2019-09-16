@@ -23,7 +23,7 @@ int audio_load_sfx(const char* path)
 void audio_play_bgm(int id)
 {
 	assert(id < bgms_cnt);
-	if (Mix_PlayMusic(bgms[id], 1) != 0) {
+	if (Mix_PlayMusic(bgms[id], -1) != 0) {
 		LOG_ERR("Couldn't play music \'%d\': %s\n",
 		        id, SDL_GetError());
 	}
