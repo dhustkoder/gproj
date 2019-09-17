@@ -3,7 +3,7 @@
 #include "log.h"
 #include "audio.h"
 
-extern int sfx_cnt;
+extern int sfxs_cnt;
 extern int bgms_cnt;
 extern Mix_Chunk* sfxs[MAX_SFXS];
 extern Mix_Music* bgms[MAX_BGMS];

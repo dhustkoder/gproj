@@ -29,14 +29,14 @@ static const struct actor_frame walk_left[] = {
 
 
 static const struct actor_frame walk_right[] = {
-	{ 98, { .size = { 26, 43 }, .pos = { 270, 11 } }},
-	{ 98, { .size = { 26, 43 }, .pos = { 308, 11 } }},
-	{ 98, { .size = { 26, 43 }, .pos = { 340, 11 } }},
-	{ 98, { .size = { 26, 43 }, .pos = { 367, 11 } }},
-	{ 98, { .size = { 26, 43 }, .pos = { 394, 11 } }},
-	{ 98, { .size = { 26, 43 }, .pos = { 430, 11 } }},
-	{ 98, { .size = { 26, 43 }, .pos = { 459, 11 } }},
-	{ 98, { .size = { 26, 43 }, .pos = { 484, 11 } }},
+	{ 500, { .size = { 26, 43 }, .pos = { 270, 11 } }},
+	{ 500, { .size = { 26, 43 }, .pos = { 308, 11 } }},
+	{ 500, { .size = { 26, 43 }, .pos = { 340, 11 } }},
+	{ 500, { .size = { 26, 43 }, .pos = { 367, 11 } }},
+	{ 500, { .size = { 26, 43 }, .pos = { 394, 11 } }},
+	{ 500, { .size = { 26, 43 }, .pos = { 430, 11 } }},
+	{ 500, { .size = { 26, 43 }, .pos = { 459, 11 } }},
+	{ 500, { .size = { 26, 43 }, .pos = { 484, 11 } }},
 
 };
 
@@ -54,7 +54,7 @@ enum {
 static int actor_id = 0;
 static int anim_id = 0;
 static int mov_id  = 0;
-static float velocity = 5 * GPROJ_TILE_WIDTH;
+static float velocity = 1 * GPROJ_TILE_WIDTH;
 static uint8_t states = 0;
 static const struct actor_frame* curr_frames = NULL;
 static input_button_t prev_buttons_states;
@@ -65,12 +65,12 @@ void player_init(void)
 	actor_id = actors_create(
 		&(struct rectf) {
 			.size = { 32, 32 },
-			.pos  = {GPROJ_SCR_WIDTH / 2, GPROJ_SCR_HEIGHT / 2 }
+			.pos  = {0, GPROJ_SCR_HEIGHT / 2 }
 		},
-		&walk_down[0].ts
+		&walk_right[0].ts
 	);
 
-	anim_id = actors_anim_create(actor_id, walk_down, 1, ANIM_FLAG_DISABLED);
+	anim_id = actors_anim_create(actor_id, walk_right, 1, ANIM_FLAG_DISABLED);
 	states |= FACING_DOWN;
 	curr_frames = NULL;
 	mov_id = actors_mov_create(actor_id, 0, 0);

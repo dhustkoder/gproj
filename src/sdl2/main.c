@@ -20,7 +20,7 @@ SDL_Texture* sdl_tex_actors = NULL;
 SDL_Texture* sdl_tex_fg = NULL;
 SDL_Texture* sdl_tex_tileset = NULL;
 
-int sfx_cnt = 0;
+int sfxs_cnt = 0;
 int bgms_cnt = 0;
 Mix_Chunk* sfxs[MAX_SFXS];
 Mix_Music* bgms[MAX_BGMS];
@@ -54,64 +54,64 @@ static bool platform_init(bool vsync)
 {
 	LOG_DEBUG("Initializing Platfrom");
 
-	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_JOYSTICK|SDL_INIT_TIMER) != 0) {
-		LOG_ERR("Couldn't initialize SDL2: %s", SDL_GetError());
-		return false;
-	}
+	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_TIMER) != 0)
+		goto Lfailure;
 
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) != 0)
-		return false;
+		goto Lfailure;
 
 
-	IMG_Init(IMG_INIT_PNG);
+	if (!IMG_Init(IMG_INIT_PNG))
+		goto Lfailure;
 
 	win = SDL_CreateWindow("GProj",
 	                       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 	                       GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT,
 	                       SDL_WINDOW_RESIZABLE);
 	if (win == NULL)
-		return false;
+		goto Lfailure;
 
 	sdl_rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED|
 	                             (vsync ? SDL_RENDERER_PRESENTVSYNC : 0));
 	if (sdl_rend == NULL)
-		return false;
+		goto Lfailure;
 
 	sdl_tex_bg = SDL_CreateTexture(sdl_rend,
 	                        SDL_PIXELFORMAT_RGB888,
 	                        SDL_TEXTUREACCESS_TARGET,
 	                        GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	if (sdl_tex_bg == NULL)
-		return false;
+		goto Lfailure;
 
 	sdl_tex_actors = SDL_CreateTexture(sdl_rend,
 	                        SDL_PIXELFORMAT_RGB888,
 	                        SDL_TEXTUREACCESS_TARGET,
 	                        GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	if (sdl_tex_actors == NULL)
-		return false;
+		goto Lfailure;
 
 	sdl_tex_fg = SDL_CreateTexture(sdl_rend,
 	                        SDL_PIXELFORMAT_RGB888,
 	                        SDL_TEXTUREACCESS_TARGET,
 	                        GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	if (sdl_tex_fg == NULL)
-		return false;
+		goto Lfailure;
 
 	sdl_tex_tileset = IMG_LoadTexture(sdl_rend, "../assets/richter.png");
-	if (sdl_tex_tileset == NULL) {
-		LOG_ERR("Couldn't load assets: %s", IMG_GetError());
-		return false;
-	}
+	if (sdl_tex_tileset == NULL)
+		goto Lfailure;
 
 	SDL_SetTextureBlendMode(sdl_tex_actors, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(sdl_tex_fg, SDL_BLENDMODE_BLEND);
-
 
 	render_clear(RENDER_CLEAR_BKG|RENDER_CLEAR_FG|RENDER_CLEAR_ACTORS);
 	render_present();
 
 	return true;
+
+Lfailure:
+	LOG_ERR("Couldn't initialize platform: %s", SDL_GetError());
+	return false;
 }
 
 static void platform_term(void)
@@ -120,7 +120,7 @@ static void platform_term(void)
 
 	for (int i = 0; i < bgms_cnt; ++i)
 		Mix_FreeMusic(bgms[i]);
-	for (int i = 0; i < sfx_cnt; ++i)
+	for (int i = 0; i < sfxs_cnt; ++i)
 		Mix_FreeChunk(sfxs[i]);
 
 
