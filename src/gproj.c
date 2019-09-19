@@ -1,22 +1,15 @@
 #include <SDL2/SDL.h>
 #include "log.h"
+#include "timer.h"
 #include "events.h"
 #include "render.h"
-#include "audio.h"
-#include "map.h"
-#include "timer.h"
-#include "actors.h"
-#include "characters.h"
 #include "gproj.h"
-
+#include "game.h"
 
 
 int gproj(void)
 {
-	characters_init();
-	map_load("../assets/map01.tmx");
-	audio_play_bgm(audio_load_bgm("../assets/bloodlines.ogg"));
-
+	game_init();
 
 	uint32_t clk = timer_now();
 	uint32_t lastclk = clk;
@@ -28,9 +21,7 @@ int gproj(void)
 		const uint32_t now = timer_now();
 		const float dt = (((float)now) - ((float)lastclk)) / 1000;
 
-		characters_update(now, dt);
-		map_update(now);
-		actors_update(now, dt);
+		game_step(now, dt);
 
 		render_present();
 
@@ -45,7 +36,7 @@ int gproj(void)
 	}
 
 
-	map_free();
+	game_term();
 
 	return 0;
 }

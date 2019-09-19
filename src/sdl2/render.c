@@ -88,6 +88,7 @@ void render_set_ts(const char* const path)
 	if (sdl_tex_ts)
 		SDL_DestroyTexture(sdl_tex_ts);
 
+	LOG_DEBUG("LOADING TILESHEET: %s", path);
 	sdl_tex_ts = IMG_LoadTexture(sdl_rend, path);
 
 	assert(sdl_tex_ts != NULL);
@@ -98,6 +99,7 @@ void render_set_ss(const char* path)
 	if (sdl_tex_ss)
 		SDL_DestroyTexture(sdl_tex_ss);
 
+	LOG_DEBUG("LOADING SPRITESHEET: %s", path);
 	sdl_tex_ss = IMG_LoadTexture(sdl_rend, path);
 
 	assert(sdl_tex_ss != NULL);

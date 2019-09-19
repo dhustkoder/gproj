@@ -1,7 +1,36 @@
 SHELL := /bin/bash
 
+
+
+
+BUILD_DIR=./build
+OBJS_DIR=./objs
+ASM_DIR=./asm
+SRC_DIR=./src
+GAME_SRC_DIR=$(SRC_DIR)/game
+GAME_OBJS_DIR=$(OBJS_DIR)/game
+GAME_ASM_DIR=$(ASM_DIR)/game
+PLATFORM_OBJS_DIR=$(OBJS_DIR)/sdl2
+PLATFORM_SRC_DIR=$(SRC_DIR)/sdl2
+PLATFORM_ASM_DIR=$(ASM_DIR)/sdl2
+
+SRC=$(SRC_DIR)/%.c
+PLATFORM_SRC=$(PLATFORM_SRC_DIR)/%.c
+
+OBJS=$(patsubst $(SRC_DIR)/%.c, $(OBJS_DIR)/%.o, $(wildcard $(SRC_DIR)/*.c))
+ASM=$(patsubst $(SRC_DIR)/%.c, $(ASM_DIR)/%.asm, $(wildcard $(SRC_DIR)/*.c))
+
+GAME_OBJS=$(patsubst $(GAME_SRC_DIR)/%.c, $(GAME_OBJS_DIR)/%.o, $(wildcard $(GAME_SRC_DIR)/*.c))
+GAME_ASM=$(patsubst $(GAME_SRC_DIR)/%.c, $(GAME_ASM_DIR)/%.asm, $(wildcard $(GAME_SRC_DIR)/*.c))
+
+PLATFORM_OBJS=$(patsubst $(PLATFORM_SRC_DIR)/%.c, $(PLATFORM_OBJS_DIR)/%.o, $(wildcard $(PLATFORM_SRC_DIR)/*.c))
+PLATFORM_ASM=$(patsubst $(PLATFORM_SRC_DIR)/%.c, $(PLATFORM_ASM_DIR)/%.asm, $(wildcard $(PLATFORM_SRC_DIR)/*.c))
+
+
+
 CFLAGS=-std=c99 -Wall -Wextra -Wshadow \
-       -I $(SRC_DIR) -I $(SRC_DIR)/sdl2 $(shell sdl2-config --cflags) -Iexternals/tmx/src  \
+       -I $(SRC_DIR) -I $(PLATFORM_SRC_DIR) -I $(GAME_SRC_DIR) \
+	   $(shell sdl2-config --cflags) -Iexternals/tmx/src  \
        -DPLATFORM_SDL2
 
 CFLAGS_DEBUG=-g -O0 -fsanitize=address -DDEBUG -DGPROJ_DEBUG
@@ -20,21 +49,7 @@ LDFLAGS_RELEASE=
 LDFLAGS_PERF=-g
 
 
-BUILD_DIR=./build
-OBJS_DIR=./objs
-ASM_DIR=./asm
-SRC_DIR=./src
-PLATFORM_OBJS_DIR=$(OBJS_DIR)/sdl2
-PLATFORM_SRC_DIR=$(SRC_DIR)/sdl2
-PLATFORM_ASM_DIR=$(ASM_DIR)/sdl2
 
-SRC=$(SRC_DIR)/%.c
-PLATFORM_SRC=$(PLATFORM_SRC_DIR)/%.c
-
-OBJS=$(patsubst $(SRC_DIR)/%.c, $(OBJS_DIR)/%.o, $(wildcard $(SRC_DIR)/*.c))
-ASM=$(patsubst $(SRC_DIR)/%.c, $(ASM_DIR)/%.asm, $(wildcard $(SRC_DIR)/*.c))
-PLATFORM_OBJS=$(patsubst $(PLATFORM_SRC_DIR)/%.c, $(PLATFORM_OBJS_DIR)/%.o, $(wildcard $(PLATFORM_SRC_DIR)/*.c))
-PLATFORM_ASM=$(patsubst $(PLATFORM_SRC_DIR)/%.c, $(PLATFORM_ASM_DIR)/%.asm, $(wildcard $(PLATFORM_SRC_DIR)/*.c))
 
 
 ifeq ($(CC),)
@@ -67,19 +82,21 @@ endif
 
 
 all: $(EXTERNALS_LIBS) $(BUILD_DIR)/gproj
-asm: $(ASM) $(PLATFORM_ASM)
+asm: $(ASM) $(PLATFORM_ASM) $(GAME_ASM)
 
 
-$(BUILD_DIR)/gproj: $(OBJS) $(PLATFORM_OBJS)
+$(BUILD_DIR)/gproj: $(PLATFORM_OBJS) $(OBJS) $(GAME_OBJS)
 	@mkdir -p $(BUILD_DIR)
 	$(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS)
 
 $(OBJS_DIR)/%.o: $(SRC)
 	@mkdir -p $(PLATFORM_OBJS_DIR)
+	@mkdir -p $(GAME_OBJS_DIR)
 	$(CC) $(CFLAGS) -MP -MD -c $< -o $@
 
 $(ASM_DIR)/%.asm: $(SRC)
 	@mkdir -p $(PLATFORM_ASM_DIR)
+	@mkdir -p $(GAME_ASM_DIR)
 	$(CC) $(CFLAGS) -S $< -o $@
 
 
