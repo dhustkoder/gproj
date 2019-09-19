@@ -1,7 +1,9 @@
 SHELL := /bin/bash
 
-
-
+PLATFORM_LSTR=sdl2
+PLATFORM_USTR=SDL2
+PLATFORM_CFLAGS=$(shell sdl2-config --cflags) -DPLATFORM_SDL2
+PLATFORM_LDFLAGS=$(shell sdl2-config --libs) -lSDL2_image -lSDL2_mixer
 
 BUILD_DIR=./build
 OBJS_DIR=./objs
@@ -10,9 +12,9 @@ SRC_DIR=./src
 GAME_SRC_DIR=$(SRC_DIR)/game
 GAME_OBJS_DIR=$(OBJS_DIR)/game
 GAME_ASM_DIR=$(ASM_DIR)/game
-PLATFORM_OBJS_DIR=$(OBJS_DIR)/sdl2
-PLATFORM_SRC_DIR=$(SRC_DIR)/sdl2
-PLATFORM_ASM_DIR=$(ASM_DIR)/sdl2
+PLATFORM_OBJS_DIR=$(OBJS_DIR)/$(PLATFORM_LSTR)
+PLATFORM_SRC_DIR=$(SRC_DIR)/$(PLATFORM_LSTR)
+PLATFORM_ASM_DIR=$(ASM_DIR)/$(PLATFORM_LSTR)
 
 SRC=$(SRC_DIR)/%.c
 PLATFORM_SRC=$(PLATFORM_SRC_DIR)/%.c
@@ -30,8 +32,7 @@ PLATFORM_ASM=$(patsubst $(PLATFORM_SRC_DIR)/%.c, $(PLATFORM_ASM_DIR)/%.asm, $(wi
 
 CFLAGS=-std=c99 -Wall -Wextra -Wshadow \
        -I $(SRC_DIR) -I $(PLATFORM_SRC_DIR) -I $(GAME_SRC_DIR) \
-	   $(shell sdl2-config --cflags) -Iexternals/tmx/src  \
-       -DPLATFORM_SDL2
+	    $(PLATFORM_CFLAGS) -Iexternals/tmx/src
 
 CFLAGS_DEBUG=-g -O0 -fsanitize=address -DDEBUG -DGPROJ_DEBUG
 
@@ -43,7 +44,7 @@ CFLAGS_PERF=-g -O3 -fno-omit-frame-pointer
 
 EXTERNALS_LIBS=externals/tmx/build/libtmx.a
 LD_INCLUDES=-Lexternals/tmx/build
-LDFLAGS=$(LD_INCLUDES) $(shell sdl2-config --libs) -lSDL2_image -lSDL2_mixer -ltmx -lxml2 -lz
+LDFLAGS=$(LD_INCLUDES) $(PLATFORM_LDFLAGS) -ltmx -lxml2 -lz
 LDFLAGS_DEBUG=-g
 LDFLAGS_RELEASE=
 LDFLAGS_PERF=-g
