@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <tmx.h>
 #include "log.h"
 #include "types.h"
@@ -24,15 +25,19 @@ static tmx_map* map = NULL;
 
 void map_load(const char* const path)
 {
+	LOG_DEBUG("LOADING MAP %s", path);
+
 	if (map != NULL)
 		map_free();
 
 	map = tmx_load(path);
 
-	if (map == NULL) {
-		LOG_ERR("Couldn't load map: %s", tmx_strerr());
-		return;
-	}
+	assert(map != NULL && map->ts_head != NULL
+	       && map->ts_head->tileset != NULL
+		   && map->ts_head->tileset->image != NULL
+		   && map->ts_head->tileset->image->source != NULL);
+
+	render_set_ts(map->ts_head->tileset->image->source);
 
 	const tmx_layer* layp = map->ly_head;
 	map_layer_cnt = 0;

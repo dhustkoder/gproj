@@ -40,12 +40,15 @@ static input_button_t prev_buttons_states;
 
 void characters_init(void)
 {
+	render_set_ss("richter-ss.png");
+
 	actor_id = actors_create(
 		&(struct rectf) {
-			.size = { 26 * 2, 46 * 2 },
-			.pos  = {0, GPROJ_SCR_HEIGHT / 2 }
+			.size = { 32, 64 },
+			.pos  = {0, GPROJ_SCR_HEIGHT - (68 + GPROJ_TILE_HEIGHT)}
 		}
 	);
+
 	actors_anim_set(
 		actor_id,
 		timer_now(),
@@ -53,6 +56,7 @@ void characters_init(void)
 		ARRSZ(idle_frames),
 		anim_flags
 	);
+
 }
 
 

@@ -5,8 +5,8 @@
 
 
 
-static struct recti tss[64];
-static struct rectf scrs[64];
+static struct recti ss_rects[64];
+static struct rectf scr_rects[64];
 static struct actor_anim anims[64];
 static struct vec2f movs[64];
 static int nacts;
@@ -15,8 +15,8 @@ static int nacts;
 int actors_create(const struct rectf* const scr)
 {
 	const int id = nacts++;
-	scrs[id] = *scr;
-	memset(&tss[id], 0, sizeof(tss[id]));
+	scr_rects[id] = *scr;
+	memset(&ss_rects[id], 0, sizeof(ss_rects[id]));
 	memset(&anims[id], 0, sizeof(anims[id]));
 	memset(&movs[id], 0, sizeof(movs[id]));
 	return id;
@@ -35,7 +35,7 @@ void actors_anim_set(const int actor_id,
 	anims[actor_id].flags = flags;
 	if (frames != NULL) {
 		anims[actor_id].duration = frames[0].duration;
-		tss[actor_id] = frames[0].ts;
+		ss_rects[actor_id] = frames[0].ss;
 	}
 }
 
@@ -64,8 +64,8 @@ void actors_update(const uint32_t now, const float dt)
 {
 
 	for (int i = 0; i < nacts; ++i) {
-		scrs[i].pos.x += movs[i].x * dt;
-		scrs[i].pos.y += movs[i].y * dt;
+		scr_rects[i].pos.x += movs[i].x * dt;
+		scr_rects[i].pos.y += movs[i].y * dt;
 	}
 
 	for (int i = 0; i < nacts; ++i) {
@@ -97,10 +97,10 @@ void actors_update(const uint32_t now, const float dt)
 			}
 
 			anims[i].duration = anims[i].frames[anims[i].idx].duration;
-			tss[i] = anims[i].frames[anims[i].idx].ts;
+			ss_rects[i] = anims[i].frames[anims[i].idx].ss;
 		}
 	}
 
-	render_ts(tss, scrs, anims, nacts);
+	render_actors(ss_rects, scr_rects, anims, nacts);
 }
 

@@ -50,7 +50,7 @@ enum actor_anim_flag {
 
 struct actor_frame {
 	uint32_t duration;
-	struct recti ts;
+	struct recti ss;
 };
 
 struct actor_anim {

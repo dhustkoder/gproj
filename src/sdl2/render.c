@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <string.h>
+#include <assert.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <tmx.h>
@@ -11,7 +12,11 @@ extern SDL_Renderer* sdl_rend;
 extern SDL_Texture* sdl_tex_bg;
 extern SDL_Texture* sdl_tex_fg;
 extern SDL_Texture* sdl_tex_actors;
-extern SDL_Texture* sdl_tex_tileset;
+extern SDL_Texture* sdl_tex_ts;
+extern SDL_Texture* sdl_tex_ss;
+
+
+
 
 
 static void draw_flipped_gid(const int32_t gid,
@@ -37,7 +42,7 @@ static void draw_flipped_gid(const int32_t gid,
 	}
 
 	SDL_RenderCopyEx(sdl_rend,
-	                 sdl_tex_tileset,
+	                 sdl_tex_ts,
 	                 src, dst, degrees,
 	                 NULL, flips);
 }
@@ -68,13 +73,36 @@ static void draw_tile_layers(const int32_t* gids)
 				};
 
 				if ((gid&(~TMX_FLIP_BITS_REMOVAL)) == 0x00)
-					SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &src, &dst);
+					SDL_RenderCopy(sdl_rend, sdl_tex_ts, &src, &dst);
 				else
 					draw_flipped_gid(gid, &src, &dst);
 			}
 		}
 	}
 }
+
+
+
+void render_set_ts(const char* const path)
+{
+	if (sdl_tex_ts)
+		SDL_DestroyTexture(sdl_tex_ts);
+
+	sdl_tex_ts = IMG_LoadTexture(sdl_rend, path);
+
+	assert(sdl_tex_ts != NULL);
+}
+
+void render_set_ss(const char* path)
+{
+	if (sdl_tex_ss)
+		SDL_DestroyTexture(sdl_tex_ss);
+
+	sdl_tex_ss = IMG_LoadTexture(sdl_rend, path);
+
+	assert(sdl_tex_ss != NULL);
+}
+
 
 
 void render_clear(const uint8_t flags)
@@ -150,7 +178,7 @@ void render_update_tile_layers(const int32_t* const gids,
 			SDL_RenderFillRect(sdl_rend, &dst);
 
 		if ((gid&(~TMX_FLIP_BITS_REMOVAL)) == 0x00)
-			SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &src, &dst);
+			SDL_RenderCopy(sdl_rend, sdl_tex_ts, &src, &dst);
 		else
 			draw_flipped_gid(gid, &src, &dst);
 	}
@@ -158,32 +186,32 @@ void render_update_tile_layers(const int32_t* const gids,
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }
 
-void render_ts(const struct recti* const srcs,
-               const struct rectf* const dsts,
-			   const struct actor_anim* anims,
-               const int count)
+void render_actors(const struct recti* const ss_srcs,
+                   const struct rectf* const scr_dsts,
+                   const struct actor_anim* anims,
+                   const int count)
 {
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_actors);
+
 	SDL_SetRenderDrawColor(sdl_rend, 0xFF, 0xFF, 0xFF, 0xFF);
-	SDL_Rect scr, ts;
+
+	SDL_Rect scr, ss;
 	for (int i = 0; i < count; ++i) {
 		scr = (SDL_Rect) {
-			.x = dsts[i].pos.x,
-			.y = dsts[i].pos.y,
-			.w = dsts[i].size.x,
-			.h = dsts[i].size.y
+			.x = scr_dsts[i].pos.x,
+			.y = scr_dsts[i].pos.y,
+			.w = scr_dsts[i].size.x,
+			.h = scr_dsts[i].size.y
 		};
-		ts = (SDL_Rect) {
-			.x = srcs[i].pos.x,
-			.y = srcs[i].pos.y,
-			.w = srcs[i].size.x,
-			.h = srcs[i].size.y
+		ss = (SDL_Rect) {
+			.x = ss_srcs[i].pos.x,
+			.y = ss_srcs[i].pos.y,
+			.w = ss_srcs[i].size.x,
+			.h = ss_srcs[i].size.y
 		};
 		const int flags = anims[i].flags&ANIM_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
-		SDL_RenderCopyEx(sdl_rend, sdl_tex_tileset, &ts, &scr, 0, NULL, flags);
-
+		SDL_RenderCopyEx(sdl_rend, sdl_tex_ss, &ss, &scr, 0, NULL, flags);
 	}
-
 
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }

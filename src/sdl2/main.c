@@ -18,7 +18,8 @@ SDL_Renderer* sdl_rend = NULL;
 SDL_Texture* sdl_tex_bg = NULL;
 SDL_Texture* sdl_tex_actors = NULL;
 SDL_Texture* sdl_tex_fg = NULL;
-SDL_Texture* sdl_tex_tileset = NULL;
+SDL_Texture* sdl_tex_ts = NULL;
+SDL_Texture* sdl_tex_ss = NULL;
 
 int sfxs_cnt = 0;
 int bgms_cnt = 0;
@@ -97,10 +98,6 @@ static bool platform_init(bool vsync)
 	if (sdl_tex_fg == NULL)
 		goto Lfailure;
 
-	sdl_tex_tileset = IMG_LoadTexture(sdl_rend, "../assets/castle-test.png");
-	if (sdl_tex_tileset == NULL)
-		goto Lfailure;
-
 	SDL_SetTextureBlendMode(sdl_tex_actors, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(sdl_tex_fg, SDL_BLENDMODE_BLEND);
 
@@ -124,8 +121,10 @@ static void platform_term(void)
 		Mix_FreeChunk(sfxs[i]);
 
 
-	if (sdl_tex_tileset != NULL)
-		SDL_DestroyTexture(sdl_tex_tileset);
+	if (sdl_tex_ts != NULL)
+		SDL_DestroyTexture(sdl_tex_ts);
+	if (sdl_tex_ss != NULL)
+		SDL_DestroyTexture(sdl_tex_ss);
 	if (sdl_tex_fg != NULL)
 		SDL_DestroyTexture(sdl_tex_fg);
 	if (sdl_tex_actors != NULL)

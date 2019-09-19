@@ -14,7 +14,7 @@
 int gproj(void)
 {
 	characters_init();
-	map_load("../assets/castle-test.tmx");
+	map_load("../assets/map01.tmx");
 	audio_play_bgm(audio_load_bgm("../assets/bloodlines.ogg"));
 
 

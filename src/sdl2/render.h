@@ -16,13 +16,16 @@
 #define GPROJ_SCR_WIDTH      (GPROJ_TILE_WIDTH * GPROJ_X_TILES)
 #define GPROJ_SCR_HEIGHT     (GPROJ_TILE_HEIGHT * GPROJ_Y_TILES)
 
-#define GPROJ_TILESET_WIDTH  (1920)
-#define GPROJ_TILESET_HEIGHT (1080)
+#define GPROJ_TILESET_WIDTH  (4960)
+#define GPROJ_TILESET_HEIGHT (815)
 
 #define RENDER_CLEAR_BKG     (0x01)
 #define RENDER_CLEAR_FG      (0x02)
 #define RENDER_CLEAR_ACTORS  (0x04)
 
+
+extern void render_set_ts(const char* path);
+extern void render_set_ss(const char* path);
 
 extern void render_clear(uint8_t flags);
 
@@ -32,7 +35,10 @@ extern void render_update_tile_layers(const int32_t* gids,
                                       const int32_t** gids_to_update,
                                       int update_len);
 
-extern void render_ts(const struct recti* srcs, const struct rectf* dsts, const struct actor_anim* anims, int count);
+extern void render_actors(const struct recti* const ss_srcs,
+                          const struct rectf* const scr_dsts,
+                          const struct actor_anim* anims,
+                          const int count);
 extern void render_present(void);
 
 
