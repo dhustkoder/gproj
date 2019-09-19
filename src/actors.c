@@ -4,28 +4,19 @@
 #include "actors.h"
 
 
-struct animation {
-	const struct actor_frame* frames;
-	uint32_t clk;
-	uint32_t duration;
-	int cnt;
-	int idx;
-	uint8_t flags;
-};
-
 
 static struct recti tss[64];
 static struct rectf scrs[64];
-static struct animation anims[64];
+static struct actor_anim anims[64];
 static struct vec2f movs[64];
 static int nacts;
 
 
-int actors_create(const struct rectf* const scr, const struct recti* const ts)
+int actors_create(const struct rectf* const scr)
 {
 	const int id = nacts++;
 	scrs[id] = *scr;
-	tss[id]  = *ts;
+	memset(&tss[id], 0, sizeof(tss[id]));
 	memset(&anims[id], 0, sizeof(anims[id]));
 	memset(&movs[id], 0, sizeof(movs[id]));
 	return id;
@@ -77,26 +68,39 @@ void actors_update(const uint32_t now, const float dt)
 		scrs[i].pos.y += movs[i].y * dt;
 	}
 
-
 	for (int i = 0; i < nacts; ++i) {
-		struct animation* const anim = &anims[i];
-		if (anim->frames == NULL)
+		if (anims[i].frames == NULL)
 			continue;
-		if (anim->flags&ANIM_FLAG_DISABLED)
+
+		const int flags = anims[i].flags;
+		if (flags&ANIM_FLAG_DISABLED)
 			continue;
-		if ((now - anim->clk) >= anim->duration) {
-			anim->clk = now;
-			anim->idx++;
-			if (anim->idx >= anim->cnt) {
-				anim->idx = 0;
-				if (!(anim->flags&ANIM_FLAG_LOOP))
-					anim->flags |= ANIM_FLAG_DISABLED;
+
+		if ((now - anims[i].clk) >= anims[i].duration) {
+			anims[i].clk = now;
+			anims[i].idx += flags&ANIM_FLAG_BKWD ? -1 : 1;
+			if (anims[i].idx >= anims[i].cnt || anims[i].idx < 0) {
+				if (flags&ANIM_FLAG_LOOP) {
+					if (anims[i].idx > 0 && flags&ANIM_FLAG_BIDIR) {
+						anims[i].idx = anims[i].cnt - 2;
+						anims[i].flags |= ANIM_FLAG_BKWD;
+					} else if (anims[i].idx < 0) {
+						anims[i].idx = 1;
+						anims[i].flags &= ~ANIM_FLAG_BKWD;
+					} else {
+						anims[i].idx = 0;
+					}
+				} else {
+					anims[i].idx = 0;
+					anims[i].flags |= ANIM_FLAG_DISABLED;
+				}
 			}
-			anim->duration = anim->frames[anim->idx].duration;
-			tss[i] = anim->frames[anim->idx].ts;
+
+			anims[i].duration = anims[i].frames[anims[i].idx].duration;
+			tss[i] = anims[i].frames[anims[i].idx].ts;
 		}
 	}
 
-	render_ts(tss, scrs, nacts);
+	render_ts(tss, scrs, anims, nacts);
 }
 

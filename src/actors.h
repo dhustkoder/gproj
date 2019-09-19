@@ -3,21 +3,9 @@
 #include "types.h"
 
 
-enum animation_flags {
-	ANIM_FLAG_DISABLED = (0x01),
-	ANIM_FLAG_ENDED    = ANIM_FLAG_DISABLED,
-	ANIM_FLAG_LOOP     = (0x02)
-};
 
 
-
-struct actor_frame {
-	uint32_t duration;
-	struct recti ts;
-};
-
-
-extern int actors_create(const struct rectf* scr, const struct recti* ts);
+extern int actors_create(const struct rectf* scr);
 
 extern void actors_anim_set(const int actor_id,
                             uint32_t clk,

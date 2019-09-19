@@ -97,7 +97,7 @@ static bool platform_init(bool vsync)
 	if (sdl_tex_fg == NULL)
 		goto Lfailure;
 
-	sdl_tex_tileset = IMG_LoadTexture(sdl_rend, "../assets/castletest.png");
+	sdl_tex_tileset = IMG_LoadTexture(sdl_rend, "../assets/castle-test.png");
 	if (sdl_tex_tileset == NULL)
 		goto Lfailure;
 

@@ -39,7 +39,7 @@ static void draw_flipped_gid(const int32_t gid,
 	SDL_RenderCopyEx(sdl_rend,
 	                 sdl_tex_tileset,
 	                 src, dst, degrees,
-	                 NULL, flips);	
+	                 NULL, flips);
 }
 
 static void draw_tile_layers(const int32_t* gids)
@@ -160,6 +160,7 @@ void render_update_tile_layers(const int32_t* const gids,
 
 void render_ts(const struct recti* const srcs,
                const struct rectf* const dsts,
+			   const struct actor_anim* anims,
                const int count)
 {
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_actors);
@@ -178,7 +179,9 @@ void render_ts(const struct recti* const srcs,
 			.w = srcs[i].size.x,
 			.h = srcs[i].size.y
 		};
-		SDL_RenderCopy(sdl_rend, sdl_tex_tileset, &ts, &scr);
+		const int flags = anims[i].flags&ANIM_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
+		SDL_RenderCopyEx(sdl_rend, sdl_tex_tileset, &ts, &scr, 0, NULL, flags);
+
 	}
 
 

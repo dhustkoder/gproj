@@ -39,5 +39,27 @@ enum input_button {
 typedef uint8_t input_button_t;
 
 
+enum actor_anim_flag {
+	ANIM_FLAG_DISABLED = (0x01),
+	ANIM_FLAG_ENDED    = ANIM_FLAG_DISABLED,
+	ANIM_FLAG_LOOP     = (0x02),
+	ANIM_FLAG_BIDIR    = (0x04),
+	ANIM_FLAG_BKWD     = (0x08),
+	ANIM_FLAG_FLIPH    = (0x10)
+};
+
+struct actor_frame {
+	uint32_t duration;
+	struct recti ts;
+};
+
+struct actor_anim {
+	const struct actor_frame* frames;
+	uint32_t clk;
+	uint32_t duration;
+	int cnt;
+	int idx;
+	uint8_t flags;
+};
 
 #endif

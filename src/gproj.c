@@ -6,15 +6,15 @@
 #include "map.h"
 #include "timer.h"
 #include "actors.h"
-#include "player.h"
+#include "characters.h"
 #include "gproj.h"
 
 
 
 int gproj(void)
 {
-	player_init();
-	map_load("../assets/castle.tmx");
+	characters_init();
+	map_load("../assets/castle-test.tmx");
 	audio_play_bgm(audio_load_bgm("../assets/bloodlines.ogg"));
 
 
@@ -28,7 +28,7 @@ int gproj(void)
 		const uint32_t now = timer_now();
 		const float dt = (((float)now) - ((float)lastclk)) / 1000;
 
-		player_update(now, dt);
+		characters_update(now, dt);
 		map_update(now);
 		actors_update(now, dt);
 

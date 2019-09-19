@@ -17,6 +17,8 @@ int audio_load_bgm(const char* path)
 
 int audio_load_sfx(const char* path)
 {
+	((void)path);
+	assert(path && false && "NEED IMPLEMENTATION");
 	return 0;
 }
 
@@ -31,7 +33,8 @@ void audio_play_bgm(int id)
 
 void audio_play_sfx(int id)
 {
-
+	((void)id);
+	assert(id && false && "NEED IMPLEMENTATION");
 }
 
 
