@@ -11,9 +11,9 @@ input_button_t input_buttons_states;
 
 
 static const struct actor_frame idle_frames[] = {
-	{ 256, { .size = { 26, 46 }, .pos = { 90, 56 } } },
-	{ 256, { .size = { 26, 46 }, .pos = { 124, 56 } } },
-	{ 256, { .size = { 26, 46 }, .pos = { 160, 56 } } },
+	{ 196, { .size = { 26, 46 }, .pos = { 90, 56 } } },
+	{ 196, { .size = { 26, 46 }, .pos = { 124, 56 } } },
+	{ 196, { .size = { 26, 46 }, .pos = { 160, 56 } } },
 };
 
 static const struct actor_frame walking_frames[] = {
@@ -51,7 +51,7 @@ void characters_init(void)
 		timer_now(),
 		idle_frames,
 		ARRSZ(idle_frames),
-		anim_flags|ANIM_FLAG_BIDIR
+		anim_flags
 	);
 }
 
@@ -82,7 +82,7 @@ void characters_update(const uint32_t now, const float dt)
 		actors_anim_set(actor_id, now, walking_frames, ARRSZ(walking_frames), anim_flags);
 
 	} else {
-		anim_flags |= ANIM_FLAG_BIDIR;
+		anim_flags &= ~ANIM_FLAG_BIDIR;
 		actors_mov_set(actor_id, 0, 0);
 		actors_anim_set(actor_id, now, idle_frames, ARRSZ(idle_frames), anim_flags);
 	}
