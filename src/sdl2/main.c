@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_ttf.h>
 #include "log.h"
 #include "render.h"
 #include "audio.h"
@@ -20,12 +21,15 @@ SDL_Texture* sdl_tex_actors = NULL;
 SDL_Texture* sdl_tex_fg = NULL;
 SDL_Texture* sdl_tex_ts = NULL;
 SDL_Texture* sdl_tex_ss = NULL;
+SDL_Texture* sdl_tex_txt = NULL;
 
 int sfxs_cnt = 0;
 int bgms_cnt = 0;
 Mix_Chunk* sfxs[MAX_SFXS];
 Mix_Music* bgms[MAX_BGMS];
 
+
+TTF_Font* ttf_font = NULL;
 
 
 static SDL_Window* win = NULL;
@@ -58,11 +62,13 @@ static bool platform_init(bool vsync)
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_TIMER) != 0)
 		goto Lfailure;
 
-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) != 0)
+	if (IMG_Init(IMG_INIT_PNG) == 0)
 		goto Lfailure;
 
+	if (TTF_Init() != 0)
+		goto Lfailure;
 
-	if (!IMG_Init(IMG_INIT_PNG))
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) != 0)
 		goto Lfailure;
 
 	win = SDL_CreateWindow("GProj",
@@ -98,8 +104,22 @@ static bool platform_init(bool vsync)
 	if (sdl_tex_fg == NULL)
 		goto Lfailure;
 
+	sdl_tex_txt = SDL_CreateTexture(sdl_rend,
+	                        SDL_PIXELFORMAT_RGB888,
+	                        SDL_TEXTUREACCESS_TARGET,
+	                        GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
+	if (sdl_tex_txt == NULL)
+		goto Lfailure;
+
+
+	ttf_font = TTF_OpenFont("8bit-madness.ttf", 32);
+	if (ttf_font == NULL)
+		goto Lfailure;
+
+
 	SDL_SetTextureBlendMode(sdl_tex_actors, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(sdl_tex_fg, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureBlendMode(sdl_tex_txt, SDL_BLENDMODE_BLEND);
 
 	render_clear(RENDER_CLEAR_BKG|RENDER_CLEAR_FG|RENDER_CLEAR_ACTORS);
 	render_present();
@@ -120,7 +140,10 @@ static void platform_term(void)
 	for (int i = 0; i < sfxs_cnt; ++i)
 		Mix_FreeChunk(sfxs[i]);
 
+	TTF_CloseFont(ttf_font);
 
+	if (sdl_tex_txt != NULL)
+		SDL_DestroyTexture(sdl_tex_txt);
 	if (sdl_tex_ts != NULL)
 		SDL_DestroyTexture(sdl_tex_ts);
 	if (sdl_tex_ss != NULL)
@@ -136,8 +159,9 @@ static void platform_term(void)
 	if (win != NULL)
 		SDL_DestroyWindow(win);
 
-	IMG_Quit();
 	Mix_CloseAudio();
+	TTF_Quit();
+	IMG_Quit();
 	SDL_Quit();
 }
 

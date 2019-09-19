@@ -3,7 +3,7 @@ SHELL := /bin/bash
 PLATFORM_LSTR=sdl2
 PLATFORM_USTR=SDL2
 PLATFORM_CFLAGS=$(shell sdl2-config --cflags) -DPLATFORM_SDL2
-PLATFORM_LDFLAGS=$(shell sdl2-config --libs) -lSDL2_image -lSDL2_mixer
+PLATFORM_LDFLAGS=$(shell sdl2-config --libs) -lSDL2_image -lSDL2_mixer -lSDL2_ttf
 
 BUILD_DIR=./build
 OBJS_DIR=./objs

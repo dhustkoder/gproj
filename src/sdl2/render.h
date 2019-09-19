@@ -22,6 +22,7 @@
 #define RENDER_CLEAR_BKG     (0x01)
 #define RENDER_CLEAR_FG      (0x02)
 #define RENDER_CLEAR_ACTORS  (0x04)
+#define RENDER_CLEAR_TXT     (0x08)
 
 
 extern void render_set_ts(const char* path);
@@ -39,6 +40,9 @@ extern void render_actors(const struct recti* const ss_srcs,
                           const struct rectf* const scr_dsts,
                           const struct actor_anim* anims,
                           const int count);
+
+
+extern void render_text(const struct rectf* const scrdst, const char* const text);
 extern void render_present(void);
 
 
