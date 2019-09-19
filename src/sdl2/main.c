@@ -97,7 +97,7 @@ static bool platform_init(bool vsync)
 	if (sdl_tex_fg == NULL)
 		goto Lfailure;
 
-	sdl_tex_tileset = IMG_LoadTexture(sdl_rend, "../assets/richter.png");
+	sdl_tex_tileset = IMG_LoadTexture(sdl_rend, "../assets/castletest.png");
 	if (sdl_tex_tileset == NULL)
 		goto Lfailure;
 
@@ -110,7 +110,7 @@ static bool platform_init(bool vsync)
 	return true;
 
 Lfailure:
-	LOG_ERR("Couldn't initialize platform: %s", SDL_GetError());
+	LOG_ERR("Couldn't initialize platform: %s\n", SDL_GetError());
 	return false;
 }
 

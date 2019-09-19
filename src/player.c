@@ -52,8 +52,6 @@ enum {
 };
 
 static int actor_id = 0;
-static int anim_id = 0;
-static int mov_id  = 0;
 static float velocity = 1 * GPROJ_TILE_WIDTH;
 static uint8_t states = 0;
 static const struct actor_frame* curr_frames = NULL;
@@ -70,10 +68,8 @@ void player_init(void)
 		&walk_right[0].ts
 	);
 
-	anim_id = actors_anim_create(actor_id, walk_right, 1, ANIM_FLAG_DISABLED);
 	states |= FACING_DOWN;
 	curr_frames = NULL;
-	mov_id = actors_mov_create(actor_id, 0, 0);
 }
 
 
@@ -81,20 +77,13 @@ void player_update(const uint32_t now, const float dt)
 {
 	((void)dt);
 
-	if (states&ATTACKING) {
-		if (actors_anim_flags(anim_id)&ANIM_FLAG_ENDED)
-			states &= ~ATTACKING;
-		else
-			return;
-	}
-
 	if (prev_buttons_states == input_buttons_states)
 		return;
 
 	if (input_buttons_states&(INPUT_BUTTON_LEFT |
-	                                 INPUT_BUTTON_RIGHT|
-	                                 INPUT_BUTTON_UP   |
-	                                 INPUT_BUTTON_DOWN)) {
+	                          INPUT_BUTTON_RIGHT|
+	                          INPUT_BUTTON_UP   |
+	                          INPUT_BUTTON_DOWN)) {
 
 		const struct actor_frame* frames = NULL;
 		int cnt = 0, facing = 0;
@@ -125,14 +114,14 @@ void player_update(const uint32_t now, const float dt)
 		if (frames != NULL) {
 			states &= ~FACING_STATES;
 			states |= facing;
-			actors_mov_set(mov_id, vx, vy);
-			actors_anim_set(anim_id, now, frames, cnt, ANIM_FLAG_LOOP);
+			actors_mov_set(actor_id, vx, vy);
+			actors_anim_set(actor_id, now, frames, cnt, ANIM_FLAG_LOOP);
 			curr_frames = frames;
 		}
 
 	} else {
-		actors_mov_set(mov_id, 0, 0);
-		actors_anim_set(anim_id, 0, NULL, 0, ANIM_FLAG_DISABLED);
+		actors_mov_set(actor_id, 0, 0);
+		actors_anim_set(actor_id, 0, NULL, 0, ANIM_FLAG_DISABLED);
 		curr_frames = NULL;
 	}
 
