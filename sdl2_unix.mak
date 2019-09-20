@@ -2,22 +2,31 @@ SHELL := /bin/bash
 
 PLATFORM_LSTR=sdl2
 PLATFORM_USTR=SDL2
+
 PLATFORM_CFLAGS=$(shell sdl2-config --cflags) -DPLATFORM_SDL2
 PLATFORM_LDFLAGS=$(shell sdl2-config --libs) -lSDL2_image -lSDL2_mixer -lSDL2_ttf
+
+EXTERNALS_DIR=./externals
+LIBTMX_DIR=$(EXTERNALS_DIR)/tmx
+SDLFC_DIR=$(EXTERNALS_DIR)/SDL_FontCache
 
 BUILD_DIR=./build
 OBJS_DIR=./objs
 ASM_DIR=./asm
 SRC_DIR=./src
+
 GAME_SRC_DIR=$(SRC_DIR)/game
 GAME_OBJS_DIR=$(OBJS_DIR)/game
 GAME_ASM_DIR=$(ASM_DIR)/game
+
 PLATFORM_OBJS_DIR=$(OBJS_DIR)/$(PLATFORM_LSTR)
 PLATFORM_SRC_DIR=$(SRC_DIR)/$(PLATFORM_LSTR)
 PLATFORM_ASM_DIR=$(ASM_DIR)/$(PLATFORM_LSTR)
 
 SRC=$(SRC_DIR)/%.c
+GAME_SRC=$(GAME_SRC_DIR)/%.c
 PLATFORM_SRC=$(PLATFORM_SRC_DIR)/%.c
+
 
 OBJS=$(patsubst $(SRC_DIR)/%.c, $(OBJS_DIR)/%.o, $(wildcard $(SRC_DIR)/*.c))
 ASM=$(patsubst $(SRC_DIR)/%.c, $(ASM_DIR)/%.asm, $(wildcard $(SRC_DIR)/*.c))
@@ -32,7 +41,7 @@ PLATFORM_ASM=$(patsubst $(PLATFORM_SRC_DIR)/%.c, $(PLATFORM_ASM_DIR)/%.asm, $(wi
 
 CFLAGS=-std=c99 -Wall -Wextra -Wshadow \
        -I $(SRC_DIR) -I $(PLATFORM_SRC_DIR) -I $(GAME_SRC_DIR) \
-	    $(PLATFORM_CFLAGS) -Iexternals/tmx/src -Iexternals/SDL_FontCache
+	    $(PLATFORM_CFLAGS) -I$(LIBTMX_DIR)/src -I$(SDLFC_DIR)
 
 CFLAGS_DEBUG=-g -O0 -fsanitize=address -DDEBUG -DGPROJ_DEBUG
 
@@ -42,9 +51,10 @@ CFLAGS_RELEASE=-Werror -O3 -march=native -ffast-math -fstrict-aliasing \
 
 CFLAGS_PERF=-g -O3 -fno-omit-frame-pointer
 
-EXTERNALS_LIBS=externals/tmx/build/libtmx.a
-LD_INCLUDES=-Lexternals/tmx/build
-LDFLAGS=$(LD_INCLUDES) $(PLATFORM_LDFLAGS) externals/SDL_FontCache/SDL_fontcache.o -ltmx -lxml2 -lz
+EXTERNALS_LIBS=$(LIBTMX_DIR)/build/libtmx.a $(SDLFC_DIR)/libSDL_fontcache.a
+
+LD_INCLUDES=-L$(LIBTMX_DIR)/build -L$(SDLFC_DIR)
+LDFLAGS=$(LD_INCLUDES) $(PLATFORM_LDFLAGS) -lSDL_fontcache -ltmx -lxml2 -lz
 LDFLAGS_DEBUG=-g
 LDFLAGS_RELEASE=
 LDFLAGS_PERF=-g
@@ -102,10 +112,11 @@ $(ASM_DIR)/%.asm: $(SRC)
 
 
 # LIBTMX build commands
-externals/tmx/build/libtmx.a:
-	@mkdir -p externals/tmx/build
-	@pushd externals/tmx/build && cmake .. && make && popd
-
+$(LIBTMX_DIR)/build/libtmx.a:
+	@mkdir -p $(LIBTMX_DIR)
+	@pushd $(LIBTMX_DIR) && cmake .. && make && popd
+$(SDLFC_DIR)/libSDL_fontcache.a:
+	@pushd $(SDLFC_DIR) && make -f unix.mak && popd
 
 -include $(shell ls $(OBJS_DIR)/*.d 2>/dev/null)
 

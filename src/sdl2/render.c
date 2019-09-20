@@ -229,11 +229,10 @@ void render_text(const struct vec2f* const scrdst,
 	va_start(vargs, text);
 
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_actors);
-	FC_Draw(sdl_font, sdl_rend, scrdst->x, scrdst->y, text, vargs);
+	FC_Draw_v(sdl_font, sdl_rend, scrdst->x, scrdst->y, text, vargs);
 	SDL_SetRenderTarget(sdl_rend, NULL);
 
 	va_end(vargs);
-
 }
 
 void render_present(void)

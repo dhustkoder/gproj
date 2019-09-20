@@ -1,6 +1,6 @@
 [submodule "externals/tmx"]
 	path = externals/tmx
-	url = https://github.com/baylej/tmx
+	url = https://github.com/dhustkoder/tmx
 [submodule "externals/SDL_FontCache"]
 	path = externals/SDL_FontCache
-	url = https://github.com/grimfang4/SDL_FontCache
+	url = https://github.com/dhustkoder/SDL_FontCache
