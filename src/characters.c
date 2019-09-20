@@ -44,8 +44,8 @@ void characters_init(void)
 
 	actor_id = actors_create(
 		&(struct rectf) {
-			.size = { 32, 64 },
-			.pos  = { 0, GPROJ_SCR_HEIGHT - (68 + GPROJ_TILE_HEIGHT) }
+			.size = { 26, 46 },
+			.pos  = { 32, GPROJ_SCR_HEIGHT - 46 - 36 }
 		}
 	);
 
@@ -72,7 +72,7 @@ void characters_update(const uint32_t now, const float dt)
 	                          INPUT_BUTTON_UP   |
 	                          INPUT_BUTTON_DOWN)) {
 
-		float velx = GPROJ_X_TILES * 4;
+		float velx = GPROJ_X_TILES * 8;
 		anim_flags &= ~ANIM_FLAG_BIDIR;
 		if (input_buttons_states&INPUT_BUTTON_RIGHT) {
 			velx = +velx;

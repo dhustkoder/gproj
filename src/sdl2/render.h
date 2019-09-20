@@ -8,8 +8,8 @@
 #include "actors.h"
 
 
-#define GPROJ_X_TILES        (16)
-#define GPROJ_Y_TILES        (8)
+#define GPROJ_X_TILES        (8)
+#define GPROJ_Y_TILES        (5)
 
 #define GPROJ_TILE_WIDTH     (32)
 #define GPROJ_TILE_HEIGHT    (32)
@@ -17,8 +17,8 @@
 #define GPROJ_SCR_WIDTH      (GPROJ_TILE_WIDTH * GPROJ_X_TILES)
 #define GPROJ_SCR_HEIGHT     (GPROJ_TILE_HEIGHT * GPROJ_Y_TILES)
 
-#define GPROJ_TILESET_WIDTH  (4960)
-#define GPROJ_TILESET_HEIGHT (815)
+#define GPROJ_TILESET_WIDTH  (1920*2)
+#define GPROJ_TILESET_HEIGHT (1080)
 
 #define RENDER_CLEAR_BKG     (0x01)
 #define RENDER_CLEAR_FG      (0x02)
