@@ -113,8 +113,8 @@ $(ASM_DIR)/%.asm: $(SRC)
 
 # LIBTMX build commands
 $(LIBTMX_DIR)/build/libtmx.a:
-	@mkdir -p $(LIBTMX_DIR)
-	@pushd $(LIBTMX_DIR) && cmake .. && make && popd
+	@mkdir -p $(LIBTMX_DIR)/build
+	@pushd $(LIBTMX_DIR)/build && cmake .. && make && popd
 $(SDLFC_DIR)/libSDL_fontcache.a:
 	@pushd $(SDLFC_DIR) && make -f unix.mak && popd
 
