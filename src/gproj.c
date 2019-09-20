@@ -11,14 +11,9 @@ int gproj(void)
 {
 	game_init();
 
-	const struct rectf fpstxt = {
-		.pos = {10, 10},
-		.size = { 32 * 2, 32 }
-	};
-	char fpsstr[16] = { 0 };
-
 	uint32_t clk = timer_now();
 	uint32_t lastclk = clk;
+	int curfps = 0;
 	int fps = 0;
 
 	while (events_update()) {
@@ -28,13 +23,12 @@ int gproj(void)
 		const float dt = (((float)now) - ((float)lastclk)) / 1000;
 
 		game_step(now, dt);
-		render_text(&fpstxt, fpsstr);
+		render_text(&(struct vec2f){0, 0}, "FPS: %d", curfps);
 		render_present();
 
 		++fps;
 		if ((timer_now() - clk) >= 1000) {
-			render_clear(RENDER_CLEAR_TXT);
-			sprintf(fpsstr, "FPS: %.4d", fps);
+			curfps = fps;
 			fps = 0;
 			clk = timer_now();
 		}

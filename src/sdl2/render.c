@@ -1,9 +1,10 @@
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
+#include <stdarg.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
+#include "SDL_FontCache.h"
 #include <tmx.h>
 #include "render.h"
 #include "log.h"
@@ -15,11 +16,8 @@ extern SDL_Texture* sdl_tex_fg;
 extern SDL_Texture* sdl_tex_actors;
 extern SDL_Texture* sdl_tex_ts;
 extern SDL_Texture* sdl_tex_ss;
-extern SDL_Texture* sdl_tex_txt;
 
-
-extern TTF_Font* ttf_font;
-
+extern FC_Font* sdl_font;
 
 
 
@@ -131,12 +129,6 @@ void render_clear(const uint8_t flags)
 		SDL_RenderClear(sdl_rend);
 	}
 
-	if (flags&RENDER_CLEAR_TXT) {
-		SDL_SetRenderTarget(sdl_rend, sdl_tex_txt);
-		SDL_SetRenderDrawColor(sdl_rend, 0x00, 0x00, 0x00, 0x00);
-		SDL_RenderClear(sdl_rend);
-	}
-
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }
 
@@ -229,34 +221,19 @@ void render_actors(const struct recti* const ss_srcs,
 }
 
 
-void render_text(const struct rectf* const scrdst, const char* const text)
+void render_text(const struct vec2f* const scrdst,
+                 const char* const text,
+				 ...)
 {
-	/*
-		TODO: create a text module
-		to optimize text rendering
-		and font loading
-	*/
+	va_list vargs;
+	va_start(vargs, text);
 
-	SDL_Surface* surf = TTF_RenderText_Solid(ttf_font, text,
-		(SDL_Color){.r=0xFF, .g=0xFF, .b=0xFF, .a = 0xFF}
-	);
-
-	SDL_SetRenderTarget(sdl_rend, sdl_tex_txt);
-	SDL_SetRenderDrawColor(sdl_rend, 0xFF, 0xFF, 0xFF, 0xFF);
-
-	SDL_Texture* const tmp = SDL_CreateTextureFromSurface(sdl_rend, surf);
-
-	SDL_RenderCopy(sdl_rend, tmp, NULL, &(SDL_Rect){
-		.x = scrdst->pos.x,
-		.y = scrdst->pos.y,
-		.w = scrdst->size.x,
-		.h = scrdst->size.y
-	});
-
-	SDL_DestroyTexture(tmp);
-	SDL_FreeSurface(surf);
-
+	SDL_SetRenderTarget(sdl_rend, sdl_tex_actors);
+	FC_Draw(sdl_font, sdl_rend, scrdst->x, scrdst->y, text, vargs);
 	SDL_SetRenderTarget(sdl_rend, NULL);
+
+	va_end(vargs);
+
 }
 
 void render_present(void)
@@ -264,6 +241,5 @@ void render_present(void)
 	SDL_RenderCopy(sdl_rend, sdl_tex_bg, NULL, NULL);
 	SDL_RenderCopy(sdl_rend, sdl_tex_actors, NULL, NULL);
 	SDL_RenderCopy(sdl_rend, sdl_tex_fg, NULL, NULL);
-	SDL_RenderCopy(sdl_rend, sdl_tex_txt, NULL, NULL);
 	SDL_RenderPresent(sdl_rend);
 }

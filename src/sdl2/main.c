@@ -5,6 +5,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
+#include "SDL_FontCache.h"
 #include "log.h"
 #include "render.h"
 #include "audio.h"
@@ -21,7 +22,7 @@ SDL_Texture* sdl_tex_actors = NULL;
 SDL_Texture* sdl_tex_fg = NULL;
 SDL_Texture* sdl_tex_ts = NULL;
 SDL_Texture* sdl_tex_ss = NULL;
-SDL_Texture* sdl_tex_txt = NULL;
+
 
 int sfxs_cnt = 0;
 int bgms_cnt = 0;
@@ -29,7 +30,7 @@ Mix_Chunk* sfxs[MAX_SFXS];
 Mix_Music* bgms[MAX_BGMS];
 
 
-TTF_Font* ttf_font = NULL;
+FC_Font* sdl_font;
 
 
 static SDL_Window* win = NULL;
@@ -104,22 +105,17 @@ static bool platform_init(bool vsync)
 	if (sdl_tex_fg == NULL)
 		goto Lfailure;
 
-	sdl_tex_txt = SDL_CreateTexture(sdl_rend,
-	                        SDL_PIXELFORMAT_RGB888,
-	                        SDL_TEXTUREACCESS_TARGET,
-	                        GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
-	if (sdl_tex_txt == NULL)
+
+	if ((sdl_font = FC_CreateFont()) == NULL)
 		goto Lfailure;
 
-
-	ttf_font = TTF_OpenFont("8bit-madness.ttf", 32);
-	if (ttf_font == NULL)
+	if (!FC_LoadFont(sdl_font, sdl_rend,
+	                 "8bit-madness.ttf", 32,
+		             FC_MakeColor(0xFF,0xFF,0xFF,0xFF), TTF_STYLE_NORMAL))
 		goto Lfailure;
-
 
 	SDL_SetTextureBlendMode(sdl_tex_actors, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(sdl_tex_fg, SDL_BLENDMODE_BLEND);
-	SDL_SetTextureBlendMode(sdl_tex_txt, SDL_BLENDMODE_BLEND);
 
 	render_clear(RENDER_CLEAR_BKG|RENDER_CLEAR_FG|RENDER_CLEAR_ACTORS);
 	render_present();
@@ -135,15 +131,13 @@ static void platform_term(void)
 {
 	LOG_DEBUG("Terminating Platform");
 
+	FC_FreeFont(sdl_font);
+
 	for (int i = 0; i < bgms_cnt; ++i)
 		Mix_FreeMusic(bgms[i]);
 	for (int i = 0; i < sfxs_cnt; ++i)
 		Mix_FreeChunk(sfxs[i]);
 
-	TTF_CloseFont(ttf_font);
-
-	if (sdl_tex_txt != NULL)
-		SDL_DestroyTexture(sdl_tex_txt);
 	if (sdl_tex_ts != NULL)
 		SDL_DestroyTexture(sdl_tex_ts);
 	if (sdl_tex_ss != NULL)

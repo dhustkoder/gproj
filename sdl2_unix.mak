@@ -32,7 +32,7 @@ PLATFORM_ASM=$(patsubst $(PLATFORM_SRC_DIR)/%.c, $(PLATFORM_ASM_DIR)/%.asm, $(wi
 
 CFLAGS=-std=c99 -Wall -Wextra -Wshadow \
        -I $(SRC_DIR) -I $(PLATFORM_SRC_DIR) -I $(GAME_SRC_DIR) \
-	    $(PLATFORM_CFLAGS) -Iexternals/tmx/src
+	    $(PLATFORM_CFLAGS) -Iexternals/tmx/src -Iexternals/SDL_FontCache
 
 CFLAGS_DEBUG=-g -O0 -fsanitize=address -DDEBUG -DGPROJ_DEBUG
 
@@ -44,7 +44,7 @@ CFLAGS_PERF=-g -O3 -fno-omit-frame-pointer
 
 EXTERNALS_LIBS=externals/tmx/build/libtmx.a
 LD_INCLUDES=-Lexternals/tmx/build
-LDFLAGS=$(LD_INCLUDES) $(PLATFORM_LDFLAGS) -ltmx -lxml2 -lz
+LDFLAGS=$(LD_INCLUDES) $(PLATFORM_LDFLAGS) externals/SDL_FontCache/SDL_fontcache.o -ltmx -lxml2 -lz
 LDFLAGS_DEBUG=-g
 LDFLAGS_RELEASE=
 LDFLAGS_PERF=-g

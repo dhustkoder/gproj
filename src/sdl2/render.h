@@ -2,6 +2,7 @@
 #define GPROJ_RENDER_H_
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdarg.h>
 #include <SDL2/SDL.h>
 #include "types.h"
 #include "actors.h"
@@ -42,7 +43,8 @@ extern void render_actors(const struct recti* const ss_srcs,
                           const int count);
 
 
-extern void render_text(const struct rectf* const scrdst, const char* const text);
+extern void render_text(const struct vec2f* scrdst, const char* text, ...);
+
 extern void render_present(void);
 
 
