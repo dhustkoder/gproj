@@ -1,4 +1,5 @@
 #include <assert.h>
+#include "log.h"
 #include "timer.h"
 #include "render.h"
 #include "actors.h"
@@ -62,10 +63,15 @@ void actors_mov_set(const int actor_id,
 
 void actors_update(const uint32_t now, const float dt)
 {
+	bool need_update = false;
 
 	for (int i = 0; i < nacts; ++i) {
-		scr_rects[i].pos.x += movs[i].x * dt;
-		scr_rects[i].pos.y += movs[i].y * dt;
+		if (movs[i].x < -0.01f || movs[i].x >= 0.01f ||
+		    movs[i].y < -0.01f || movs[i].y >= 0.01f) {
+			scr_rects[i].pos.x += movs[i].x * dt;
+			scr_rects[i].pos.y += movs[i].y * dt;
+			need_update = true;
+		}
 	}
 
 	for (int i = 0; i < nacts; ++i) {
@@ -77,6 +83,7 @@ void actors_update(const uint32_t now, const float dt)
 			continue;
 
 		if ((now - anims[i].clk) >= anims[i].duration) {
+			need_update = true;
 			anims[i].clk = now;
 			anims[i].idx += flags&ANIM_FLAG_BKWD ? -1 : 1;
 			if (anims[i].idx >= anims[i].cnt || anims[i].idx < 0) {
@@ -101,6 +108,7 @@ void actors_update(const uint32_t now, const float dt)
 		}
 	}
 
-	render_actors(ss_rects, scr_rects, anims, nacts);
+	if (need_update)
+		render_actors(ss_rects, scr_rects, anims, nacts);
 }
 

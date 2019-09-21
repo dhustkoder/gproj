@@ -16,8 +16,12 @@ extern SDL_Texture* sdl_tex_fg;
 extern SDL_Texture* sdl_tex_actors;
 extern SDL_Texture* sdl_tex_ts;
 extern SDL_Texture* sdl_tex_ss;
-
 extern FC_Font* sdl_font;
+
+extern const enum render_layer layers_arr[RENDER_LAYER_NLAYERS];
+extern SDL_Texture* tex_targets_arr[RENDER_LAYER_NLAYERS];
+
+static enum render_layer layers_cleared;
 
 
 
@@ -84,7 +88,6 @@ static void draw_tile_layers(const int32_t* gids)
 }
 
 
-
 void render_set_ts(const char* const path)
 {
 	if (sdl_tex_ts)
@@ -108,33 +111,24 @@ void render_set_ss(const char* path)
 }
 
 
-
-void render_clear(const uint8_t flags)
+void render_clear(const enum render_layer layers)
 {
-	if (flags&RENDER_CLEAR_BKG) {
-		SDL_SetRenderTarget(sdl_rend, sdl_tex_bg);
-		SDL_SetRenderDrawColor(sdl_rend, 0x00, 0x00, 0x00, 0x00);
-		SDL_RenderClear(sdl_rend);
+	assert(layers != 0);
+
+	for (size_t i = 0; i < ARRSZ(layers_arr); ++i) {
+		if (layers&layers_arr[i] && !(layers_arr[i]&layers_cleared)) {
+			SDL_SetRenderTarget(sdl_rend, tex_targets_arr[i]);
+			SDL_RenderClear(sdl_rend);
+		}
 	}
 
-	if (flags&RENDER_CLEAR_FG) {
-		SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
-		SDL_SetRenderDrawColor(sdl_rend, 0x00, 0x00, 0x00, 0x00);
-		SDL_RenderClear(sdl_rend);
-	}
-
-	if (flags&RENDER_CLEAR_ACTORS) {
-		SDL_SetRenderTarget(sdl_rend, sdl_tex_actors);
-		SDL_SetRenderDrawColor(sdl_rend, 0x00, 0x00, 0x00, 0x00);
-		SDL_RenderClear(sdl_rend);
-	}
-
-	SDL_SetRenderTarget(sdl_rend, NULL);
+	layers_cleared |= layers;
 }
 
 
 void render_tile_layers(const int32_t* const gids)
 {
+	render_clear(RENDER_LAYER_BG|RENDER_LAYER_FG);
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_bg);
 	draw_tile_layers(gids);
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
@@ -142,10 +136,13 @@ void render_tile_layers(const int32_t* const gids)
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }
 
+
 void render_update_tile_layers(const int32_t* const gids,
                                const int32_t** const gids_to_update,
                                const int update_len)
 {
+	render_clear(RENDER_LAYER_BG|RENDER_LAYER_FG);
+
 	SDL_Rect src, dst;
 	for (int i = 0; i < update_len; ++i) {
 		const int32_t* const gid_ptr = gids_to_update[i];
@@ -165,11 +162,11 @@ void render_update_tile_layers(const int32_t* const gids,
 
 		const uintptr_t layer_idx = (gid_ptr - gids) / (GPROJ_X_TILES * GPROJ_Y_TILES);
 		const uintptr_t diff = (gid_ptr - gids) - (layer_idx * GPROJ_X_TILES * GPROJ_Y_TILES);
-		if (layer_idx < MAP_LAYER_FG)
+		if (layer_idx < MAP_LAYER_FG) {
 			SDL_SetRenderTarget(sdl_rend, sdl_tex_bg);
-		else
+		} else {
 			SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
-
+		}
 
 		dst = (SDL_Rect) {
 			.x = (diff % GPROJ_X_TILES) * GPROJ_TILE_WIDTH,
@@ -190,14 +187,13 @@ void render_update_tile_layers(const int32_t* const gids,
 	SDL_SetRenderTarget(sdl_rend, NULL);
 }
 
+
 void render_actors(const struct recti* const ss_srcs,
                    const struct rectf* const scr_dsts,
                    const struct actor_anim* anims,
                    const int count)
 {
-	SDL_SetRenderTarget(sdl_rend, sdl_tex_actors);
-
-	SDL_SetRenderDrawColor(sdl_rend, 0xFF, 0xFF, 0xFF, 0xFF);
+	render_clear(RENDER_LAYER_ACTORS);
 
 	SDL_Rect scr, ss;
 	for (int i = 0; i < count; ++i) {
@@ -221,24 +217,35 @@ void render_actors(const struct recti* const ss_srcs,
 }
 
 
-void render_text(const struct vec2f* const scrdst,
+void render_text(const enum render_layer layers,
+                 const struct vec2f* const scrdst,
                  const char* const text,
 				 ...)
 {
 	va_list vargs;
 	va_start(vargs, text);
 
-	SDL_SetRenderTarget(sdl_rend, sdl_tex_actors);
-	FC_Draw_v(sdl_font, sdl_rend, scrdst->x, scrdst->y, text, vargs);
-	SDL_SetRenderTarget(sdl_rend, NULL);
+	render_clear(layers);
+
+	for (size_t i = 0; i < ARRSZ(layers_arr); ++i) {
+		if (layers&layers_arr[i]) {
+			SDL_SetRenderTarget(sdl_rend, tex_targets_arr[i]);
+			FC_Draw_v(sdl_font, sdl_rend, scrdst->x, scrdst->y, text, vargs);
+			SDL_SetRenderTarget(sdl_rend, NULL);
+		}
+	}
 
 	va_end(vargs);
 }
 
+
 void render_present(void)
 {
-	SDL_RenderCopy(sdl_rend, sdl_tex_bg, NULL, NULL);
-	SDL_RenderCopy(sdl_rend, sdl_tex_actors, NULL, NULL);
-	SDL_RenderCopy(sdl_rend, sdl_tex_fg, NULL, NULL);
+	for (size_t i = 0; i < ARRSZ(layers_arr); ++i)
+		SDL_RenderCopy(sdl_rend, tex_targets_arr[i], NULL, NULL);
+
+	layers_cleared = 0;
+
 	SDL_RenderPresent(sdl_rend);
 }
+

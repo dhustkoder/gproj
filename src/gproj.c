@@ -13,25 +13,22 @@ int gproj(void)
 
 	uint32_t clk = timer_now();
 	uint32_t lastclk = clk;
-	int curfps = 0;
 	int fps = 0;
 
 	while (events_update()) {
-		render_clear(RENDER_CLEAR_ACTORS);
-
 		const uint32_t now = timer_now();
-		const float dt = (((float)now) - ((float)lastclk)) / 1000;
+		const float dt = (((float)now) - ((float)lastclk)) / TIMER_SECOND;
 
 		game_step(now, dt);
-		render_text(&(struct vec2f){0, 0}, "FPS: %d", curfps);
-		render_present();
 
 		++fps;
-		if ((timer_now() - clk) >= 1000) {
-			curfps = fps;
+		if ((timer_now() - clk) >= TIMER_SECOND) {
+			render_text(RENDER_LAYER_FG, &(struct vec2f){0, 0}, "FPS: %d", fps);
 			fps = 0;
 			clk = timer_now();
 		}
+
+		render_present();
 
 		lastclk = now;
 	}

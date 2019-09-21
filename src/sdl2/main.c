@@ -23,6 +23,14 @@ SDL_Texture* sdl_tex_fg = NULL;
 SDL_Texture* sdl_tex_ts = NULL;
 SDL_Texture* sdl_tex_ss = NULL;
 
+const enum render_layer layers_arr[RENDER_LAYER_NLAYERS] = {
+	RENDER_LAYER_BG,
+	RENDER_LAYER_ACTORS,
+	RENDER_LAYER_FG
+};
+
+SDL_Texture* tex_targets_arr[RENDER_LAYER_NLAYERS];
+
 
 int sfxs_cnt = 0;
 int bgms_cnt = 0;
@@ -114,10 +122,16 @@ static bool platform_init(bool vsync)
 		             FC_MakeColor(0xFF,0xFF,0xFF,0xFF), TTF_STYLE_NORMAL))
 		goto Lfailure;
 
+
 	SDL_SetTextureBlendMode(sdl_tex_actors, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(sdl_tex_fg, SDL_BLENDMODE_BLEND);
 
-	render_clear(RENDER_CLEAR_BKG|RENDER_CLEAR_FG|RENDER_CLEAR_ACTORS);
+	tex_targets_arr[0] = sdl_tex_bg;
+	tex_targets_arr[1] = sdl_tex_actors;
+	tex_targets_arr[2] = sdl_tex_fg;
+
+	render_clear(RENDER_LAYER_BG|RENDER_LAYER_FG|RENDER_LAYER_ACTORS);
+
 	render_present();
 
 	return true;
