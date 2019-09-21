@@ -81,13 +81,6 @@ void map_free(void)
 	tmx_map_free(map);
 }
 
-bool map_is_blocking(const struct rectf* const origin)
-{
-	const int x = origin->pos.x / GPROJ_TILE_WIDTH;
-	const int y = origin->pos.y / GPROJ_TILE_HEIGHT;
-	return map_blk[y][x] != 0;
-}
-
 void map_update(const uint32_t now)
 {
 	static int32_t* ids_to_update[64];
