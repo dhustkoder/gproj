@@ -12,6 +12,7 @@ static struct actor_anim anims[64];
 static struct vec2f movs[64];
 static int nacts;
 
+static bool need_render = false;
 
 int actors_create(const struct rectf* const scr)
 {
@@ -29,6 +30,7 @@ void actors_anim_set(const int actor_id,
                      const int cnt,
                      const int flags)
 {
+	need_render = true;
 	anims[actor_id].idx = 0;
 	anims[actor_id].clk = clk;
 	anims[actor_id].frames = frames;
@@ -63,14 +65,14 @@ void actors_mov_set(const int actor_id,
 
 void actors_update(const uint32_t now, const float dt)
 {
-	bool need_update = false;
+
 
 	for (int i = 0; i < nacts; ++i) {
 		if (movs[i].x < -0.01f || movs[i].x >= 0.01f ||
 		    movs[i].y < -0.01f || movs[i].y >= 0.01f) {
 			scr_rects[i].pos.x += movs[i].x * dt;
 			scr_rects[i].pos.y += movs[i].y * dt;
-			need_update = true;
+			need_render = true;
 		}
 	}
 
@@ -83,7 +85,7 @@ void actors_update(const uint32_t now, const float dt)
 			continue;
 
 		if ((now - anims[i].clk) >= anims[i].duration) {
-			need_update = true;
+			need_render = true;
 			anims[i].clk = now;
 			anims[i].idx += flags&ANIM_FLAG_BKWD ? -1 : 1;
 			if (anims[i].idx >= anims[i].cnt || anims[i].idx < 0) {
@@ -108,7 +110,9 @@ void actors_update(const uint32_t now, const float dt)
 		}
 	}
 
-	if (need_update)
+	if (need_render) {
+		need_render = false;
 		render_actors(ss_rects, scr_rects, anims, nacts);
+	}
 }
 
