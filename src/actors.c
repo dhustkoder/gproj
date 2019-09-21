@@ -65,8 +65,6 @@ void actors_mov_set(const int actor_id,
 
 void actors_update(const uint32_t now, const float dt)
 {
-
-
 	for (int i = 0; i < nacts; ++i) {
 		if (movs[i].x < -0.01f || movs[i].x >= 0.01f ||
 		    movs[i].y < -0.01f || movs[i].y >= 0.01f) {

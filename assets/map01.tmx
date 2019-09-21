@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.4" orientation="orthogonal" renderorder="right-down" width="8" height="5" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="1">
+<map version="1.2" tiledversion="1.2.4" orientation="orthogonal" renderorder="right-down" width="16" height="5" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="1">
  <tileset firstgid="1" name="map01-ts" tilewidth="32" tileheight="32" tilecount="3960" columns="120">
   <image source="map01-ts.png" width="3840" height="1080"/>
  </tileset>
  <tileset firstgid="3961" name="map01-ts" tilewidth="32" tileheight="32" tilecount="3960" columns="120">
   <image source="map01-ts.png" width="3840" height="1080"/>
  </tileset>
- <layer id="3" name="Tile Layer 1" width="8" height="5">
+ <layer id="4" name="Tile Layer 1" width="16" height="5">
   <data encoding="csv">
-1,2,3,4,5,6,7,8,
-121,122,123,124,125,126,127,128,
-241,242,243,244,245,246,247,248,
-361,362,363,364,365,366,367,368,
-481,482,483,484,485,486,487,488
+1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,
+121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,
+241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,
+361,362,363,364,365,366,367,368,369,370,371,372,373,374,375,376,
+481,482,483,484,485,486,487,488,489,490,491,492,493,494,495,496
 </data>
  </layer>
 </map>

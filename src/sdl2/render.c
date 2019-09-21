@@ -156,8 +156,8 @@ void render_update_tile_layers(const int32_t* const gids,
 		src = (SDL_Rect) {
 			.x = (id * GPROJ_TILE_WIDTH) % GPROJ_TILESET_WIDTH,
 			.y = (id / (GPROJ_TILESET_WIDTH / GPROJ_TILE_WIDTH)) * GPROJ_TILE_WIDTH,
-			.w = 32,
-			.h = 32
+			.w = GPROJ_TILE_WIDTH,
+			.h = GPROJ_TILE_HEIGHT
 		};
 
 		const uintptr_t layer_idx = (gid_ptr - gids) / (GPROJ_X_TILES * GPROJ_Y_TILES);
@@ -171,8 +171,8 @@ void render_update_tile_layers(const int32_t* const gids,
 		dst = (SDL_Rect) {
 			.x = (diff % GPROJ_X_TILES) * GPROJ_TILE_WIDTH,
 			.y = (diff / GPROJ_X_TILES) * GPROJ_TILE_HEIGHT,
-			.w = 32,
-			.h = 32
+			.w = GPROJ_TILE_WIDTH,
+			.h = GPROJ_TILE_HEIGHT
 		};
 
 		if ((layer_idx&0x01) == 0)
