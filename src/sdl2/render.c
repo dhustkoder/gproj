@@ -10,6 +10,7 @@
 #include "log.h"
 #include "map.h"
 
+
 extern SDL_Renderer* sdl_rend;
 extern SDL_Texture* sdl_tex_bg;
 extern SDL_Texture* sdl_tex_fg;
@@ -20,6 +21,11 @@ extern FC_Font* sdl_font;
 
 extern const enum render_layer layers_arr[RENDER_LAYER_NLAYERS];
 extern SDL_Texture* tex_targets_arr[RENDER_LAYER_NLAYERS];
+
+extern struct vec2i map_ts_size;
+extern struct vec2i map_tile_size;
+extern struct vec2i map_map_size;
+extern struct vec2f map_scrl_pos;
 
 static enum render_layer layers_cleared;
 
@@ -53,53 +59,55 @@ static void draw_flipped_gid(const int32_t gid,
 	                 NULL, flips);
 }
 
-static void draw_tile_layers(const int32_t* gids)
+static void draw_tile_layers(const int32_t* const gids)
 {
-	SDL_Rect src, dst;
-	for (int l = 0; l < 2; ++l) {
-		for (int y = 0; y < GPROJ_Y_TILES; ++y) {
-			for (int x = 0; x < GPROJ_X_TILES; ++x) {
-				const int32_t gid = *gids++;
-				if (gid == 0)
-					continue;
-				const int32_t id = (gid&TMX_FLIP_BITS_REMOVAL) - 1;
+	SDL_Rect src = {
+		.w = map_tile_size.x,
+		.h = map_tile_size.y
+	};
+	SDL_Rect dst = {
+		.y = 0,
+		.w = map_tile_size.x,
+		.h = map_tile_size.y
+	};
 
-				src = (SDL_Rect) {
-					.x = (id * GPROJ_TILE_WIDTH) % GPROJ_TILESET_WIDTH,
-					.y = (id / (GPROJ_TILESET_WIDTH / GPROJ_TILE_WIDTH)) * GPROJ_TILE_WIDTH,
-					.w = GPROJ_TILE_WIDTH,
-					.h = GPROJ_TILE_HEIGHT
-				};
+	for (int y = 0; y < 5; ++y) {
 
-				dst = (SDL_Rect) {
-					.x = x * GPROJ_TILE_WIDTH,
-					.y = y * GPROJ_TILE_HEIGHT,
-					.w = GPROJ_TILE_WIDTH,
-					.h = GPROJ_TILE_HEIGHT
-				};
+		for (int x = 0; x < 24; ++x) {
 
-				if ((gid&(~TMX_FLIP_BITS_REMOVAL)) == 0x00)
-					SDL_RenderCopy(sdl_rend, sdl_tex_ts, &src, &dst);
-				else
-					draw_flipped_gid(gid, &src, &dst);
-			}
+			const int32_t gid = gids[(y * map_map_size.x) + x];
+			if (gid == 0)
+				continue;
+			const int32_t id = (gid&TMX_FLIP_BITS_REMOVAL) - 1;
+
+			src.x = (id * map_tile_size.x) % map_ts_size.x,
+			src.y = (id / (map_ts_size.x / map_tile_size.x)) * map_tile_size.y;
+			dst.x = x * map_tile_size.x;
+
+			if ((gid&(~TMX_FLIP_BITS_REMOVAL)) == 0x00)
+				SDL_RenderCopy(sdl_rend, sdl_tex_ts, &src, &dst);
+			else
+				draw_flipped_gid(gid, &src, &dst);
 		}
+
+		dst.y += map_tile_size.y;
 	}
 }
 
 
-void render_set_ts(const char* const path)
+void render_load_ts(const char* const path)
 {
 	if (sdl_tex_ts)
 		SDL_DestroyTexture(sdl_tex_ts);
 
 	LOG_DEBUG("LOADING TILESHEET: %s", path);
+
 	sdl_tex_ts = IMG_LoadTexture(sdl_rend, path);
 
 	assert(sdl_tex_ts != NULL);
 }
 
-void render_set_ss(const char* path)
+void render_load_ss(const char* path)
 {
 	if (sdl_tex_ss)
 		SDL_DestroyTexture(sdl_tex_ss);
@@ -116,7 +124,7 @@ void render_clear(const enum render_layer layers)
 	assert(layers != 0);
 
 	for (size_t i = 0; i < ARRSZ(layers_arr); ++i) {
-		if (layers&layers_arr[i] && !(layers_arr[i]&layers_cleared)) {
+		if ((layers&layers_arr[i]) && !(layers_arr[i]&layers_cleared)) {
 			SDL_SetRenderTarget(sdl_rend, tex_targets_arr[i]);
 			SDL_RenderClear(sdl_rend);
 		}
@@ -126,66 +134,16 @@ void render_clear(const enum render_layer layers)
 }
 
 
-void render_tile_layers(const int32_t* const gids)
+void render_map(const int32_t* const gids)
 {
 	render_clear(RENDER_LAYER_BG|RENDER_LAYER_FG);
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_bg);
 	draw_tile_layers(gids);
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
-	draw_tile_layers(gids + MAP_LAYER_FG * GPROJ_X_TILES * GPROJ_Y_TILES);
-	SDL_SetRenderTarget(sdl_rend, NULL);
+	draw_tile_layers(gids + MAP_LAYER_FG * map_map_size.x * map_map_size.y);
 }
 
 
-void render_update_tile_layers(const int32_t* const gids,
-                               const int32_t** const gids_to_update,
-                               const int update_len)
-{
-	render_clear(RENDER_LAYER_BG|RENDER_LAYER_FG);
-
-	SDL_Rect src, dst;
-	for (int i = 0; i < update_len; ++i) {
-		const int32_t* const gid_ptr = gids_to_update[i];
-		const int32_t gid = *gid_ptr;
-
-		if (gid == 0)
-			continue;
-
-		const int id = (gid&TMX_FLIP_BITS_REMOVAL) - 1;
-
-		src = (SDL_Rect) {
-			.x = (id * GPROJ_TILE_WIDTH) % GPROJ_TILESET_WIDTH,
-			.y = (id / (GPROJ_TILESET_WIDTH / GPROJ_TILE_WIDTH)) * GPROJ_TILE_WIDTH,
-			.w = GPROJ_TILE_WIDTH,
-			.h = GPROJ_TILE_HEIGHT
-		};
-
-		const uintptr_t layer_idx = (gid_ptr - gids) / (GPROJ_X_TILES * GPROJ_Y_TILES);
-		const uintptr_t diff = (gid_ptr - gids) - (layer_idx * GPROJ_X_TILES * GPROJ_Y_TILES);
-		if (layer_idx < MAP_LAYER_FG) {
-			SDL_SetRenderTarget(sdl_rend, sdl_tex_bg);
-		} else {
-			SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
-		}
-
-		dst = (SDL_Rect) {
-			.x = (diff % GPROJ_X_TILES) * GPROJ_TILE_WIDTH,
-			.y = (diff / GPROJ_X_TILES) * GPROJ_TILE_HEIGHT,
-			.w = GPROJ_TILE_WIDTH,
-			.h = GPROJ_TILE_HEIGHT
-		};
-
-		if ((layer_idx&0x01) == 0)
-			SDL_RenderFillRect(sdl_rend, &dst);
-
-		if ((gid&(~TMX_FLIP_BITS_REMOVAL)) == 0x00)
-			SDL_RenderCopy(sdl_rend, sdl_tex_ts, &src, &dst);
-		else
-			draw_flipped_gid(gid, &src, &dst);
-	}
-
-	SDL_SetRenderTarget(sdl_rend, NULL);
-}
 
 
 void render_actors(const struct recti* const ss_srcs,
@@ -212,15 +170,12 @@ void render_actors(const struct recti* const ss_srcs,
 		const int flags = anims[i].flags&ANIM_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
 		SDL_RenderCopyEx(sdl_rend, sdl_tex_ss, &ss, &scr, 0, NULL, flags);
 	}
-
-	SDL_SetRenderTarget(sdl_rend, NULL);
 }
 
 
 void render_text(const enum render_layer layers,
                  const struct vec2f* const scrdst,
-                 const char* const text,
-				 ...)
+                 const char* const text, ...)
 {
 	va_list vargs;
 	va_start(vargs, text);
@@ -231,7 +186,6 @@ void render_text(const enum render_layer layers,
 		if (layers&layers_arr[i]) {
 			SDL_SetRenderTarget(sdl_rend, tex_targets_arr[i]);
 			FC_Draw_v(sdl_font, sdl_rend, scrdst->x, scrdst->y, text, vargs);
-			SDL_SetRenderTarget(sdl_rend, NULL);
 		}
 	}
 
@@ -241,11 +195,25 @@ void render_text(const enum render_layer layers,
 
 void render_present(void)
 {
-	for (size_t i = 0; i < ARRSZ(layers_arr); ++i)
-		SDL_RenderCopy(sdl_rend, tex_targets_arr[i], NULL, NULL);
+	const SDL_Rect src_bg = {
+		.x = map_scrl_pos.x,
+		.y = 0,
+		.w = GPROJ_SCR_WIDTH,
+		.h = GPROJ_SCR_HEIGHT,
+	};
 
-	layers_cleared = 0;
+	const SDL_Rect src_actors = {
+		.x = 0,
+		.y = 0,
+		.w = GPROJ_SCR_WIDTH,
+		.h = GPROJ_SCR_HEIGHT
+	};
 
+	SDL_SetRenderTarget(sdl_rend, NULL);
+	SDL_RenderCopy(sdl_rend, sdl_tex_bg, &src_bg, NULL);
+	SDL_RenderCopy(sdl_rend, sdl_tex_actors, &src_actors, NULL);
+	SDL_RenderCopy(sdl_rend, sdl_tex_fg, NULL, NULL);
 	SDL_RenderPresent(sdl_rend);
+	layers_cleared = 0;
 }
 

@@ -4,8 +4,6 @@
 #include "render.h"
 #include "actors.h"
 
-
-
 static struct recti ss_rects[64];
 static struct rectf scr_rects[64];
 static struct actor_anim anims[64];
@@ -54,7 +52,6 @@ void actors_anim_set_flags(int actor_id, int flags)
 }
 
 
-
 void actors_mov_set(const int actor_id,
                     const float velx,
                     const float vely)
@@ -63,11 +60,16 @@ void actors_mov_set(const int actor_id,
 	movs[actor_id].y = vely;
 }
 
+struct vec2f actors_get_pos(int actor_id)
+{
+	return scr_rects[actor_id].pos;
+}
+
 void actors_update(const uint32_t now, const float dt)
 {
 	for (int i = 0; i < nacts; ++i) {
-		if (movs[i].x < -0.01f || movs[i].x >= 0.01f ||
-		    movs[i].y < -0.01f || movs[i].y >= 0.01f) {
+		if (movs[i].x < -0.01f || movs[i].x > 0.01f ||
+		    movs[i].y < -0.01f || movs[i].y > 0.01f) {
 			scr_rects[i].pos.x += movs[i].x * dt;
 			scr_rects[i].pos.y += movs[i].y * dt;
 			need_render = true;

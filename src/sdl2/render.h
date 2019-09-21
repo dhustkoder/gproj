@@ -8,17 +8,15 @@
 #include "actors.h"
 
 
-#define GPROJ_X_TILES        (8)
-#define GPROJ_Y_TILES        (5)
+#define GPROJ_X_TILES (8)
+#define GPROJ_Y_TILES (5)
 
-#define GPROJ_TILE_WIDTH     (32)
-#define GPROJ_TILE_HEIGHT    (32)
+#define GPROJ_SCR_WIDTH      (256)
+#define GPROJ_SCR_HEIGHT     (160)
 
-#define GPROJ_SCR_WIDTH      (GPROJ_TILE_WIDTH * GPROJ_X_TILES)
-#define GPROJ_SCR_HEIGHT     (GPROJ_TILE_HEIGHT * GPROJ_Y_TILES)
+#define GPROJ_FB_WIDTH       (24*32)
+#define GPROJ_FB_HEIGHT      (160)
 
-#define GPROJ_TILESET_WIDTH  (1920*2)
-#define GPROJ_TILESET_HEIGHT (1080)
 
 enum render_layer {
 	RENDER_LAYER_BG      = (0x01),
@@ -30,16 +28,13 @@ enum render_layer {
 
 extern void render_init();
 
-extern void render_set_ts(const char* path);
-extern void render_set_ss(const char* path);
+extern void render_load_ts(const char* const path);
+
+extern void render_load_ss(const char* path);
 
 extern void render_clear(enum render_layer layers);
 
-extern void render_tile_layers(const int32_t* gids);
-
-extern void render_update_tile_layers(const int32_t* gids,
-                                      const int32_t** gids_to_update,
-                                      int update_len);
+extern void render_map(const int32_t* gids);
 
 extern void render_actors(const struct recti* const ss_srcs,
                           const struct rectf* const scr_dsts,

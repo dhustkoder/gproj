@@ -18,9 +18,8 @@ void game_init()
 
 void game_step(uint32_t now, float dt)
 {
-	map_update(now);
+	map_update(now, dt);
 	characters_update(now, dt);
-	actors_update(now, dt);
 }
 
 void game_term()

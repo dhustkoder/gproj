@@ -7,16 +7,15 @@
 
 enum map_layer {
 	MAP_LAYER_BG  = 0,
-	MAP_LAYER_BG2 = 1,
-	MAP_LAYER_FG  = 2,
-	MAP_LAYER_FG2 = 3,
-	MAP_NLAYERS   = 4
+	MAP_LAYER_FG  = 1,
+	MAP_NLAYERS   = 2
 };
 
 
 extern void map_load(const char* path);
 extern void map_free(void);
-extern void map_update(uint32_t now);
+extern void map_update(uint32_t now, float dt);
+extern void map_scrl_vel_set(float velx, float vely);
 
 
 
