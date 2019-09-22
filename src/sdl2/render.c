@@ -188,15 +188,13 @@ void render_text(const char* const text, ...)
 
 	render_clear(RENDER_LAYER_TXT);
 	SDL_SetRenderTarget(sdl_rend, sdl_tex_txt);
-	const SDL_Rect dirty =
-		FC_Draw_v(sdl_font, sdl_rend,
-		          text_pos.x, text_pos.y,
-		          text, vargs);
+	const SDL_Rect dirty = FC_Draw_v(sdl_font, sdl_rend,
+		                             text_pos.x, text_pos.y,
+		                             text, vargs);
 	//x += dirty.w;
 	text_pos.y += dirty.h;
 
 	va_end(vargs);
-
 }
 
 

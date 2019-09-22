@@ -61,6 +61,27 @@ void characters_init(void)
 		anim_flags
 	);
 
+	for (int i = 0; i < 255; ++i) {
+		const int id = actors_create(
+			&(struct rectf) {
+				.size = { 26, 46 },
+				.pos  = {
+					(i * 26) % GPROJ_WORLD_WIDTH,
+					(46 * ((i * 26) / GPROJ_WORLD_WIDTH)) % GPROJ_WORLD_HEIGHT
+				}
+			}
+		);
+
+		actors_anim_set(
+			id,
+			timer_now(),
+			idle_frames,
+			ARRSZ(idle_frames),
+			anim_flags
+		);
+
+		actors_mov_set(id, -8, -1);
+	}
 }
 
 void characters_update(const uint32_t now, const float dt)

@@ -4,10 +4,10 @@
 #include "render.h"
 #include "actors.h"
 
-static struct recti ss_rects[64];
-static struct rectf scr_rects[64];
-static struct actor_anim anims[64];
-static struct vec2f movs[64];
+static struct recti ss_rects[GPROJ_MAX_ACTORS];
+static struct rectf scr_rects[GPROJ_MAX_ACTORS];
+static struct actor_anim anims[GPROJ_MAX_ACTORS];
+static struct vec2f movs[GPROJ_MAX_ACTORS];
 static int nacts;
 
 static bool need_render = false;
