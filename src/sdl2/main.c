@@ -102,7 +102,7 @@ static bool platform_init(bool vsync)
 	sdl_tex_actors = SDL_CreateTexture(sdl_rend,
 	                        SDL_PIXELFORMAT_RGB888,
 	                        SDL_TEXTUREACCESS_TARGET,
-	                        GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT);
+	                        GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	if (sdl_tex_actors == NULL)
 		goto Lfailure;
 

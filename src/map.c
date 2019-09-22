@@ -107,6 +107,7 @@ void map_update(const uint32_t now, const float dt)
 	else if (map_scrl_pos.y > ((map_map_size.y * map_tile_size.y) - GPROJ_SCR_HEIGHT))
 		map_scrl_pos.y = ((map_map_size.y * map_tile_size.y) - GPROJ_SCR_HEIGHT);
 
-
+	render_text(RENDER_LAYER_FG, NULL, "MAP SCRL POS => (%d, %d)",
+	            (int)map_scrl_pos.x, (int)map_scrl_pos.y);
 }
 

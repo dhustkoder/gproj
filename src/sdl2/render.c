@@ -28,7 +28,7 @@ extern struct vec2i map_map_size;
 extern struct vec2f map_scrl_pos;
 
 static enum render_layer layers_cleared;
-
+static struct vec2i text_pos = { 0, 0 };
 
 
 static void draw_flipped_gid(const int32_t gid,
@@ -177,19 +177,37 @@ void render_text(const enum render_layer layers,
                  const struct vec2f* const scrdst,
                  const char* const text, ...)
 {
+	render_clear(layers);
+
+	SDL_Rect dirty;
+	int x, y;
+
+	if (scrdst != NULL) {
+		x = scrdst->x;
+		y = scrdst->y;
+	} else {
+		x = text_pos.x;
+		y = text_pos.y;
+	}
+
 	va_list vargs;
 	va_start(vargs, text);
-
-	render_clear(layers);
 
 	for (size_t i = 0; i < ARRSZ(layers_arr); ++i) {
 		if (layers&layers_arr[i]) {
 			SDL_SetRenderTarget(sdl_rend, tex_targets_arr[i]);
-			FC_Draw_v(sdl_font, sdl_rend, scrdst->x, scrdst->y, text, vargs);
+			dirty = FC_Draw_v(sdl_font, sdl_rend, x, y, text, vargs);
+			//x += dirty.w;
+			y += dirty.h;
 		}
 	}
 
 	va_end(vargs);
+
+	if (scrdst == NULL) {
+		text_pos.x = x;
+		text_pos.y = y;
+	}
 }
 
 
@@ -202,18 +220,16 @@ void render_present(void)
 		.h = GPROJ_SCR_HEIGHT,
 	};
 
-	const SDL_Rect src_actors = {
-		.x = 0,
-		.y = 0,
-		.w = GPROJ_SCR_WIDTH,
-		.h = GPROJ_SCR_HEIGHT
-	};
-
 	SDL_SetRenderTarget(sdl_rend, NULL);
 	SDL_RenderCopy(sdl_rend, sdl_tex_bg, &src_bg, NULL);
-	SDL_RenderCopy(sdl_rend, sdl_tex_actors, &src_actors, NULL);
+	SDL_RenderCopy(sdl_rend, sdl_tex_actors, NULL, NULL);
 	SDL_RenderCopy(sdl_rend, sdl_tex_fg, NULL, NULL);
 	SDL_RenderPresent(sdl_rend);
+
+
+	text_pos.x = 0;
+	text_pos.y = 0;
+
 	layers_cleared = 0;
 }
 

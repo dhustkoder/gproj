@@ -14,6 +14,7 @@ int gproj(void)
 	uint32_t clk = timer_now();
 	uint32_t lastclk = clk;
 	int fps = 0;
+	int currfps = 0;
 
 	while (events_update()) {
 		const uint32_t now = timer_now();
@@ -21,16 +22,18 @@ int gproj(void)
 
 
 		game_step(now, dt);
-		
+
+		render_present();
+
 		++fps;
 		if ((timer_now() - clk) >= TIMER_SECOND) {
-			render_text(RENDER_LAYER_FG, &(struct vec2f){0, 0}, "FPS: %d", fps);
+			currfps = fps;
 			fps = 0;
 			clk = timer_now();
 		}
 
+		render_text(RENDER_LAYER_FG, NULL, "FPS: %d", currfps);
 
-		render_present();
 
 		lastclk = now;
 	}
