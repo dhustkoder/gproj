@@ -20,9 +20,8 @@ int gproj(void)
 		const uint32_t now = timer_now();
 		const float dt = (((float)now) - ((float)lastclk)) / TIMER_SECOND;
 
-
-		game_step(now, dt);
 		render_text("FPS: %d", currfps);
+		game_step(now, dt);
 		render_present();
 
 		++fps;
@@ -31,7 +30,6 @@ int gproj(void)
 			fps = 0;
 			clk = timer_now();
 		}
-
 
 		lastclk = now;
 	}

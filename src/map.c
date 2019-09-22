@@ -9,12 +9,11 @@
 struct vec2i map_ts_size;
 struct vec2i map_tile_size;
 struct vec2i map_map_size;
-struct vec2f map_scrl_pos = { 0, 0 };
-static struct vec2f map_vel = { 0, 0 };
 
 static int32_t* map_layers = NULL;
 static int map_layer_cnt = 0;
 static tmx_map* map = NULL;
+
 
 void map_load(const char* const path)
 {
@@ -39,7 +38,8 @@ void map_load(const char* const path)
 	map_ts_size.x = map->ts_head->tileset->image->width;
 	map_ts_size.y = map->ts_head->tileset->image->height;
 
-	map_layers = malloc(sizeof(*map_layers) * map_map_size.x * map_map_size.y * MAP_NLAYERS);
+	map_layers = calloc(map_map_size.x * map_map_size.y * MAP_NLAYERS,
+	                    sizeof(*map_layers));
 
 	assert(map_layers != NULL);
 
@@ -84,29 +84,9 @@ void map_free(void)
 	tmx_map_free(map);
 }
 
-void map_scrl_vel_set(const float velx, const float vely)
-{
-	map_vel.x = velx;
-	map_vel.y = vely;
-}
-
 void map_update(const uint32_t now, const float dt)
 {
 	((void)now);
-
-	map_scrl_pos.x += map_vel.x * dt;
-	map_scrl_pos.y += map_vel.y * dt;
-
-	if (map_scrl_pos.x < 0)
-		map_scrl_pos.x = 0;
-	else if (map_scrl_pos.x > ((map_map_size.x * map_tile_size.x) - GPROJ_SCR_WIDTH))
-		map_scrl_pos.x = ((map_map_size.x * map_tile_size.x) - GPROJ_SCR_WIDTH);
-
-	if (map_scrl_pos.y < 0)
-		map_scrl_pos.y = 0;
-	else if (map_scrl_pos.y > ((map_map_size.y * map_tile_size.y) - GPROJ_SCR_HEIGHT))
-		map_scrl_pos.y = ((map_map_size.y * map_tile_size.y) - GPROJ_SCR_HEIGHT);
-
-	render_text("MAP SCRL POS => (%d, %d)", (int)map_scrl_pos.x, (int)map_scrl_pos.y);
+	((void)dt);
 }
 

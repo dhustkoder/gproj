@@ -20,13 +20,15 @@ SDL_Renderer* sdl_rend = NULL;
 SDL_Texture* sdl_tex_bg = NULL;
 SDL_Texture* sdl_tex_actors = NULL;
 SDL_Texture* sdl_tex_fg = NULL;
+SDL_Texture* sdl_tex_txt = NULL;
 SDL_Texture* sdl_tex_ts = NULL;
 SDL_Texture* sdl_tex_ss = NULL;
 
 const enum render_layer layers_arr[RENDER_LAYER_NLAYERS] = {
 	RENDER_LAYER_BG,
 	RENDER_LAYER_ACTORS,
-	RENDER_LAYER_FG
+	RENDER_LAYER_FG,
+	RENDER_LAYER_TXT
 };
 
 SDL_Texture* tex_targets_arr[RENDER_LAYER_NLAYERS];
@@ -95,42 +97,51 @@ static bool platform_init(bool vsync)
 	sdl_tex_bg = SDL_CreateTexture(sdl_rend,
 	                        SDL_PIXELFORMAT_RGB888,
 	                        SDL_TEXTUREACCESS_TARGET,
-	                        GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT);
+	                        GPROJ_WORLD_WIDTH, GPROJ_WORLD_HEIGHT);
 	if (sdl_tex_bg == NULL)
 		goto Lfailure;
 
 	sdl_tex_actors = SDL_CreateTexture(sdl_rend,
 	                        SDL_PIXELFORMAT_RGB888,
 	                        SDL_TEXTUREACCESS_TARGET,
-	                        GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
+	                        GPROJ_WORLD_WIDTH, GPROJ_WORLD_HEIGHT);
 	if (sdl_tex_actors == NULL)
 		goto Lfailure;
 
 	sdl_tex_fg = SDL_CreateTexture(sdl_rend,
 	                        SDL_PIXELFORMAT_RGB888,
 	                        SDL_TEXTUREACCESS_TARGET,
-	                        GPROJ_FB_WIDTH, GPROJ_FB_HEIGHT);
+	                        GPROJ_WORLD_WIDTH, GPROJ_WORLD_HEIGHT);
 	if (sdl_tex_fg == NULL)
 		goto Lfailure;
 
+
+	sdl_tex_txt = SDL_CreateTexture(sdl_rend,
+	                        SDL_PIXELFORMAT_RGB888,
+	                        SDL_TEXTUREACCESS_TARGET,
+	                        GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
+	if (sdl_tex_txt == NULL)
+		goto Lfailure;
 
 	if ((sdl_font = FC_CreateFont()) == NULL)
 		goto Lfailure;
 
 	if (!FC_LoadFont(sdl_font, sdl_rend,
-	                 "8bit-madness.ttf", 32,
+	                 "8bit-madness.ttf", 16,
 		             FC_MakeColor(0xFF,0xFF,0xFF,0xFF), TTF_STYLE_NORMAL))
 		goto Lfailure;
 
 
 	SDL_SetTextureBlendMode(sdl_tex_actors, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(sdl_tex_fg, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureBlendMode(sdl_tex_txt, SDL_BLENDMODE_BLEND);
 
 	tex_targets_arr[0] = sdl_tex_bg;
 	tex_targets_arr[1] = sdl_tex_actors;
 	tex_targets_arr[2] = sdl_tex_fg;
+	tex_targets_arr[3] = sdl_tex_txt;
 
-	render_clear(RENDER_LAYER_BG|RENDER_LAYER_FG|RENDER_LAYER_ACTORS);
+	render_clear(RENDER_LAYER_BG|RENDER_LAYER_FG|RENDER_LAYER_ACTORS|RENDER_LAYER_TXT);
 
 	render_present();
 
@@ -152,6 +163,8 @@ static void platform_term(void)
 	for (int i = 0; i < sfxs_cnt; ++i)
 		Mix_FreeChunk(sfxs[i]);
 
+	if (sdl_tex_txt != NULL)
+		SDL_DestroyTexture(sdl_tex_txt);
 	if (sdl_tex_ts != NULL)
 		SDL_DestroyTexture(sdl_tex_ts);
 	if (sdl_tex_ss != NULL)

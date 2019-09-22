@@ -13,8 +13,9 @@
 
 extern SDL_Renderer* sdl_rend;
 extern SDL_Texture* sdl_tex_bg;
-extern SDL_Texture* sdl_tex_fg;
 extern SDL_Texture* sdl_tex_actors;
+extern SDL_Texture* sdl_tex_fg;
+extern SDL_Texture* sdl_tex_txt;
 extern SDL_Texture* sdl_tex_ts;
 extern SDL_Texture* sdl_tex_ss;
 extern FC_Font* sdl_font;
@@ -25,10 +26,10 @@ extern SDL_Texture* tex_targets_arr[RENDER_LAYER_NLAYERS];
 extern struct vec2i map_ts_size;
 extern struct vec2i map_tile_size;
 extern struct vec2i map_map_size;
-extern struct vec2f map_scrl_pos;
 
 static enum render_layer layers_cleared;
 static struct vec2i text_pos = { 0, 0 };
+static struct vec2i cam_pos = { 0, 0 };
 
 
 static void draw_flipped_gid(const int32_t gid,
@@ -65,24 +66,31 @@ static void draw_tile_layers(const int32_t* const gids)
 		.w = map_tile_size.x,
 		.h = map_tile_size.y
 	};
+
 	SDL_Rect dst = {
 		.y = 0,
 		.w = map_tile_size.x,
 		.h = map_tile_size.y
 	};
 
-	for (int y = 0; y < 5; ++y) {
+	const int y_tiles = map_map_size.y;
+	const int x_tiles = map_map_size.x;
+	const int ts_w = map_ts_size.x;
+	const struct vec2i tile_size = {
+		map_tile_size.x, map_tile_size.y
+	};
 
-		for (int x = 0; x < 24; ++x) {
+	for (int y = 0; y < y_tiles; ++y) {
+		for (int x = 0; x < x_tiles; ++x) {
 
-			const int32_t gid = gids[(y * map_map_size.x) + x];
+			const int32_t gid = gids[(y * x_tiles) + x];
 			if (gid == 0)
 				continue;
 			const int32_t id = (gid&TMX_FLIP_BITS_REMOVAL) - 1;
 
-			src.x = (id * map_tile_size.x) % map_ts_size.x,
-			src.y = (id / (map_ts_size.x / map_tile_size.x)) * map_tile_size.y;
-			dst.x = x * map_tile_size.x;
+			src.x = (id * tile_size.x) % ts_w,
+			src.y = (id / (ts_w / tile_size.x)) * tile_size.y;
+			dst.x = x * tile_size.x;
 
 			if ((gid&(~TMX_FLIP_BITS_REMOVAL)) == 0x00)
 				SDL_RenderCopy(sdl_rend, sdl_tex_ts, &src, &dst);
@@ -90,7 +98,7 @@ static void draw_tile_layers(const int32_t* const gids)
 				draw_flipped_gid(gid, &src, &dst);
 		}
 
-		dst.y += map_tile_size.y;
+		dst.y += tile_size.y;
 	}
 }
 
@@ -144,8 +152,6 @@ void render_map(const int32_t* const gids)
 }
 
 
-
-
 void render_actors(const struct recti* const ss_srcs,
                    const struct rectf* const scr_dsts,
                    const struct actor_anim* anims,
@@ -178,9 +184,10 @@ void render_text(const char* const text, ...)
 	va_list vargs;
 	va_start(vargs, text);
 
+	text_pos.x = 0;
 
-	render_clear(RENDER_LAYER_FG);
-	SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
+	render_clear(RENDER_LAYER_TXT);
+	SDL_SetRenderTarget(sdl_rend, sdl_tex_txt);
 	const SDL_Rect dirty =
 		FC_Draw_v(sdl_font, sdl_rend,
 		          text_pos.x, text_pos.y,
@@ -193,21 +200,30 @@ void render_text(const char* const text, ...)
 }
 
 
+void render_set_camera(int x, int y)
+{
+	cam_pos.x = x;
+	cam_pos.y = y;
+}
+
+
 void render_present(void)
 {
-	const SDL_Rect src_bg = {
-		.x = map_scrl_pos.x,
-		.y = 0,
+	render_text("CAMERA POS => (%d, %d)", cam_pos.x, cam_pos.y);
+
+	const SDL_Rect cam_rect = {
+		.x = cam_pos.x,
+		.y = cam_pos.y,
 		.w = GPROJ_SCR_WIDTH,
-		.h = GPROJ_SCR_HEIGHT,
+		.h = GPROJ_SCR_HEIGHT
 	};
 
 	SDL_SetRenderTarget(sdl_rend, NULL);
-	SDL_RenderCopy(sdl_rend, sdl_tex_bg, &src_bg, NULL);
-	SDL_RenderCopy(sdl_rend, sdl_tex_actors, NULL, NULL);
-	SDL_RenderCopy(sdl_rend, sdl_tex_fg, NULL, NULL);
+	SDL_RenderCopy(sdl_rend, sdl_tex_bg, &cam_rect, NULL);
+	SDL_RenderCopy(sdl_rend, sdl_tex_actors, &cam_rect, NULL);
+	SDL_RenderCopy(sdl_rend, sdl_tex_fg, &cam_rect, NULL);
+	SDL_RenderCopy(sdl_rend, sdl_tex_txt, NULL, NULL);
 	SDL_RenderPresent(sdl_rend);
-
 
 	text_pos.x = 0;
 	text_pos.y = 0;

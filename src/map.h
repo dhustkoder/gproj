@@ -15,7 +15,6 @@ enum map_layer {
 extern void map_load(const char* path);
 extern void map_free(void);
 extern void map_update(uint32_t now, float dt);
-extern void map_scrl_vel_set(float velx, float vely);
 
 
 

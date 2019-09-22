@@ -65,10 +65,9 @@ void characters_init(void)
 
 void characters_update(const uint32_t now, const float dt)
 {
-	const struct vec2f player_pos = actors_get_pos(player_id);
-	render_text("PLAYER POS => (%d, %d)", (int)player_pos.x, (int)player_pos.y);
-
 	if (prev_buttons_states != input_buttons_states) {
+		const struct actor_frame* anim = NULL;
+		int anim_sz = 0;
 		if (input_buttons_states&(INPUT_BUTTON_LEFT |
 		                          INPUT_BUTTON_RIGHT|
 		                          INPUT_BUTTON_UP   |
@@ -81,46 +80,34 @@ void characters_update(const uint32_t now, const float dt)
 				velx = -player_defvel;
 				anim_flags |= ANIM_FLAG_FLIPH;
 			}
-
-			actors_anim_set(player_id, now, walking_frames, ARRSZ(walking_frames), anim_flags);
+			anim = walking_frames;
+			anim_sz = ARRSZ(walking_frames);
 		} else {
 			velx = 0;
-			map_scrl_vel_set(0, 0);
-			actors_mov_set(player_id, 0, 0);
-			actors_anim_set(player_id, now, idle_frames, ARRSZ(idle_frames), anim_flags);
+			anim = idle_frames;
+			anim_sz = ARRSZ(idle_frames);
 		}
 
+		actors_mov_set(player_id, velx, 0);
+		actors_anim_set(player_id, now, anim, anim_sz, anim_flags);
 		prev_buttons_states = input_buttons_states;
 	}
 
-	if (velx < -0.1|| velx > +0.1) {
-		enum { MOVE_PLAYER, MOVE_MAP } who_moves;
-
-		if (velx < -0.1) {
-			if (map_scrl_pos.x <= 0 || player_pos.x > (GPROJ_SCR_WIDTH / 2))
-				who_moves = MOVE_PLAYER;
-			else
-				who_moves = MOVE_MAP;
-		} else {
-			if ((map_scrl_pos.x >= (GPROJ_FB_WIDTH - GPROJ_SCR_WIDTH)) ||
-			    (player_pos.x < (GPROJ_SCR_WIDTH / 2)))
-				who_moves = MOVE_PLAYER;
-			else
-				who_moves = MOVE_MAP;
-		}
-
-		switch (who_moves) {
-		case MOVE_PLAYER:
-			actors_mov_set(player_id, velx, 0);
-			map_scrl_vel_set(0, 0);
-			break;
-		case MOVE_MAP:
-			actors_mov_set(player_id, 0, 0);
-			map_scrl_vel_set(velx, 0);
-			break;
-		}
-	}
 
 	actors_update(now, dt);
+
+	const struct vec2f player_pos = actors_get_pos(player_id);
+
+	int camx = player_pos.x - (GPROJ_SCR_WIDTH / 2);
+
+	if (camx < 0)
+		camx = 0;
+	else if (camx >= GPROJ_WORLD_WIDTH - GPROJ_SCR_WIDTH)
+		camx = GPROJ_WORLD_WIDTH - GPROJ_SCR_WIDTH;
+
+	render_set_camera(camx, 0);
+
+	render_text("PLAYER POS => (%d, %d)", (int)player_pos.x, (int)player_pos.y);
+
 }
 
