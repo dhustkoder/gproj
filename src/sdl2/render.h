@@ -42,9 +42,7 @@ extern void render_actors(const struct recti* const ss_srcs,
                           const int count);
 
 
-extern void render_text(enum render_layer layer,
-                        const struct vec2f* scrdst,
-                        const char* text, ...);
+extern void render_text(const char* text, ...);
 
 extern void render_present(void);
 

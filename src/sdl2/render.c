@@ -173,41 +173,23 @@ void render_actors(const struct recti* const ss_srcs,
 }
 
 
-void render_text(const enum render_layer layers,
-                 const struct vec2f* const scrdst,
-                 const char* const text, ...)
+void render_text(const char* const text, ...)
 {
-	render_clear(layers);
-
-	SDL_Rect dirty;
-	int x, y;
-
-	if (scrdst != NULL) {
-		x = scrdst->x;
-		y = scrdst->y;
-	} else {
-		x = text_pos.x;
-		y = text_pos.y;
-	}
-
 	va_list vargs;
 	va_start(vargs, text);
 
-	for (size_t i = 0; i < ARRSZ(layers_arr); ++i) {
-		if (layers&layers_arr[i]) {
-			SDL_SetRenderTarget(sdl_rend, tex_targets_arr[i]);
-			dirty = FC_Draw_v(sdl_font, sdl_rend, x, y, text, vargs);
-			//x += dirty.w;
-			y += dirty.h;
-		}
-	}
+
+	render_clear(RENDER_LAYER_FG);
+	SDL_SetRenderTarget(sdl_rend, sdl_tex_fg);
+	const SDL_Rect dirty =
+		FC_Draw_v(sdl_font, sdl_rend,
+		          text_pos.x, text_pos.y,
+		          text, vargs);
+	//x += dirty.w;
+	text_pos.y += dirty.h;
 
 	va_end(vargs);
 
-	if (scrdst == NULL) {
-		text_pos.x = x;
-		text_pos.y = y;
-	}
 }
 
 

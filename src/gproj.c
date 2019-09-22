@@ -22,7 +22,7 @@ int gproj(void)
 
 
 		game_step(now, dt);
-
+		render_text("FPS: %d", currfps);
 		render_present();
 
 		++fps;
@@ -31,8 +31,6 @@ int gproj(void)
 			fps = 0;
 			clk = timer_now();
 		}
-
-		render_text(RENDER_LAYER_FG, NULL, "FPS: %d", currfps);
 
 
 		lastclk = now;

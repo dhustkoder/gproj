@@ -66,8 +66,7 @@ void characters_init(void)
 void characters_update(const uint32_t now, const float dt)
 {
 	const struct vec2f player_pos = actors_get_pos(player_id);
-	render_text(RENDER_LAYER_FG, NULL, "PLAYER POS => (%d, %d)",
-	            (int)player_pos.x, (int)player_pos.y);
+	render_text("PLAYER POS => (%d, %d)", (int)player_pos.x, (int)player_pos.y);
 
 	if (prev_buttons_states != input_buttons_states) {
 		if (input_buttons_states&(INPUT_BUTTON_LEFT |
