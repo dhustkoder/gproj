@@ -61,6 +61,7 @@ void characters_init(void)
 		ARRSZ(idle_frames),
 		anim_flags
 	);
+
 }
 
 void characters_update(const uint32_t now, const float dt)
@@ -92,7 +93,6 @@ void characters_update(const uint32_t now, const float dt)
 		actors_anim_set(player_id, now, anim, anim_sz, anim_flags);
 		prev_buttons_states = input_buttons_states;
 	}
-
 
 	actors_update(now, dt);
 

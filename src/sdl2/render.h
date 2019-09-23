@@ -37,7 +37,7 @@ extern void render_map(const int32_t* gids);
 
 extern void render_actors(const struct recti* const ss_srcs,
                           const struct rectf* const scr_dsts,
-                          const struct actor_anim* anims,
+                          const actor_anim_flag_t* flags,
                           const int count);
 
 

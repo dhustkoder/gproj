@@ -119,7 +119,7 @@ void render_init(const char* const identifier)
 	                       SDL_WINDOW_RESIZABLE);
 	assert(win != NULL);
 
-	rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+	rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED|SDL_RENDERER_TARGETTEXTURE);
 	assert(rend != NULL);
 
 	tex_txt = SDL_CreateTexture(rend,
@@ -254,9 +254,10 @@ void render_map(const int32_t* const gids)
 
 void render_actors(const struct recti* const ss_srcs,
                    const struct rectf* const scr_dsts,
-                   const struct actor_anim* anims,
+                   const actor_anim_flag_t* const flags,
                    const int count)
 {
+	/* FIXME: clearing takes the most time for actors update */
 	render_clear(RENDER_LAYER_ACTORS);
 
 	SDL_Rect scr, ss;
@@ -273,8 +274,8 @@ void render_actors(const struct recti* const ss_srcs,
 			.w = ss_srcs[i].size.x,
 			.h = ss_srcs[i].size.y
 		};
-		const int flags = anims[i].flags&ANIM_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
-		SDL_RenderCopyEx(rend, tex_ss, &ss, &scr, 0, NULL, flags);
+		const int flip = flags[i]&ANIM_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
+		SDL_RenderCopyEx(rend, tex_ss, &ss, &scr, 0, NULL, flip);
 	}
 }
 

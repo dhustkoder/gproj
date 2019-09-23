@@ -6,8 +6,13 @@
 
 static struct recti ss_rects[GPROJ_MAX_ACTORS];
 static struct rectf scr_rects[GPROJ_MAX_ACTORS];
-static struct actor_anim anims[GPROJ_MAX_ACTORS];
 static struct vec2f movs[GPROJ_MAX_ACTORS];
+static const struct actor_frame* anim_frames[GPROJ_MAX_ACTORS];
+static uint32_t anim_clks[GPROJ_MAX_ACTORS];
+static uint32_t anim_durations[GPROJ_MAX_ACTORS];
+static uint8_t anim_cnts[GPROJ_MAX_ACTORS];
+static uint8_t anim_idxs[GPROJ_MAX_ACTORS];
+static actor_anim_flag_t anim_flags[GPROJ_MAX_ACTORS];
 static int nacts;
 
 static bool need_render = false;
@@ -17,39 +22,36 @@ int actors_create(const struct rectf* const scr)
 	const int id = nacts++;
 	assert(nacts < GPROJ_MAX_ACTORS);
 	scr_rects[id] = *scr;
-	memset(&ss_rects[id], 0, sizeof(ss_rects[id]));
-	memset(&anims[id], 0, sizeof(anims[id]));
-	memset(&movs[id], 0, sizeof(movs[id]));
 	return id;
 }
 
 void actors_anim_set(const int actor_id,
                      const uint32_t clk,
                      const struct actor_frame* const frames,
-                     const int cnt,
-                     const int flags)
+                     const uint8_t cnt,
+                     const actor_anim_flag_t flags)
 {
 	assert(frames != NULL);
 	need_render = true;
-	anims[actor_id].idx = 0;
-	anims[actor_id].clk = clk;
-	anims[actor_id].frames = frames;
-	anims[actor_id].cnt = cnt;
-	anims[actor_id].flags = flags;
-	anims[actor_id].duration = frames[0].duration;
+	anim_idxs[actor_id] = 0;
+	anim_clks[actor_id] = clk;
+	anim_frames[actor_id] = frames;
+	anim_cnts[actor_id] = cnt;
+	anim_flags[actor_id] = flags;
+	anim_durations[actor_id] = frames[0].duration;
 	ss_rects[actor_id] = frames[0].ss;
 }
 
 
 int actors_anim_get_flags(int actor_id)
 {
-	return anims[actor_id].flags;
+	return anim_flags[actor_id];
 }
 
 
 void actors_anim_set_flags(int actor_id, int flags)
 {
-	anims[actor_id].flags = flags;
+	anim_flags[actor_id] = flags;
 }
 
 
@@ -70,7 +72,9 @@ struct vec2f actors_get_pos(int actor_id)
 
 void actors_update(const uint32_t now, const float dt)
 {
-	for (int i = 0; i < nacts; ++i) {
+	const int cnt = nacts;
+
+	for (int i = 0; i < cnt; ++i) {
 		if (movs[i].x < -0.01f || movs[i].x > 0.01f ||
 		    movs[i].y < -0.01f || movs[i].y > 0.01f) {
 			scr_rects[i].pos.x += movs[i].x * dt;
@@ -79,40 +83,40 @@ void actors_update(const uint32_t now, const float dt)
 		}
 	}
 
-	for (int i = 0; i < nacts; ++i) {
-		const int flags = anims[i].flags;
+	for (int i = 0; i < cnt; ++i) {
+		const int flags = anim_flags[i];
 		if (flags&ANIM_FLAG_DISABLED)
 			continue;
 
-		if ((now - anims[i].clk) >= anims[i].duration) {
+		if ((now - anim_clks[i]) >= anim_durations[i]) {
 			need_render = true;
-			anims[i].clk = now;
-			anims[i].idx += flags&ANIM_FLAG_BKWD ? -1 : 1;
-			if (anims[i].idx >= anims[i].cnt || anims[i].idx < 0) {
+			anim_clks[i] = now;
+			anim_idxs[i] += flags&ANIM_FLAG_BKWD ? -1 : 1;
+			if (anim_idxs[i] >= anim_cnts[i] || anim_idxs[i] < 0) {
 				if (flags&ANIM_FLAG_LOOP) {
-					if (anims[i].idx > 0 && flags&ANIM_FLAG_BIDIR) {
-						anims[i].idx = anims[i].cnt - 2;
-						anims[i].flags |= ANIM_FLAG_BKWD;
-					} else if (anims[i].idx < 0) {
-						anims[i].idx = 1;
-						anims[i].flags &= ~ANIM_FLAG_BKWD;
+					if (anim_idxs[i] > 0 && flags&ANIM_FLAG_BIDIR) {
+						anim_idxs[i] = anim_cnts[i] - 2;
+						anim_flags[i] |= ANIM_FLAG_BKWD;
+					} else if (anim_idxs[i] < 0) {
+						anim_idxs[i] = 1;
+						anim_flags[i] &= ~ANIM_FLAG_BKWD;
 					} else {
-						anims[i].idx = 0;
+						anim_idxs[i] = 0;
 					}
 				} else {
-					anims[i].idx = 0;
-					anims[i].flags |= ANIM_FLAG_DISABLED;
+					anim_idxs[i] = 0;
+					anim_flags[i] |= ANIM_FLAG_DISABLED;
 				}
 			}
 
-			anims[i].duration = anims[i].frames[anims[i].idx].duration;
-			ss_rects[i] = anims[i].frames[anims[i].idx].ss;
+			anim_durations[i] = anim_frames[i][anim_idxs[i]].duration;
+			ss_rects[i] = anim_frames[i][anim_idxs[i]].ss;
 		}
 	}
 
 	if (need_render) {
 		need_render = false;
-		render_actors(ss_rects, scr_rects, anims, nacts);
+		render_actors(ss_rects, scr_rects, anim_flags, cnt);
 	}
 }
 

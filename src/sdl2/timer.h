@@ -14,7 +14,7 @@
 #define timer_profiler_start() timer_high_precision_counter()
 
 #define timer_profiler_end(start) \
-	((timer_high_precision_counter() - start) / timer_high_precision_frequency())
+	(((double)timer_high_precision_counter() - (double)start) / timer_high_precision_frequency())
 
 
 #endif

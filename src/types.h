@@ -48,6 +48,8 @@ enum actor_anim_flag {
 	ANIM_FLAG_FLIPH    = (0x10)
 };
 
+typedef uint8_t actor_anim_flag_t;
+
 struct actor_frame {
 	uint32_t duration;
 	struct recti ss;
@@ -57,8 +59,8 @@ struct actor_anim {
 	const struct actor_frame* frames;
 	uint32_t clk;
 	uint32_t duration;
-	int cnt;
-	int idx;
+	uint8_t cnt;
+	uint8_t idx;
 	uint8_t flags;
 };
 
