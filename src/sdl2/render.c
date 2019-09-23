@@ -112,6 +112,7 @@ static void draw_tile_layers(const int32_t* const gids)
 void render_init(const char* const identifier)
 {
 	int err;
+	((void)err);
 
 	win = SDL_CreateWindow(identifier,
 	                       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -192,6 +193,7 @@ void render_load_world(const char* ts_path,
 	assert(tex_fg != NULL);
 
 	int err;
+	((void)err);
 	err = SDL_SetTextureBlendMode(tex_actors, SDL_BLENDMODE_BLEND);
 	assert(err == 0);
 	err = SDL_SetTextureBlendMode(tex_fg, SDL_BLENDMODE_BLEND);

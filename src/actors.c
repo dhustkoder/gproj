@@ -9,9 +9,9 @@ static struct rectf scr_rects[GPROJ_MAX_ACTORS];
 static struct vec2f movs[GPROJ_MAX_ACTORS];
 static const struct actor_frame* anim_frames[GPROJ_MAX_ACTORS];
 static timer_clk_t anim_clks[GPROJ_MAX_ACTORS];
-static uint16_t anim_ms[GPROJ_MAX_ACTORS];
-static uint8_t anim_cnts[GPROJ_MAX_ACTORS];
-static uint8_t anim_idxs[GPROJ_MAX_ACTORS];
+static int16_t anim_ms[GPROJ_MAX_ACTORS];
+static int8_t anim_cnts[GPROJ_MAX_ACTORS];
+static int8_t anim_idxs[GPROJ_MAX_ACTORS];
 static actor_anim_flag_t anim_flags[GPROJ_MAX_ACTORS];
 static int nacts;
 
@@ -27,16 +27,17 @@ int actors_create(const struct rectf* const scr)
 
 void actors_anim_set(const int actor_id,
                      const struct actor_frame* const frames,
-                     const uint8_t cnt,
+                     const int8_t nframes,
                      const actor_anim_flag_t flags,
                      const timer_clk_t clk)
 {
 	assert(frames != NULL);
+	assert(nframes <= MAX_ACTOR_FRAMES);
 	need_render = true;
 	anim_idxs[actor_id] = 0;
 	anim_clks[actor_id] = clk;
 	anim_frames[actor_id] = frames;
-	anim_cnts[actor_id] = cnt;
+	anim_cnts[actor_id] = nframes;
 	anim_flags[actor_id] = flags;
 	anim_ms[actor_id] = frames[0].ms;
 	ss_rects[actor_id] = frames[0].ss;
@@ -88,7 +89,7 @@ void actors_update(const timer_clk_t now, const float dt)
 		if (flags&ANIM_FLAG_DISABLED)
 			continue;
 
-		if ((now - anim_clks[i]) >= anim_ms[i]) {
+		if (((int)(now - anim_clks[i])) >= anim_ms[i]) {
 			need_render = true;
 			anim_clks[i] = now;
 			anim_idxs[i] += flags&ANIM_FLAG_BKWD ? -1 : 1;

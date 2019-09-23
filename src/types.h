@@ -40,6 +40,11 @@ enum input_button {
 typedef uint8_t input_button_t;
 
 
+
+#define MAX_ACTOR_FRAMES   (INT8_MAX - 1)
+#define MAX_ACTOR_FRAME_MS (INT16_MAX - 1)
+
+
 enum actor_anim_flag {
 	ANIM_FLAG_DISABLED = (0x01),
 	ANIM_FLAG_ENDED    = ANIM_FLAG_DISABLED,
@@ -52,17 +57,19 @@ enum actor_anim_flag {
 typedef uint8_t actor_anim_flag_t;
 
 struct actor_frame {
-	uint16_t ms;
+	int16_t ms;
 	struct recti ss;
 };
+
 
 struct actor_anim {
 	const struct actor_frame* frames;
 	timer_clk_t clk;
-	uint16_t ms;
-	uint8_t cnt;
-	uint8_t idx;
+	int16_t ms;
+	int8_t cnt;
+	int8_t idx;
 	uint8_t flags;
 };
+
 
 #endif
