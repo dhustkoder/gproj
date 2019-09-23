@@ -19,7 +19,7 @@ void game_init(int argc, char** argv)
 	//audio_play_bgm(bgm_id);
 }
 
-void game_step(uint32_t now, float dt)
+void game_step(timer_clk_t now, float dt)
 {
 	map_update(now, dt);
 	characters_update(now, dt);

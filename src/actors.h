@@ -16,7 +16,7 @@ extern void actors_anim_set(const int actor_id,
 extern int actors_anim_get_flags(int actor_id);
 extern void actors_anim_set_flags(int actor_id, int flags);
 extern void actors_mov_set(int actor_id, float velx, float vely);
-extern void actors_update(uint32_t now, float dt);
+extern void actors_update(timer_clk_t now, float dt);
 extern struct vec2f actors_get_pos(int actor_id);
 
 #endif

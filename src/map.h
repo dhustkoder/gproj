@@ -2,7 +2,6 @@
 #define GPROJ_MAP_H_
 #include <tmx.h>
 #include "types.h"
-#include "timer.h"
 
 
 enum map_layer {
@@ -14,7 +13,7 @@ enum map_layer {
 
 extern void map_load(const char* path);
 extern void map_free(void);
-extern void map_update(uint32_t now, float dt);
+extern void map_update(timer_clk_t now, float dt);
 
 
 

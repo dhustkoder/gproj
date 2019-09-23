@@ -3,7 +3,7 @@
 #include "types.h"
 
 extern void characters_init(void);
-extern void characters_update(uint32_t now, float dt);
+extern void characters_update(timer_clk_t now, float dt);
 
 
 #endif

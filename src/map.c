@@ -89,7 +89,7 @@ void map_free(void)
 	tmx_map_free(map);
 }
 
-void map_update(const uint32_t now, const float dt)
+void map_update(const timer_clk_t now, const float dt)
 {
 	((void)now);
 	((void)dt);

@@ -4,7 +4,7 @@
 
 
 extern void game_init();
-extern void game_step(uint32_t now, float dt);
+extern void game_step(timer_clk_t now, float dt);
 extern void game_term();
 
 

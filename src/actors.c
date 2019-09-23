@@ -70,7 +70,7 @@ struct vec2f actors_get_pos(int actor_id)
 }
 
 
-void actors_update(const uint32_t now, const float dt)
+void actors_update(const timer_clk_t now, const float dt)
 {
 	const int cnt = nacts;
 

@@ -64,7 +64,7 @@ void characters_init(void)
 
 }
 
-void characters_update(const uint32_t now, const float dt)
+void characters_update(const timer_clk_t now, const float dt)
 {
 	if (prev_buttons_states != input_buttons_states) {
 		const struct actor_frame* anim = NULL;
