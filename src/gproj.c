@@ -7,9 +7,9 @@
 #include "game.h"
 
 
-int gproj(void)
+int gproj(int argc, char** argv)
 {
-	game_init();
+	game_init(argc, argv);
 
 	uint32_t clk = timer_now();
 	uint32_t lastclk = clk;

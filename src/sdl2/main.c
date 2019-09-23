@@ -100,7 +100,7 @@ bool events_update(void)
 }
 
 
-int main(void)
+int main(int argc, char** argv)
 {
 	SDL_SetMainReady();
 
@@ -109,7 +109,7 @@ int main(void)
 	if (!platform_init())
 		return EXIT_FAILURE;
 
-	return gproj();
+	return gproj(argc, argv);
 }
 
 
