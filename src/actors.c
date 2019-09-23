@@ -15,6 +15,7 @@ static bool need_render = false;
 int actors_create(const struct rectf* const scr)
 {
 	const int id = nacts++;
+	assert(nacts < GPROJ_MAX_ACTORS);
 	scr_rects[id] = *scr;
 	memset(&ss_rects[id], 0, sizeof(ss_rects[id]));
 	memset(&anims[id], 0, sizeof(anims[id]));
@@ -28,16 +29,15 @@ void actors_anim_set(const int actor_id,
                      const int cnt,
                      const int flags)
 {
+	assert(frames != NULL);
 	need_render = true;
 	anims[actor_id].idx = 0;
 	anims[actor_id].clk = clk;
 	anims[actor_id].frames = frames;
 	anims[actor_id].cnt = cnt;
 	anims[actor_id].flags = flags;
-	if (frames != NULL) {
-		anims[actor_id].duration = frames[0].duration;
-		ss_rects[actor_id] = frames[0].ss;
-	}
+	anims[actor_id].duration = frames[0].duration;
+	ss_rects[actor_id] = frames[0].ss;
 }
 
 
@@ -45,6 +45,7 @@ int actors_anim_get_flags(int actor_id)
 {
 	return anims[actor_id].flags;
 }
+
 
 void actors_anim_set_flags(int actor_id, int flags)
 {
@@ -60,10 +61,12 @@ void actors_mov_set(const int actor_id,
 	movs[actor_id].y = vely;
 }
 
+
 struct vec2f actors_get_pos(int actor_id)
 {
 	return scr_rects[actor_id].pos;
 }
+
 
 void actors_update(const uint32_t now, const float dt)
 {
@@ -77,9 +80,6 @@ void actors_update(const uint32_t now, const float dt)
 	}
 
 	for (int i = 0; i < nacts; ++i) {
-		if (anims[i].frames == NULL)
-			continue;
-
 		const int flags = anims[i].flags;
 		if (flags&ANIM_FLAG_DISABLED)
 			continue;

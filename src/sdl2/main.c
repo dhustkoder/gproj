@@ -16,34 +16,6 @@
 
 extern input_button_t input_buttons_states;
 
-SDL_Renderer* sdl_rend = NULL;
-SDL_Texture* sdl_tex_bg = NULL;
-SDL_Texture* sdl_tex_actors = NULL;
-SDL_Texture* sdl_tex_fg = NULL;
-SDL_Texture* sdl_tex_txt = NULL;
-SDL_Texture* sdl_tex_ts = NULL;
-SDL_Texture* sdl_tex_ss = NULL;
-
-const enum render_layer layers_arr[RENDER_LAYER_NLAYERS] = {
-	RENDER_LAYER_BG,
-	RENDER_LAYER_ACTORS,
-	RENDER_LAYER_FG,
-	RENDER_LAYER_TXT
-};
-
-SDL_Texture* tex_targets_arr[RENDER_LAYER_NLAYERS];
-
-
-int sfxs_cnt = 0;
-int bgms_cnt = 0;
-Mix_Chunk* sfxs[MAX_SFXS];
-Mix_Music* bgms[MAX_BGMS];
-
-
-FC_Font* sdl_font;
-
-
-static SDL_Window* win = NULL;
 
 static SDL_Scancode sdl_keys[] = {
 	SDL_SCANCODE_W,
@@ -65,8 +37,7 @@ static input_button_t game_buttons[] = {
 
 
 
-
-static bool platform_init(bool vsync)
+static bool platform_init()
 {
 	LOG_DEBUG("Initializing Platfrom");
 
@@ -82,69 +53,6 @@ static bool platform_init(bool vsync)
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) != 0)
 		goto Lfailure;
 
-	win = SDL_CreateWindow("GProj",
-	                       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-	                       GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT,
-	                       SDL_WINDOW_RESIZABLE);
-	if (win == NULL)
-		goto Lfailure;
-
-	sdl_rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED|
-	                             (vsync ? SDL_RENDERER_PRESENTVSYNC : 0));
-	if (sdl_rend == NULL)
-		goto Lfailure;
-
-	sdl_tex_bg = SDL_CreateTexture(sdl_rend,
-	                        SDL_PIXELFORMAT_RGB888,
-	                        SDL_TEXTUREACCESS_TARGET,
-	                        GPROJ_WORLD_WIDTH, GPROJ_WORLD_HEIGHT);
-	if (sdl_tex_bg == NULL)
-		goto Lfailure;
-
-	sdl_tex_actors = SDL_CreateTexture(sdl_rend,
-	                        SDL_PIXELFORMAT_RGB888,
-	                        SDL_TEXTUREACCESS_TARGET,
-	                        GPROJ_WORLD_WIDTH, GPROJ_WORLD_HEIGHT);
-	if (sdl_tex_actors == NULL)
-		goto Lfailure;
-
-	sdl_tex_fg = SDL_CreateTexture(sdl_rend,
-	                        SDL_PIXELFORMAT_RGB888,
-	                        SDL_TEXTUREACCESS_TARGET,
-	                        GPROJ_WORLD_WIDTH, GPROJ_WORLD_HEIGHT);
-	if (sdl_tex_fg == NULL)
-		goto Lfailure;
-
-
-	sdl_tex_txt = SDL_CreateTexture(sdl_rend,
-	                        SDL_PIXELFORMAT_RGB888,
-	                        SDL_TEXTUREACCESS_TARGET,
-	                        GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
-	if (sdl_tex_txt == NULL)
-		goto Lfailure;
-
-	if ((sdl_font = FC_CreateFont()) == NULL)
-		goto Lfailure;
-
-	if (!FC_LoadFont(sdl_font, sdl_rend,
-	                 "8bit-madness.ttf", 16,
-		             FC_MakeColor(0xFF,0xFF,0xFF,0xFF), TTF_STYLE_NORMAL))
-		goto Lfailure;
-
-
-	SDL_SetTextureBlendMode(sdl_tex_actors, SDL_BLENDMODE_BLEND);
-	SDL_SetTextureBlendMode(sdl_tex_fg, SDL_BLENDMODE_BLEND);
-	SDL_SetTextureBlendMode(sdl_tex_txt, SDL_BLENDMODE_BLEND);
-
-	tex_targets_arr[0] = sdl_tex_bg;
-	tex_targets_arr[1] = sdl_tex_actors;
-	tex_targets_arr[2] = sdl_tex_fg;
-	tex_targets_arr[3] = sdl_tex_txt;
-
-	render_clear(RENDER_LAYER_BG|RENDER_LAYER_FG|RENDER_LAYER_ACTORS|RENDER_LAYER_TXT);
-
-	render_present();
-
 	return true;
 
 Lfailure:
@@ -155,30 +63,6 @@ Lfailure:
 static void platform_term(void)
 {
 	LOG_DEBUG("Terminating Platform");
-
-	FC_FreeFont(sdl_font);
-
-	for (int i = 0; i < bgms_cnt; ++i)
-		Mix_FreeMusic(bgms[i]);
-	for (int i = 0; i < sfxs_cnt; ++i)
-		Mix_FreeChunk(sfxs[i]);
-
-	if (sdl_tex_txt != NULL)
-		SDL_DestroyTexture(sdl_tex_txt);
-	if (sdl_tex_ts != NULL)
-		SDL_DestroyTexture(sdl_tex_ts);
-	if (sdl_tex_ss != NULL)
-		SDL_DestroyTexture(sdl_tex_ss);
-	if (sdl_tex_fg != NULL)
-		SDL_DestroyTexture(sdl_tex_fg);
-	if (sdl_tex_actors != NULL)
-		SDL_DestroyTexture(sdl_tex_actors);
-	if (sdl_tex_bg != NULL)
-		SDL_DestroyTexture(sdl_tex_bg);
-	if (sdl_rend != NULL)
-		SDL_DestroyRenderer(sdl_rend);
-	if (win != NULL)
-		SDL_DestroyWindow(win);
 
 	Mix_CloseAudio();
 	TTF_Quit();
@@ -216,14 +100,13 @@ bool events_update(void)
 }
 
 
-int main(int argc, char** argv)
+int main(void)
 {
-	((void)argv);
 	SDL_SetMainReady();
 
 	atexit(platform_term);
 
-	if (!platform_init(argc > 1))
+	if (!platform_init())
 		return EXIT_FAILURE;
 
 	return gproj();

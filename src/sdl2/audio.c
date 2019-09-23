@@ -3,11 +3,24 @@
 #include "log.h"
 #include "audio.h"
 
-extern int sfxs_cnt;
-extern int bgms_cnt;
-extern Mix_Chunk* sfxs[MAX_SFXS];
-extern Mix_Music* bgms[MAX_BGMS];
+static int sfxs_cnt = 0;
+static int bgms_cnt = 0;
+static Mix_Chunk* sfxs[MAX_SFXS];
+static Mix_Music* bgms[MAX_BGMS];
 
+
+void audio_init()
+{
+
+}
+
+void audio_term()
+{
+	for (int i = 0; i < bgms_cnt; ++i)
+		Mix_FreeMusic(bgms[i]);
+	for (int i = 0; i < sfxs_cnt; ++i)
+		Mix_FreeChunk(sfxs[i]);
+}
 
 int audio_load_bgm(const char* const path)
 {

@@ -8,6 +8,9 @@
 #define MAX_SFXS ((int)16)
 
 
+extern void audio_init();
+extern void audio_term();
+
 extern int audio_load_bgm(const char* path);
 extern int audio_load_sfx(const char* path);
 

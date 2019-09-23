@@ -1,3 +1,4 @@
+#include "render.h"
 #include "audio.h"
 #include "map.h"
 #include "actors.h"
@@ -10,8 +11,10 @@
 
 void game_init()
 {
+	render_init("GProj Testing");
+	audio_init();
+	map_load("map02.tmx");
 	characters_init();
-	map_load("map01.tmx");
 	//bgm_id = audio_load_bgm("bloodlines.ogg");
 	//audio_play_bgm(bgm_id);
 }
@@ -25,4 +28,5 @@ void game_step(uint32_t now, float dt)
 void game_term()
 {
 	map_free();
+	render_term();
 }

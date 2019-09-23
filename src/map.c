@@ -9,6 +9,7 @@
 struct vec2i map_ts_size;
 struct vec2i map_tile_size;
 struct vec2i map_map_size;
+struct vec2i world_size;
 
 static int32_t* map_layers = NULL;
 static int map_layer_cnt = 0;
@@ -43,8 +44,12 @@ void map_load(const char* const path)
 
 	assert(map_layers != NULL);
 
-	render_load_ts(map->ts_head->tileset->image->source);
+	world_size = (struct vec2i) {
+		map_map_size.x * map_tile_size.x,
+		map_map_size.y * map_tile_size.y
+	};
 
+	render_load_world(map->ts_head->tileset->image->source, &world_size);
 
 	LOG_DEBUG("MAP WIDTH: %d", map_map_size.x);
 	LOG_DEBUG("MAP HEIGHT: %d", map_map_size.y);

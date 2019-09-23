@@ -14,22 +14,20 @@
 #define GPROJ_SCR_WIDTH      (256)
 #define GPROJ_SCR_HEIGHT     (160)
 
-#define GPROJ_WORLD_WIDTH    (24*32)
-#define GPROJ_WORLD_HEIGHT   (160)
-
-
 enum render_layer {
 	RENDER_LAYER_BG      = (0x01),
 	RENDER_LAYER_ACTORS  = (0x02),
 	RENDER_LAYER_FG      = (0x04),
 	RENDER_LAYER_TXT     = (0x08),
+	RENDER_LAYER_ALL     = RENDER_LAYER_BG|RENDER_LAYER_ACTORS|RENDER_LAYER_FG|RENDER_LAYER_TXT,
 	RENDER_LAYER_NLAYERS = 4,
 };
 
+extern void render_init(const char* identifier);
+extern void render_term();
 
-extern void render_init();
-
-extern void render_load_ts(const char* const path);
+extern void render_load_world(const char* ts_path,
+                              struct vec2i* world_size);
 
 extern void render_load_ss(const char* path);
 

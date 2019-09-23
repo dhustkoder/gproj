@@ -9,6 +9,7 @@
 
 input_button_t input_buttons_states;
 extern struct vec2f map_scrl_pos;
+extern struct vec2i world_size;
 
 static const struct actor_frame idle_frames[] = {
 	{ 196, { .size = { 26, 46 }, .pos = { 90, 56 } } },
@@ -60,28 +61,6 @@ void characters_init(void)
 		ARRSZ(idle_frames),
 		anim_flags
 	);
-
-	for (int i = 0; i < 255; ++i) {
-		const int id = actors_create(
-			&(struct rectf) {
-				.size = { 26, 46 },
-				.pos  = {
-					(i * 26) % GPROJ_WORLD_WIDTH,
-					(46 * ((i * 26) / GPROJ_WORLD_WIDTH)) % GPROJ_WORLD_HEIGHT
-				}
-			}
-		);
-
-		actors_anim_set(
-			id,
-			timer_now(),
-			idle_frames,
-			ARRSZ(idle_frames),
-			anim_flags
-		);
-
-		actors_mov_set(id, -8, -1);
-	}
 }
 
 void characters_update(const uint32_t now, const float dt)
@@ -123,8 +102,8 @@ void characters_update(const uint32_t now, const float dt)
 
 	if (camx < 0)
 		camx = 0;
-	else if (camx >= GPROJ_WORLD_WIDTH - GPROJ_SCR_WIDTH)
-		camx = GPROJ_WORLD_WIDTH - GPROJ_SCR_WIDTH;
+	else if (camx >= world_size.x - GPROJ_SCR_WIDTH)
+		camx = world_size.x - GPROJ_SCR_WIDTH;
 
 	render_set_camera(camx, 0);
 
