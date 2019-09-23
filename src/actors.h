@@ -8,10 +8,10 @@
 extern int actors_create(const struct rectf* scr);
 
 extern void actors_anim_set(const int actor_id,
-                            uint32_t clk,
                             const struct actor_frame* frames,
                             uint8_t cnt,
-                            actor_anim_flag_t flags);
+                            actor_anim_flag_t flags,
+                            timer_clk_t clk);
 
 extern int actors_anim_get_flags(int actor_id);
 extern void actors_anim_set_flags(int actor_id, int flags);

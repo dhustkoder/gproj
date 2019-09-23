@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "timer.h"
 
 #define RGBA32(r, g, b, a) ((r<<24ul)|(g<<16ul)|(b<<8ul)|a)
 #define ARRSZ(array) (sizeof(array)/sizeof(array[0]))
@@ -51,14 +52,14 @@ enum actor_anim_flag {
 typedef uint8_t actor_anim_flag_t;
 
 struct actor_frame {
-	uint32_t duration;
+	uint16_t ms;
 	struct recti ss;
 };
 
 struct actor_anim {
 	const struct actor_frame* frames;
-	uint32_t clk;
-	uint32_t duration;
+	timer_clk_t clk;
+	uint16_t ms;
 	uint8_t cnt;
 	uint8_t idx;
 	uint8_t flags;

@@ -56,10 +56,10 @@ void characters_init(void)
 
 	actors_anim_set(
 		player_id,
-		timer_now(),
 		idle_frames,
 		ARRSZ(idle_frames),
-		anim_flags
+		anim_flags,
+		timer_now()
 	);
 
 }
@@ -90,7 +90,7 @@ void characters_update(const uint32_t now, const float dt)
 		}
 
 		actors_mov_set(player_id, velx, 0);
-		actors_anim_set(player_id, now, anim, anim_sz, anim_flags);
+		actors_anim_set(player_id, anim, anim_sz, anim_flags, now);
 		prev_buttons_states = input_buttons_states;
 	}
 
