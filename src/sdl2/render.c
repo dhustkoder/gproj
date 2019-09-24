@@ -120,10 +120,9 @@ void render_init(const char* const identifier)
 	rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED|SDL_RENDERER_TARGETTEXTURE);
 	assert(rend != NULL);
 
-	tex_txt = SDL_CreateTexture(rend,
-	                                SDL_PIXELFORMAT_RGB888,
-	                                SDL_TEXTUREACCESS_TARGET,
-	                                GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
+	tex_txt = SDL_CreateTexture(rend, SDL_PIXELFORMAT_RGB888,
+	                            SDL_TEXTUREACCESS_TARGET,
+	                            GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	assert(tex_txt != NULL);
 
 	font = FC_CreateFont();
@@ -337,24 +336,18 @@ void render_present(void)
 		.w = GPROJ_SCR_WIDTH,
 		.h = GPROJ_SCR_HEIGHT
 	};
-	const SDL_Rect text_src = {
+	const SDL_Rect text_rect = {
 		.x = 0,
 		.y = 0,
 		.w = text_pos.x,
 		.h = text_pos.y
-	};
-	const SDL_Rect text_dst = { 
-		.x = 0,
-		.y = 0,
-		.w= text_pos.x * 4,
-		.h=text_pos.y * 4 
-	};
+	};	
 
 	SDL_SetRenderTarget(rend, NULL);
 	SDL_RenderCopy(rend, tex_bg, &cam_rect, NULL);
 	SDL_RenderCopy(rend, tex_actors, &cam_rect, NULL);
 	SDL_RenderCopy(rend, tex_fg, &cam_rect, NULL);
-	SDL_RenderCopy(rend, tex_txt, &text_src, &text_dst);
+	SDL_RenderCopy(rend, tex_txt, &text_rect, &text_rect);
 	SDL_RenderPresent(rend);
 
 	text_pos.x = 0;
