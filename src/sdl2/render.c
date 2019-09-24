@@ -329,7 +329,7 @@ void render_set_camera(int x, int y)
 void render_present(void)
 {
 	render_text("CAMERA POS => (%d, %d)", cam_pos.x, cam_pos.y);
-
+	
 	const SDL_Rect cam_rect = {
 		.x = cam_pos.x,
 		.y = cam_pos.y,

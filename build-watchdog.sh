@@ -3,7 +3,7 @@
 gproj_pid=false
 
 while true; do
-	inotifywait -r ./src -e close_write
+	inotifywait -r ./src/* --exclude game --exclude sdl2 -e close_write
 
 	if [ $gproj_pid != false ]
 	then
@@ -13,12 +13,14 @@ while true; do
 	sleep 1
 
 	make $1 -j8
+	if [ $? = 0 ]
+	then
+		cd build
+		./gproj $2 &
+		gproj_pid=$!
+		cd ..
+	fi
 
-	cd build
-	./gproj $2 &
-	gproj_pid=$!
-	cd ..
-	
 	sleep 1
 done
 
