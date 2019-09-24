@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <tmx.h>
-#include "log.h"
+#include "logger.h"
 #include "types.h"
 #include "render.h"
 #include "map.h"

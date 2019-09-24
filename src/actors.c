@@ -1,5 +1,5 @@
 #include <assert.h>
-#include "log.h"
+#include "logger.h"
 #include "timer.h"
 #include "render.h"
 #include "actors.h"

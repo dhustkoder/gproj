@@ -4,10 +4,10 @@
 #include <stdarg.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include "SDL_FontCache.h"
+#include <SDL_FontCache.h>
 #include <tmx.h>
 #include "render.h"
-#include "log.h"
+#include "logger.h"
 #include "map.h"
 
 static SDL_Window* win = NULL;

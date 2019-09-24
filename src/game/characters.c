@@ -1,6 +1,6 @@
 #include "types.h"
 #include "render.h"
-#include "log.h"
+#include "logger.h"
 #include "actors.h"
 #include "map.h"
 #include "timer.h"

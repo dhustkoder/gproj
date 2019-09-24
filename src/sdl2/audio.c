@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <SDL2/SDL_mixer.h>
-#include "log.h"
+#include "logger.h"
 #include "audio.h"
 
 static int sfxs_cnt = 0;

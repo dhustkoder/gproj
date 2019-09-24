@@ -1,5 +1,5 @@
 #include <SDL2/SDL.h>
-#include "log.h"
+#include "logger.h"
 #include "timer.h"
 #include "events.h"
 #include "render.h"

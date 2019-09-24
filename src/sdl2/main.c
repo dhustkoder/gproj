@@ -6,7 +6,7 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 #include "SDL_FontCache.h"
-#include "log.h"
+#include "logger.h"
 #include "render.h"
 #include "audio.h"
 #include "types.h"
