@@ -252,7 +252,7 @@ void render_clear(const enum render_layer layers)
 
 void render_map(const int32_t* const gids,
                 const struct vec2i* const map_size,
-		const struct vec2i* const tile_size)
+                const struct vec2i* const tile_size)
 {
 	render_clear(RENDER_LAYER_BG|RENDER_LAYER_FG);
 	SDL_SetRenderTarget(rend, tex_bg);
