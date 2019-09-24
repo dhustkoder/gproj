@@ -300,9 +300,8 @@ void render_text(const char* const text, ...)
 
 	render_clear(RENDER_LAYER_TXT);
 	SDL_SetRenderTarget(rend, tex_txt);
-	const SDL_Rect dirty = FC_Draw_v(font, rend,
-		                             text_pos.x, text_pos.y,
-		                             text, vargs);
+	const SDL_Rect dirty = FC_Draw_v(font, rend, text_pos.x, text_pos.y,
+	                                 text, vargs);
 	//x += dirty.w;
 	text_pos.y += dirty.h;
 
