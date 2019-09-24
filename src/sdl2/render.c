@@ -10,6 +10,8 @@
 #include "logger.h"
 #include "map.h"
 
+
+
 static SDL_Window* win = NULL;
 static SDL_Renderer* rend;
 static SDL_Texture* tex_bg;
@@ -27,13 +29,11 @@ const enum render_layer targets_flags[RENDER_LAYER_NLAYERS] = {
 	RENDER_LAYER_TXT
 };
 
-SDL_Texture* targets_arr[RENDER_LAYER_NLAYERS];
-
-extern struct vec2i map_ts_size;
-extern struct vec2i map_tile_size;
-extern struct vec2i map_map_size;
-
+static SDL_Texture* targets_arr[RENDER_LAYER_NLAYERS];
 static enum render_layer layers_cleared;
+
+static struct vec2i ts_size = { 0, 0 };
+static struct vec2i fb_size = { 0, 0 };
 static struct vec2i text_pos = { 0, 0 };
 static struct vec2i cam_pos = { 0, 0 };
 
@@ -60,31 +60,28 @@ static void draw_flipped_gid(const int32_t gid,
 			flips |= SDL_FLIP_HORIZONTAL;
 	}
 
-	SDL_RenderCopyEx(rend,
-	                 tex_ts,
-	                 src, dst, degrees,
-	                 NULL, flips);
+	SDL_RenderCopyEx(rend, tex_ts, src, dst, degrees, NULL, flips);
 }
 
-static void draw_tile_layers(const int32_t* const gids)
+static void draw_map_layer(const int32_t* const gids,
+                           const struct vec2i map_size,
+			   const struct vec2i tile_size)
 {
 	SDL_Rect src = {
-		.w = map_tile_size.x,
-		.h = map_tile_size.y
+		.w = tile_size.x,
+		.h = tile_size.y
 	};
 
 	SDL_Rect dst = {
 		.y = 0,
-		.w = map_tile_size.x,
-		.h = map_tile_size.y
+		.w = tile_size.x,
+		.h = tile_size.y
 	};
 
-	const int y_tiles = map_map_size.y;
-	const int x_tiles = map_map_size.x;
-	const int ts_w = map_ts_size.x;
-	const struct vec2i tile_size = {
-		map_tile_size.x, map_tile_size.y
-	};
+	const int y_tiles = map_size.y;
+	const int x_tiles = map_size.x;
+	const int ts_w = ts_size.x;
+
 
 	for (int y = 0; y < y_tiles; ++y) {
 		for (int x = 0; x < x_tiles; ++x) {
@@ -147,6 +144,7 @@ void render_init(const char* const identifier)
 	render_present();
 }
 
+
 void render_term()
 {
 	FC_FreeFont(font);
@@ -171,25 +169,26 @@ void render_term()
 
 
 
-void render_load_world(const char* ts_path,
-                       struct vec2i* world_size)
+void render_fb_setup(const struct vec2i* const size)
 {
+	fb_size = *size;
+
 	tex_bg = SDL_CreateTexture(rend,
-	                        SDL_PIXELFORMAT_RGB888,
-	                        SDL_TEXTUREACCESS_TARGET,
-	                        world_size->x, world_size->y);
+	                           SDL_PIXELFORMAT_RGB888,
+	                           SDL_TEXTUREACCESS_TARGET,
+	                           size->x, size->y);
 	assert(tex_bg != NULL);
 
 	tex_actors = SDL_CreateTexture(rend,
-	                        SDL_PIXELFORMAT_RGB888,
-	                        SDL_TEXTUREACCESS_TARGET,
-	                        world_size->x, world_size->y);
+	                               SDL_PIXELFORMAT_RGB888,
+	                               SDL_TEXTUREACCESS_TARGET,
+	                               size->x, size->y);
 	assert(tex_actors != NULL);
 
 	tex_fg = SDL_CreateTexture(rend,
-	                        SDL_PIXELFORMAT_RGB888,
-	                        SDL_TEXTUREACCESS_TARGET,
-	                        world_size->x, world_size->y);
+	                           SDL_PIXELFORMAT_RGB888,
+	                           SDL_TEXTUREACCESS_TARGET,
+	                           size->x, size->y);
 	assert(tex_fg != NULL);
 
 	int err;
@@ -199,14 +198,6 @@ void render_load_world(const char* ts_path,
 	err = SDL_SetTextureBlendMode(tex_fg, SDL_BLENDMODE_BLEND);
 	assert(err == 0);
 
-	if (tex_ts)
-		SDL_DestroyTexture(tex_ts);
-
-	LOG_DEBUG("LOADING TILESHEET: %s", ts_path);
-
-	tex_ts = IMG_LoadTexture(rend, ts_path);
-
-	assert(tex_ts != NULL);
 	targets_arr[0] = tex_bg;
 	targets_arr[1] = tex_actors;
 	targets_arr[2] = tex_fg;
@@ -214,10 +205,25 @@ void render_load_world(const char* ts_path,
 	render_clear(RENDER_LAYER_ALL);
 
 	render_present();
-
 }
 
-void render_load_ss(const char* path)
+
+void render_load_ts(const char* const path)
+{
+	if (tex_ts)
+		SDL_DestroyTexture(tex_ts);
+
+	LOG_DEBUG("LOADING TILESHEET: %s", path);
+ 
+	tex_ts = IMG_LoadTexture(rend, path);
+	
+	assert(tex_ts != NULL);
+
+	SDL_QueryTexture(tex_ts, NULL, NULL, &ts_size.x, &ts_size.y);
+}
+
+
+void render_load_ss(const char* const path)
 {
 	if (tex_ss)
 		SDL_DestroyTexture(tex_ss);
@@ -244,13 +250,16 @@ void render_clear(const enum render_layer layers)
 }
 
 
-void render_map(const int32_t* const gids)
+void render_map(const int32_t* const gids,
+                const struct vec2i* const map_size,
+		const struct vec2i* const tile_size)
 {
 	render_clear(RENDER_LAYER_BG|RENDER_LAYER_FG);
 	SDL_SetRenderTarget(rend, tex_bg);
-	draw_tile_layers(gids);
+	draw_map_layer(gids, *map_size, *tile_size);
 	SDL_SetRenderTarget(rend, tex_fg);
-	draw_tile_layers(gids + MAP_LAYER_FG * map_map_size.x * map_map_size.y);
+	draw_map_layer(gids + MAP_LAYER_FG * map_size->x * map_size->y,
+	               *map_size, *tile_size);
 }
 
 
@@ -303,6 +312,16 @@ void render_text(const char* const text, ...)
 
 void render_set_camera(int x, int y)
 {
+	if (x < 0)
+		x = 0;
+	else if (x > fb_size.x - GPROJ_SCR_WIDTH)
+		x = fb_size.x - GPROJ_SCR_WIDTH;
+
+	if (y < 0)
+		y = 0;
+	else if (y > fb_size.y - GPROJ_SCR_HEIGHT)
+		y = fb_size.y - GPROJ_SCR_HEIGHT;
+
 	cam_pos.x = x;
 	cam_pos.y = y;
 }

@@ -8,8 +8,6 @@
 
 
 input_button_t input_buttons_states;
-extern struct vec2f map_scrl_pos;
-extern struct vec2i world_size;
 
 static const struct actor_frame idle_frames[] = {
 	{ 196, { .size = { 26, 46 }, .pos = { 90, 56 } } },
@@ -34,8 +32,7 @@ enum {
 	CHR_STATE_IDLE    = 0x01,
 };
 
-const float player_defvel = GPROJ_SCR_WIDTH / 4;
-
+static const float player_defvel = GPROJ_SCR_WIDTH / 4;
 static int player_id = 0;
 static int anim_flags = ANIM_FLAG_LOOP;
 static input_button_t prev_buttons_states;
@@ -98,12 +95,7 @@ void characters_update(const timer_clk_t now, const float dt)
 
 	const struct vec2f player_pos = actors_get_pos(player_id);
 
-	int camx = player_pos.x - (GPROJ_SCR_WIDTH / 2);
-
-	if (camx < 0)
-		camx = 0;
-	else if (camx >= world_size.x - GPROJ_SCR_WIDTH)
-		camx = world_size.x - GPROJ_SCR_WIDTH;
+	const int camx = player_pos.x - (GPROJ_SCR_WIDTH / 2);
 
 	render_set_camera(camx, 0);
 
