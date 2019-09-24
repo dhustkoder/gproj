@@ -130,10 +130,10 @@ void render_init(const char* const identifier)
 	assert(font != NULL);
 
 	err = FC_LoadFont(font, rend, "8bit-madness.ttf", 16,
-					  FC_MakeColor(0xFF,0xFF,0xFF,0xFF), TTF_STYLE_NORMAL);
+	                  FC_MakeColor(0xFF,0xFF,0xFF,0xFF), TTF_STYLE_NORMAL);
 	assert(err != 0);
 
-	err = SDL_SetTextureBlendMode(tex_txt, SDL_BLENDMODE_BLEND);
+	err = SDL_SetTextureBlendMode(tex_txt, 0);
 	assert(err == 0);
 
 
@@ -296,13 +296,14 @@ void render_text(const char* const text, ...)
 	va_list vargs;
 	va_start(vargs, text);
 
-	text_pos.x = 0;
-
 	render_clear(RENDER_LAYER_TXT);
 	SDL_SetRenderTarget(rend, tex_txt);
-	const SDL_Rect dirty = FC_Draw_v(font, rend, text_pos.x, text_pos.y,
+
+	const SDL_Rect dirty = FC_Draw_v(font, rend, 0, text_pos.y,
 	                                 text, vargs);
-	//x += dirty.w;
+	if (dirty.w > text_pos.x)
+		text_pos.x = dirty.w;
+	
 	text_pos.y += dirty.h;
 
 	va_end(vargs);
@@ -336,12 +337,24 @@ void render_present(void)
 		.w = GPROJ_SCR_WIDTH,
 		.h = GPROJ_SCR_HEIGHT
 	};
+	const SDL_Rect text_src = {
+		.x = 0,
+		.y = 0,
+		.w = text_pos.x,
+		.h = text_pos.y
+	};
+	const SDL_Rect text_dst = { 
+		.x = 0,
+		.y = 0,
+		.w= text_pos.x * 4,
+		.h=text_pos.y * 4 
+	};
 
 	SDL_SetRenderTarget(rend, NULL);
 	SDL_RenderCopy(rend, tex_bg, &cam_rect, NULL);
 	SDL_RenderCopy(rend, tex_actors, &cam_rect, NULL);
 	SDL_RenderCopy(rend, tex_fg, &cam_rect, NULL);
-	SDL_RenderCopy(rend, tex_txt, NULL, NULL);
+	SDL_RenderCopy(rend, tex_txt, &text_src, &text_dst);
 	SDL_RenderPresent(rend);
 
 	text_pos.x = 0;

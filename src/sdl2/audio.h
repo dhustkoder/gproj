@@ -17,5 +17,7 @@ extern int audio_load_sfx(const char* path);
 extern void audio_play_bgm(int id);
 extern void audio_play_sfx(int id);
 
+extern void audio_stop_bgm(void);
+extern void audio_stop_sfx(int id);
 
 #endif

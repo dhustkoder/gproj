@@ -1,3 +1,4 @@
+#include "audio.h"
 #include "types.h"
 #include "render.h"
 #include "logger.h"
@@ -37,8 +38,7 @@ static int player_id = 0;
 static int anim_flags = ANIM_FLAG_LOOP;
 static input_button_t prev_buttons_states;
 static float velx = 0;
-
-
+static int walking_sfx_id = 0;
 
 void characters_init(void)
 {
@@ -59,6 +59,7 @@ void characters_init(void)
 		timer_now()
 	);
 
+	walking_sfx_id = audio_load_sfx("sounds/stepstone_4.wav");
 }
 
 void characters_update(const timer_clk_t now, const float dt)
@@ -80,7 +81,9 @@ void characters_update(const timer_clk_t now, const float dt)
 			}
 			anim = walking_frames;
 			anim_sz = ARRSZ(walking_frames);
+			audio_play_sfx(walking_sfx_id);
 		} else {
+			audio_stop_sfx(walking_sfx_id);
 			velx = 0;
 			anim = idle_frames;
 			anim_sz = ARRSZ(idle_frames);
@@ -89,7 +92,7 @@ void characters_update(const timer_clk_t now, const float dt)
 		actors_mov_set(player_id, velx, 0);
 		actors_anim_set(player_id, anim, anim_sz, anim_flags, now);
 		prev_buttons_states = input_buttons_states;
-	}
+	}	
 
 	actors_update(now, dt);
 

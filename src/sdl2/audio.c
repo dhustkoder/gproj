@@ -24,15 +24,18 @@ void audio_term()
 
 int audio_load_bgm(const char* const path)
 {
+	assert(path != NULL);
 	bgms[bgms_cnt] = Mix_LoadMUS(path);
+	assert(bgms[bgms_cnt] != NULL);
 	return bgms_cnt++;
 }
 
 int audio_load_sfx(const char* const path)
-{
-	((void)path);
-	assert(path && false && "NEED IMPLEMENTATION");
-	return 0;
+{	
+	assert(path != NULL);
+	sfxs[sfxs_cnt] = Mix_LoadWAV(path);
+	assert(sfxs[sfxs_cnt] != NULL);
+	return sfxs_cnt++;
 }
 
 void audio_play_bgm(const int id)
@@ -46,10 +49,22 @@ void audio_play_bgm(const int id)
 
 void audio_play_sfx(const int id)
 {
-	((void)id);
-	assert(id && false && "NEED IMPLEMENTATION");
+	assert(id < sfxs_cnt);
+	if (Mix_PlayChannel(id, sfxs[id], -1) != 0) {
+		LOG_ERR("Couldn't play music \'%d\': %s\n",
+		        id, SDL_GetError());
+	}
 }
 
+void audio_stop_bgm(void)
+{
+	Mix_HaltMusic();
+}
 
+void audio_stop_sfx(const int id)
+{
+	assert(id < sfxs_cnt);
+	Mix_HaltChannel(id);
 
+}
 
