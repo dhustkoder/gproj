@@ -47,7 +47,7 @@ void characters_init(void)
 	player_id = actors_create(
 		&(struct rectf) {
 			.size = { 26, 46 },
-			.pos  = { 26, GPROJ_SCR_HEIGHT - 46 - 16}
+			.pos  = { 26, 160 - 46 - 16 }
 		}
 	);
 
