@@ -11,7 +11,7 @@ static Mix_Music* bgms[MAX_BGMS];
 
 void audio_init()
 {
-
+	Mix_VolumeMusic((40.f / 100.f) * MIX_MAX_VOLUME);	
 }
 
 void audio_term()

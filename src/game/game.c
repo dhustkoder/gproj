@@ -15,7 +15,7 @@ void game_init(int argc, char** argv)
 	map_load(argc > 1 ? argv[1] : "map00-00.tmx");
 	characters_init();
 	bgm_id = audio_load_bgm("bloodlines.ogg");
-	//audio_play_bgm(bgm_id);
+	audio_play_bgm(bgm_id);
 }
 
 void game_step(timer_clk_t now, float dt)
