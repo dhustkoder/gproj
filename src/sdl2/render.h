@@ -8,10 +8,7 @@
 #include "actors.h"
 
 
-#define GPROJ_X_TILES (8)
-#define GPROJ_Y_TILES (5)
-
-#define GPROJ_SCR_WIDTH      (256)
+#define GPROJ_SCR_WIDTH      (360)
 #define GPROJ_SCR_HEIGHT     (160)
 
 enum render_layer {

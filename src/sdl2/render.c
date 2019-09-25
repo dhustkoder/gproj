@@ -65,7 +65,7 @@ static void draw_flipped_gid(const int32_t gid,
 
 static void draw_map_layer(const int32_t* const gids,
                            const struct vec2i map_size,
-			   const struct vec2i tile_size)
+                           const struct vec2i tile_size)
 {
 	SDL_Rect src = {
 		.w = tile_size.x,
@@ -172,22 +172,30 @@ void render_fb_setup(const struct vec2i* const size)
 {
 	fb_size = *size;
 
+	/*
+	TODO: screen size / fb size system
+	if (fb_size.x < GPROJ_SCR_WIDTH)
+		fb_size.x = GPROJ_SCR_WIDTH;
+	if (fb_size.y < GPROJ_SCR_HEIGHT)
+		fb_size.y = GPROJ_SCR_HEIGHT;
+	*/
+
 	tex_bg = SDL_CreateTexture(rend,
 	                           SDL_PIXELFORMAT_RGB888,
 	                           SDL_TEXTUREACCESS_TARGET,
-	                           size->x, size->y);
+	                           fb_size.x, fb_size.y);
 	assert(tex_bg != NULL);
 
 	tex_actors = SDL_CreateTexture(rend,
 	                               SDL_PIXELFORMAT_RGB888,
 	                               SDL_TEXTUREACCESS_TARGET,
-	                               size->x, size->y);
+	                               fb_size.x, fb_size.y);
 	assert(tex_actors != NULL);
 
 	tex_fg = SDL_CreateTexture(rend,
 	                           SDL_PIXELFORMAT_RGB888,
 	                           SDL_TEXTUREACCESS_TARGET,
-	                           size->x, size->y);
+	                           fb_size.x, fb_size.y);
 	assert(tex_fg != NULL);
 
 	int err;
@@ -311,25 +319,21 @@ void render_text(const char* const text, ...)
 
 void render_set_camera(int x, int y)
 {
-	if (x < 0)
-		x = 0;
-	else if (x > fb_size.x - GPROJ_SCR_WIDTH)
+	if (x > fb_size.x - GPROJ_SCR_WIDTH)
 		x = fb_size.x - GPROJ_SCR_WIDTH;
 
-	if (y < 0)
-		y = 0;
-	else if (y > fb_size.y - GPROJ_SCR_HEIGHT)
+	if (y > fb_size.y - GPROJ_SCR_HEIGHT)
 		y = fb_size.y - GPROJ_SCR_HEIGHT;
 
-	cam_pos.x = x;
-	cam_pos.y = y;
+	cam_pos.x = x < 0 ? 0 : x;
+	cam_pos.y = y < 0 ? 0 : y;
 }
 
 
 void render_present(void)
 {
 	render_text("CAMERA POS => (%d, %d)", cam_pos.x, cam_pos.y);
-	
+
 	const SDL_Rect cam_rect = {
 		.x = cam_pos.x,
 		.y = cam_pos.y,
