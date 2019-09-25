@@ -4,9 +4,6 @@
 #include <stdint.h>
 #include <SDL2/SDL.h>
 
-#define MAX_BGMS ((int)16)
-#define MAX_SFXS ((int)16)
-
 
 extern void audio_init();
 extern void audio_term();

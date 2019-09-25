@@ -1,5 +1,21 @@
 SHELL := /bin/bash
 
+#
+#
+#
+
+GPROJ_SCR_WIDTH:=320
+GPROJ_SCR_HEIGHT:=180
+
+GPROJ_MAX_ACTORS:=64
+
+GPROJ_MAX_BGMS=1
+GPROJ_MAX_SFXS=16
+
+
+GPROJ_DEFINES=
+
+
 PLATFORM_LSTR=sdl2
 PLATFORM_USTR=SDL2
 
@@ -39,17 +55,22 @@ PLATFORM_ASM=$(patsubst $(PLATFORM_SRC_DIR)/%.c, $(PLATFORM_ASM_DIR)/%.asm, $(wi
 
 
 
-CFLAGS=-std=c99 -Wall -Wextra -Wshadow \
-       -I $(SRC_DIR) -I $(PLATFORM_SRC_DIR) -I $(GAME_SRC_DIR) \
-	    $(PLATFORM_CFLAGS) -I$(LIBTMX_DIR)/src -I$(SDLFC_DIR)
+CFLAGS=-std=c99 -Wall -Wextra -Wshadow\
+       -I $(SRC_DIR) -I $(PLATFORM_SRC_DIR) -I $(GAME_SRC_DIR)\
+	$(PLATFORM_CFLAGS) -I$(LIBTMX_DIR)/src -I$(SDLFC_DIR)\
+	-DGPROJ_MAX_ACTORS=$(GPROJ_MAX_ACTORS)\
+	-DGPROJ_SCR_WIDTH=$(GPROJ_SCR_WIDTH)\
+	-DGPROJ_SCR_HEIGHT=$(GPROJ_SCR_HEIGHT)\
+	-DGPROJ_MAX_BGMS=$(GPROJ_MAX_BGMS)\
+	-DGPROJ_MAX_SFXS=$(GPROJ_MAX_SFXS)
 
-CFLAGS_DEBUG=-g -O0 -fsanitize=address -DDEBUG -DGPROJ_DEBUG
+CFLAGS_DEBUG=-g -O0 -fsanitize=address -DDEBUG -DGPROJ_DEBUG -DGPROJ_PROFILING
 
 CFLAGS_RELEASE=-Werror -O3 -march=native -ffast-math -fstrict-aliasing \
 	       -ffunction-sections -fdata-sections -fno-unwind-tables  \
 	       -fno-asynchronous-unwind-tables -DNDEBUG
 
-CFLAGS_PERF=-g -O3 -fno-omit-frame-pointer
+CFLAGS_PROFILING=-O3 -DGPROJ_PROFILING
 
 EXTERNALS_LIBS=$(LIBTMX_DIR)/build/libtmx.a $(SDLFC_DIR)/libSDL_fontcache.a
 
@@ -57,7 +78,7 @@ LD_INCLUDES=-L$(LIBTMX_DIR)/build -L$(SDLFC_DIR)
 LDFLAGS=$(LD_INCLUDES) $(PLATFORM_LDFLAGS) -lSDL_fontcache -ltmx -lxml2 -lz
 LDFLAGS_DEBUG=-g
 LDFLAGS_RELEASE=
-LDFLAGS_PERF=-g
+LDFLAGS_PROFILING=
 
 
 
@@ -74,9 +95,9 @@ endif
 ifeq ($(BUILD_TYPE),Release)
 	CFLAGS += $(CFLAGS_RELEASE)
 	LDFLAGS += $(LDFLAGS_RELEASE)
-else ifeq ($(BUILD_TYPE),Perf)
-	CFLAGS += $(CFLAGS_PERF)
-	LDFLAGS += $(LDFLAGS_PERF)
+else ifeq ($(BUILD_TYPE),Profiling)
+	CFLAGS += $(CFLAGS_PROFILING)
+	LDFLAGS += $(LDFLAGS_PROFILING)
 else ifeq ($(BUILD_TYPE),Debug)
 	CFLAGS += $(CFLAGS_DEBUG)
 	LDFLAGS += $(LDFLAGS_DEBUG)

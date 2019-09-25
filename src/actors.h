@@ -2,10 +2,6 @@
 #define GPROJ_ACTORS_H_
 #include "types.h"
 
-
-#define GPROJ_MAX_ACTORS 64 
-
-
 extern int actors_create(const struct rectf* scr);
 
 extern void actors_anim_set(const int actor_id,

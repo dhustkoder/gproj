@@ -8,9 +8,6 @@
 #include "actors.h"
 
 
-#define GPROJ_SCR_WIDTH      (320)
-#define GPROJ_SCR_HEIGHT     (180)
-
 enum render_layer {
 	RENDER_LAYER_BG      = (0x01),
 	RENDER_LAYER_ACTORS  = (0x02),

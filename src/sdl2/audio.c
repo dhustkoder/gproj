@@ -5,8 +5,8 @@
 
 static int sfxs_cnt = 0;
 static int bgms_cnt = 0;
-static Mix_Chunk* sfxs[MAX_SFXS];
-static Mix_Music* bgms[MAX_BGMS];
+static Mix_Chunk* sfxs[GPROJ_MAX_SFXS];
+static Mix_Music* bgms[GPROJ_MAX_BGMS];
 
 
 void audio_init()
