@@ -1,26 +1,26 @@
 #!/bin/bash
 
-gproj_pid=false
-
 while true; do
-	inotifywait -r ./src/* --exclude game --exclude sdl2 -e close_write
+	inotifywait -r ./src -e close_write -e moved_to | while read path action file; do
+		echo "$file has changed"
 
-	if [ $gproj_pid != false ]
-	then
-		kill $gproj_pid
-	fi
+		if [ "${file##*.}" != "c" ] && [ "${file##*.}" != "h" ]; then
+			continue;
+		fi
 
-	sleep 1
+		killall gproj
 
-	make $1 -j8
-	if [ $? = 0 ]
-	then
-		cd build
-		./gproj $2 &
-		gproj_pid=$!
-		cd ..
-	fi
+		sleep 1
 
-	sleep 1
+		make $1 -j8
+		if [ $? = 0 ]
+		then
+			cd build
+			./gproj $2 &> last_run_output.txt &
+			cd ..
+		fi
+
+		sleep 1
+	done
 done
 

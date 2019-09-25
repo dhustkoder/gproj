@@ -3,7 +3,7 @@
 #include "types.h"
 
 
-#define GPROJ_MAX_ACTORS 64
+#define GPROJ_MAX_ACTORS 64 
 
 
 extern int actors_create(const struct rectf* scr);

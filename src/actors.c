@@ -4,6 +4,7 @@
 #include "render.h"
 #include "actors.h"
 
+
 static struct recti ss_rects[GPROJ_MAX_ACTORS];
 static struct rectf scr_rects[GPROJ_MAX_ACTORS];
 static struct vec2f movs[GPROJ_MAX_ACTORS];
@@ -19,8 +20,8 @@ static bool need_render = false;
 
 int actors_create(const struct rectf* const scr)
 {
-	const int id = nacts++;
 	assert(nacts < GPROJ_MAX_ACTORS);
+	const int id = nacts++;
 	scr_rects[id] = *scr;
 	return id;
 }
@@ -83,6 +84,7 @@ void actors_update(const timer_clk_t now, const float dt)
 			need_render = true;
 		}
 	}
+
 
 	for (int i = 0; i < cnt; ++i) {
 		const int flags = anim_flags[i];

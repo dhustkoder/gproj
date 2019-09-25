@@ -59,7 +59,7 @@ void characters_init(void)
 		timer_now()
 	);
 
-	walking_sfx_id = audio_load_sfx("sounds/stepstone_4.wav");
+	walking_sfx_id = audio_load_sfx("sounds/stepstone_4.wav");	
 }
 
 void characters_update(const timer_clk_t now, const float dt)
