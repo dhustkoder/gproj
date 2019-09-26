@@ -1,5 +1,6 @@
 #include "render.h"
 #include "audio.h"
+#include "timer.h"
 #include "map.h"
 #include "actors.h"
 #include "characters.h"
@@ -10,6 +11,7 @@ static int bgm_id;
 
 void game_init(int argc, char** argv)
 {
+	timer_profiler_init();
 	render_init("GProj Testing");
 	audio_init();
 	map_load(argc > 1 ? argv[1] : "map00-00.tmx");
