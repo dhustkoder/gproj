@@ -65,7 +65,7 @@ void characters_init(void)
 void characters_update(const timer_clk_t now, const float dt)
 {
 
-	timer_profiler_block_start("PLAYER_UPDATE", 5000);
+	timer_profiler_block_start("PLAYER_UPDATE", 512);
 	if (prev_buttons_states != input_buttons_states) {
 		const struct actor_frame* anim = NULL;
 		int anim_sz = 0;
@@ -100,7 +100,7 @@ void characters_update(const timer_clk_t now, const float dt)
 
 	actors_update(now, dt);
 
-	timer_profiler_block_start("PLAYER_POS", 5000);
+	timer_profiler_block_start("PLAYER_POS", 512);
 	const struct vec2f player_pos = actors_get_pos(player_id);
 	const int camx = player_pos.x - (GPROJ_SCR_WIDTH / 2);
 	render_set_camera(camx, 0);

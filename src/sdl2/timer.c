@@ -1,4 +1,5 @@
 #include <assert.h>
+#include "logger.h"
 #include "render.h"
 #include "timer.h"
 
@@ -89,6 +90,7 @@ void timer_profiler_block_end()
 	timer_hp_clk_t waste_start;
 	struct block* prevblk = NULL;
 
+	
 	const int idx = stack[--stack_cnt];
 	struct block* const blk = &blocks[idx];
 	blk->adder += timer_profiler_end(blk->counter);
@@ -100,6 +102,7 @@ void timer_profiler_block_end()
 	
 	blk->hits++;
 
+	
 	if (blk->hits == blk->max_hits) {
 		blk->result = blk->adder / blk->hits;
 		blk->adder = 0;

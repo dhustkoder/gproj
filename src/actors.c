@@ -76,7 +76,7 @@ void actors_update(const timer_clk_t now, const float dt)
 {
 	const int cnt = nacts;
 
-	timer_profiler_block_start("ACTORS_MOVE", 5000);
+	timer_profiler_block_start("ACTORS_MOVE", 512);
 	for (int i = 0; i < cnt; ++i) {
 		if (movs[i].x < -0.01f || movs[i].x > 0.01f ||
 		    movs[i].y < -0.01f || movs[i].y > 0.01f) {
@@ -88,7 +88,7 @@ void actors_update(const timer_clk_t now, const float dt)
 	timer_profiler_block_end();
 
 
-	timer_profiler_block_start("ACTORS_ANIM", 5000);
+	timer_profiler_block_start("ACTORS_ANIM", 512);
 	for (int i = 0; i < cnt; ++i) {
 		const int flags = anim_flags[i];
 		if (flags&ANIM_FLAG_DISABLED)
