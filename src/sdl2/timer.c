@@ -48,22 +48,21 @@ void timer_profiler_block_start(const char* const id,
 	struct block* blk = NULL;
 	struct block* prevblk = NULL;
 	timer_hp_clk_t waste_start;
-	int idx = -1;
 
 	if (stack_cnt > 0) {
 		waste_start = timer_profiler_start();
 		prevblk = &blocks[stack[stack_cnt - 1]];
 	}
 	
-	for (int i = 0; i < ids_cnt; ++i) {
-		if (ids[i] == id) {
-			idx = i;
+	int idx;
+	for (idx = 0; idx < ids_cnt; ++idx) {
+		if (ids[idx] == id) {
 			blk = &blocks[idx];
 			break;
 		}
 	}
 
-	if (idx == -1) {
+	if (blk == NULL) {
 		idx = ids_cnt++;
 		ids[idx] = id;
 		blk = &blocks[idx];

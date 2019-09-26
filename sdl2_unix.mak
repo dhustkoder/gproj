@@ -57,12 +57,12 @@ PLATFORM_ASM=$(patsubst $(PLATFORM_SRC_DIR)/%.c, $(PLATFORM_ASM_DIR)/%.asm, $(wi
 
 CFLAGS=-std=c99 -Wall -Wextra -Wshadow\
        -I $(SRC_DIR) -I $(PLATFORM_SRC_DIR) -I $(GAME_SRC_DIR)\
-	$(PLATFORM_CFLAGS) -I$(LIBTMX_DIR)/src -I$(SDLFC_DIR)\
-	-DGPROJ_MAX_ACTORS=$(GPROJ_MAX_ACTORS)\
-	-DGPROJ_SCR_WIDTH=$(GPROJ_SCR_WIDTH)\
-	-DGPROJ_SCR_HEIGHT=$(GPROJ_SCR_HEIGHT)\
-	-DGPROJ_MAX_BGMS=$(GPROJ_MAX_BGMS)\
-	-DGPROJ_MAX_SFXS=$(GPROJ_MAX_SFXS)
+       $(PLATFORM_CFLAGS) -I$(LIBTMX_DIR)/src -I$(SDLFC_DIR)\
+       -DGPROJ_MAX_ACTORS=$(GPROJ_MAX_ACTORS)\
+       -DGPROJ_SCR_WIDTH=$(GPROJ_SCR_WIDTH)\
+       -DGPROJ_SCR_HEIGHT=$(GPROJ_SCR_HEIGHT)\
+       -DGPROJ_MAX_BGMS=$(GPROJ_MAX_BGMS)\
+       -DGPROJ_MAX_SFXS=$(GPROJ_MAX_SFXS)
 
 CFLAGS_DEBUG=-g -O0 -fsanitize=address -DDEBUG -DGPROJ_DEBUG -DGPROJ_PROFILING
 
@@ -70,7 +70,7 @@ CFLAGS_RELEASE=-Werror -O3 -march=native -ffast-math -fstrict-aliasing \
 	       -ffunction-sections -fdata-sections -fno-unwind-tables  \
 	       -fno-asynchronous-unwind-tables -DNDEBUG
 
-CFLAGS_PROFILING=-O3 -DGPROJ_PROFILING
+CFLAGS_PROFILING=-O3 -DGPROJ_PROFILING -DNDEBUG
 
 EXTERNALS_LIBS=$(LIBTMX_DIR)/build/libtmx.a $(SDLFC_DIR)/libSDL_fontcache.a
 
