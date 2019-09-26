@@ -64,6 +64,8 @@ void characters_init(void)
 
 void characters_update(const timer_clk_t now, const float dt)
 {
+
+	timer_profiler_block_start("PLAYER_UPDATE", 5000);
 	if (prev_buttons_states != input_buttons_states) {
 		const struct actor_frame* anim = NULL;
 		int anim_sz = 0;
@@ -92,15 +94,17 @@ void characters_update(const timer_clk_t now, const float dt)
 		actors_mov_set(player_id, velx, 0);
 		actors_anim_set(player_id, anim, anim_sz, anim_flags, now);
 		prev_buttons_states = input_buttons_states;
-	}	
+	}
+	
+	timer_profiler_block_end();
 
 	actors_update(now, dt);
 
+	timer_profiler_block_start("PLAYER_POS", 5000);
 	const struct vec2f player_pos = actors_get_pos(player_id);
-
 	const int camx = player_pos.x - (GPROJ_SCR_WIDTH / 2);
-
 	render_set_camera(camx, 0);
+	timer_profiler_block_end();
 
 	render_text("PLAYER POS => (%d, %d)", (int)player_pos.x, (int)player_pos.y);
 
