@@ -20,17 +20,23 @@ static SDL_Texture* tex_fg;
 static SDL_Texture* tex_txt;
 static SDL_Texture* tex_ts;
 static SDL_Texture* tex_ss;
+#ifdef GPROJ_PROFILING
+static SDL_Texture* tex_prof;
+#endif	
 static FC_Font* font;
 
-const enum render_layer targets_flags[RENDER_LAYER_NLAYERS] = {
+const render_layer_flags_t targets_flags[RENDER_LAYER_NLAYERS] = {
 	RENDER_LAYER_BG,
 	RENDER_LAYER_ACTORS,
 	RENDER_LAYER_FG,
 	RENDER_LAYER_TXT
+	#ifdef GPROJ_PROFILING
+	,RENDER_LAYER_PROF
+	#endif
 };
 
 static SDL_Texture* targets_arr[RENDER_LAYER_NLAYERS];
-static enum render_layer layers_cleared;
+static render_layer_flags_t layers_cleared;
 
 static struct vec2i ts_size = { 0, 0 };
 static struct vec2i fb_size = { 0, 0 };
@@ -125,6 +131,13 @@ void render_init(const char* const identifier)
 	                            GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	assert(tex_txt != NULL);
 
+	#ifdef GPROJ_PROFILING
+	tex_prof = SDL_CreateTexture(rend, SDL_PIXELFORMAT_RGB888,
+	                             SDL_TEXTUREACCESS_TARGET,
+	                             GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
+	assert(tex_prof != NULL);
+	#endif
+
 	font = FC_CreateFont();
 	assert(font != NULL);
 
@@ -137,6 +150,9 @@ void render_init(const char* const identifier)
 
 
 	targets_arr[3] = tex_txt;
+	#ifdef GPROJ_PROFILING
+	targets_arr[4] = tex_prof;
+	#endif
 
 	render_clear(RENDER_LAYER_TXT);
 
@@ -242,14 +258,18 @@ void render_load_ss(const char* const path)
 }
 
 
-void render_clear(const enum render_layer layers)
+void render_clear(const render_layer_flags_t layers)
 {
 	assert(layers != 0);
+	render_layer_flags_t toclear = layers;
 
 	for (size_t i = 0; i < ARRSZ(targets_flags); ++i) {
-		if ((layers&targets_flags[i]) && !(targets_flags[i]&layers_cleared)) {
+		if ((toclear&targets_flags[i]) && !(targets_flags[i]&layers_cleared)) {
 			SDL_SetRenderTarget(rend, targets_arr[i]);
 			SDL_RenderClear(rend);
+			toclear &= ~targets_flags[i];
+			if (toclear == 0)
+				break;
 		}
 	}
 
@@ -305,7 +325,6 @@ void render_text(const char* const text, ...)
 
 	render_clear(RENDER_LAYER_TXT);
 	SDL_SetRenderTarget(rend, tex_txt);
-
 	const SDL_Rect dirty = FC_Draw_v(font, rend, 0, text_pos.y,
 	                                 text, vargs);
 	if (dirty.w > text_pos.x)
@@ -329,6 +348,12 @@ void render_set_camera(int x, int y)
 	cam_pos.y = y < 0 ? 0 : y;
 }
 
+#ifdef GPROJ_PROFILING
+void render_profiling_data()
+{
+	render_clear(RENDER_LAYER_PROF);
+}
+#endif
 
 void render_present(void)
 {
