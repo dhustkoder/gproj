@@ -368,6 +368,7 @@ static void thr_present()
 
 void render_worker(void)
 {
+	SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
 	SDL_AtomicSet(&thr_state, RENDER_THR_WAIT_INIT);
 	while (SDL_AtomicGet(&thr_state) == RENDER_THR_WAIT_INIT)
 		timer_sleep(1);

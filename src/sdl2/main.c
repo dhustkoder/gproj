@@ -102,6 +102,7 @@ bool events_update(void)
 
 static int game_thread_dispatcher(void* p)
 {
+	SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
 	void** parr = ((void**)p);
 	int argc = *(int*)(parr[0]);
 	char** argv = (char**)(parr[1]);
@@ -123,6 +124,7 @@ int main(int argc, char** argv)
 	gproj_thread_t* gproj_thr = thread_start(game_thread_dispatcher,
 	                                         "GPROJ_THREAD",
 	                                         args);
+
 
 	extern void render_worker();
 	render_worker();
