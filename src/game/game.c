@@ -1,3 +1,4 @@
+#include "logger.h"
 #include "render.h"
 #include "audio.h"
 #include "timer.h"
@@ -11,6 +12,7 @@ static int bgm_id;
 
 void game_init(int argc, char** argv)
 {
+	LOG_DEBUG("INITIALIZING GAME");
 	timer_profiler_init();
 	render_init("GProj Testing");
 	audio_init();
@@ -28,9 +30,11 @@ void game_step(timer_clk_t now, float dt)
 
 void game_term()
 {
+	LOG_DEBUG("TERMINATING GAME");
 	map_free();
 	audio_term();
 	render_term();
+	LOG_DEBUG("GAME TERMINATED");
 }
 
 

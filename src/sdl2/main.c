@@ -72,7 +72,7 @@ static void platform_term(void)
 }
 
 
-SDL_atomic_t game_exit;
+volatile bool game_exit = false;
 
 
 bool thr_events_update(void)
@@ -81,9 +81,7 @@ bool thr_events_update(void)
 
 	while (SDL_PollEvent(&ev)) {
 		switch (ev.type) {
-		case SDL_QUIT:
-			SDL_AtomicSet(&game_exit, 1);
-			return false;
+		case SDL_QUIT: game_exit = true; break;
 		case SDL_KEYDOWN:
 		case SDL_KEYUP: {
 			for (int idx = 0; idx < INPUT_BUTTON_NBUTTONS; ++idx) {
@@ -107,8 +105,7 @@ bool thr_events_update(void)
 
 bool events_update()
 {
-	const int r = SDL_AtomicGet(&game_exit);
-	return !r;
+	return !game_exit;
 }
 
 static int game_thread_dispatcher(void* p)
@@ -129,20 +126,19 @@ int main(int argc, char** argv)
 
 	if (!platform_init())
 		return EXIT_FAILURE;
-
-
-	SDL_AtomicSet(&game_exit, 0);
 	
 	void* args[2] = { (void*) &argc, (void*) argv };
 	gproj_thread_t* gproj_thr = thread_start(game_thread_dispatcher,
 	                                         "GPROJ_THREAD",
 	                                         args);
 
-
+	thread_detach(gproj_thr);
 	extern void render_worker();
+
 	render_worker();
 
-	return thread_join(gproj_thr);
+	return 0;
+	//return thread_join(gproj_thr);
 }
 
 

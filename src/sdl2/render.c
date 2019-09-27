@@ -19,7 +19,7 @@ enum render_thr_states {
 	RENDER_THR_WAIT_FB_SETUP,
 	RENDER_THR_SETUP_FB,
 	RENDER_THR_FETCH,
-	RENDER_THR_FETCH_DONE,
+	RENDER_THR_WAIT_DATA,
 	RENDER_THR_PRESENT,
 	RENDER_THR_TERMINATE,
 	RENDER_THR_TERMINATED
@@ -43,12 +43,12 @@ static struct render_map_pack {
 } map_pack;
 
 
-static volatile int actors_packs_cnt = 0;
-static volatile int txt_packs_cnt = 0;
-static volatile int map_pack_cnt = 0;
+static int actors_packs_cnt;
+static int txt_packs_cnt;
+static int map_pack_cnt;
 
-static volatile int thr_actors_packs_drawed = 0;
-static volatile int thr_txt_packs_drawed = 0;
+static int thr_actors_packs_drawed = 0;
+static int thr_txt_packs_drawed = 0;
 
 static SDL_atomic_t thr_state;
 static void* thr_winname = NULL;
@@ -151,12 +151,8 @@ static void thr_fb_setup()
 	const char* const ts_path = (char*)SDL_AtomicGetPtr(&thr_ts_path);
 	assert(ts_path != NULL);
 
-	LOG_DEBUG("LOADING TILESHEET: %s", ts_path);
-
 	tex_ts = IMG_LoadTexture(rend, ts_path);
-
 	assert(tex_ts != NULL);
-
 	SDL_QueryTexture(tex_ts, NULL, NULL, &ts_size.x, &ts_size.y);
 
 
@@ -166,9 +162,7 @@ static void thr_fb_setup()
 	const char* const ss_path = (char*)SDL_AtomicGetPtr(&thr_ss_path);
 	assert(ss_path != NULL);
 
-	LOG_DEBUG("LOADING SPRITESHEET: %s", ss_path);
 	tex_ss = IMG_LoadTexture(rend, ss_path);
-
 	assert(tex_ss != NULL);
 
 
@@ -279,7 +273,8 @@ static void thr_fetch()
 			map_pack.gids = NULL;
 		}
 
-		if (actors_packs_cnt > thr_actors_packs_drawed) {
+		const int apc = actors_packs_cnt;
+		if (apc > thr_actors_packs_drawed) {
 			has_work = true;
 			const struct render_actors_pack* const pack = &actors_packs[thr_actors_packs_drawed++];
 			const struct recti* const ss_srcs = pack->ss_srcs;
@@ -309,20 +304,23 @@ static void thr_fetch()
 			}
 		}
 
-		if (txt_packs_cnt > thr_txt_packs_drawed) {
+		const int tpc = txt_packs_cnt;
+		if (tpc > thr_txt_packs_drawed) {
 			has_work = true;
 			SDL_SetRenderTarget(rend, tex_txt);
-			if (text_pos.x == 0)
+			if (thr_txt_packs_drawed == 0)
 				SDL_RenderClear(rend);
-			const struct render_text_pack* const pack = &txt_packs[thr_txt_packs_drawed++];
-			//LOG("DRAWING: %s", pack->buffer);
-			const SDL_Rect dirty = FC_Draw(font, rend, 0, text_pos.y, pack->buffer);
-			if (dirty.w > text_pos.x)
-				text_pos.x = dirty.w;
-			text_pos.y += dirty.h;
+			for (int i = thr_txt_packs_drawed; i < tpc; ++i) {
+				const struct render_text_pack* const pack = &txt_packs[thr_txt_packs_drawed++];
+				const SDL_Rect dirty = FC_Draw(font, rend, 0, text_pos.y, pack->buffer);
+				if (dirty.w > text_pos.x)
+					text_pos.x = dirty.w;
+				text_pos.y += dirty.h;
+			}
+
 		}
 		
-		if (!has_work)	
+		if (!has_work)
 			return;
 	}
 }
@@ -362,7 +360,6 @@ static void thr_present()
 
 void render_worker(void)
 {
-	//SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
 	SDL_AtomicSet(&thr_state, RENDER_THR_WAIT_INIT);
 	while (SDL_AtomicGet(&thr_state) == RENDER_THR_WAIT_INIT)
 		timer_sleep(1);
@@ -371,7 +368,8 @@ void render_worker(void)
 	thr_init();
 	SDL_AtomicSet(&thr_state, RENDER_THR_WAIT_FB_SETUP);
 
-	while (thr_events_update()) {
+	for (;;) {
+		thr_events_update();
 		const enum render_thr_states st = SDL_AtomicGet(&thr_state);
 		//LOG("THR STATE: %d", st);
 		switch (st) {
@@ -381,18 +379,15 @@ void render_worker(void)
 			return;
 		case RENDER_THR_PRESENT:
 			thr_present();
-			SDL_AtomicSet(&thr_state, RENDER_THR_FETCH);
+			SDL_AtomicSet(&thr_state, RENDER_THR_WAIT_DATA);
 			break;
 		case RENDER_THR_SETUP_FB:
 			thr_fb_setup();
-			SDL_AtomicSet(&thr_state, RENDER_THR_FETCH);
+			SDL_AtomicSet(&thr_state, RENDER_THR_WAIT_DATA);
 			break;
-		case RENDER_THR_FETCH_DONE:
-			timer_sleep(1);
-			SDL_AtomicSet(&thr_state, RENDER_THR_FETCH);
 		case RENDER_THR_FETCH:
 			thr_fetch();
-			SDL_AtomicSet(&thr_state, RENDER_THR_FETCH_DONE);
+			SDL_AtomicSet(&thr_state, RENDER_THR_WAIT_DATA);
 			break;
 		default: break;
 		}
@@ -408,6 +403,10 @@ void render_worker(void)
 
 void render_init(const char* const identifier)
 {
+	LOG_DEBUG("INITIALIZING RENDER");
+	map_pack_cnt = 0;
+	actors_packs_cnt = 0;
+	txt_packs_cnt = 0;
 	SDL_AtomicSetPtr(&thr_winname, (void*)identifier);
 	SDL_AtomicSet(&thr_state, RENDER_THR_START);
 	while (SDL_AtomicGet(&thr_state) != RENDER_THR_WAIT_FB_SETUP)
@@ -416,6 +415,7 @@ void render_init(const char* const identifier)
 
 void render_term()
 {
+	LOG_DEBUG("TERMINATING RENDER");
 	SDL_AtomicSet(&thr_state, RENDER_THR_TERMINATE);
 	while (SDL_AtomicGet(&thr_state) != RENDER_THR_TERMINATED)
 		timer_sleep(1);
@@ -423,22 +423,24 @@ void render_term()
 
 void render_fb_setup(const struct vec2i* const size)
 {
+	LOG_DEBUG("TRYING TO SETUP FB");
 	fb_size = *size;
-	LOG("TRYING TO SETUP FB");
 	SDL_AtomicSet(&thr_state, RENDER_THR_SETUP_FB);
-	while (SDL_AtomicGet(&thr_state) != RENDER_THR_FETCH_DONE)
+	while (SDL_AtomicGet(&thr_state) != RENDER_THR_WAIT_DATA)
 		timer_sleep(1);
 }
 
 
 void render_load_ts(const char* const path)
 {
+	LOG_DEBUG("LOADING TILESET: %s", path);
 	SDL_AtomicSetPtr(&thr_ts_path, (void*)path);
 }
 
 
 void render_load_ss(const char* const path)
 {
+	LOG_DEBUG("LOADING SPRITESHEET: %s", path);
 	SDL_AtomicSetPtr(&thr_ss_path, (void*)path);
 }
 
@@ -461,25 +463,29 @@ void render_actors(const struct recti* const ss_srcs,
 		const actor_anim_flag_t* const flags,
 		const int cnt)
 {
-	assert(actors_packs_cnt < 256);
-	actors_packs[actors_packs_cnt] = (struct render_actors_pack) {
+	const int packs_cnt = actors_packs_cnt;
+	assert(packs_cnt < 256);
+	actors_packs[packs_cnt] = (struct render_actors_pack) {
 		.ss_srcs = ss_srcs,
 		.scr_dsts = scr_dsts,
 		.flags = flags,
 		.cnt = cnt
 	};
 	++actors_packs_cnt;
+	SDL_AtomicSet(&thr_state, RENDER_THR_FETCH);
 }
 
 
 void render_text(const char* const text, ...)
 {
-	assert(txt_packs_cnt < 256);
 	va_list vargs;
 	va_start(vargs, text);
-	struct render_text_pack* const pack = &txt_packs[txt_packs_cnt];
+	const int packs_cnt = txt_packs_cnt;
+	assert(packs_cnt < 256);
+	struct render_text_pack* const pack = &txt_packs[packs_cnt];
 	vsnprintf(pack->buffer, 256, text, vargs);
 	++txt_packs_cnt;
+	SDL_AtomicSet(&thr_state, RENDER_THR_FETCH);
 	va_end(vargs);
 }
 
@@ -499,7 +505,9 @@ void render_set_camera(int x, int y)
 
 void render_present(void)
 {
-	while (SDL_AtomicGet(&thr_state) != RENDER_THR_FETCH_DONE)
+	LOG_DEBUG("RENDER PRESENT");
+
+	while (SDL_AtomicGet(&thr_state) != RENDER_THR_WAIT_DATA)
 		;
 	
 	map_pack_cnt = 0;
