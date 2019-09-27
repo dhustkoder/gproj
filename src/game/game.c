@@ -29,6 +29,7 @@ void game_step(timer_clk_t now, float dt)
 void game_term()
 {
 	map_free();
+	audio_term();
 	render_term();
 }
 
