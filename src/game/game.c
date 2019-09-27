@@ -14,8 +14,8 @@ void game_init(int argc, char** argv)
 	timer_profiler_init();
 	render_init("GProj Testing");
 	audio_init();
-	map_load(argc > 1 ? argv[1] : "map00-00.tmx");
 	characters_init();
+	map_load(argc > 1 ? argv[1] : "map00-00.tmx");
 	bgm_id = audio_load_bgm("bloodlines.ogg");
 	audio_play_bgm(bgm_id);
 }

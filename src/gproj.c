@@ -18,7 +18,7 @@ int gproj(int argc, char** argv)
 
 
 
-	while (events_update()) {
+	while (1) {
 		const timer_clk_t now = timer_now();
 		const float dt = (((float)now) - ((float)lastclk)) / 1000;
 

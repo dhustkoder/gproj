@@ -6,6 +6,7 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 #include "SDL_FontCache.h"
+#include "threads.h"
 #include "logger.h"
 #include "render.h"
 #include "audio.h"
@@ -99,6 +100,14 @@ bool events_update(void)
 	return true;
 }
 
+static int game_thread_dispatcher(void* p)
+{
+	void** parr = ((void**)p);
+	int argc = *(int*)(parr[0]);
+	char** argv = (char**)(parr[1]);
+	LOG("ARGV[0]: %s ", argv[0]);
+	return gproj(argc, argv);
+}
 
 int main(int argc, char** argv)
 {
@@ -109,7 +118,16 @@ int main(int argc, char** argv)
 	if (!platform_init())
 		return EXIT_FAILURE;
 
-	return gproj(argc, argv);
+
+	void* args[2] = { (void*) &argc, (void*) argv };
+	gproj_thread_t* gproj_thr = thread_start(game_thread_dispatcher,
+	                                         "GPROJ_THREAD",
+	                                         args);
+
+	extern void render_worker();
+	render_worker();
+
+	return thread_join(gproj_thr);
 }
 
 

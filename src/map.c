@@ -46,8 +46,8 @@ void map_load(const char* const path)
 		map_size.y * tile_size.y
 	};
 
-	render_fb_setup(&world_size);
 	render_load_ts(map->ts_head->tileset->image->source);
+	render_fb_setup(&world_size);
 
 	LOG_DEBUG("MAP WIDTH: %d", map_size.x);
 	LOG_DEBUG("MAP HEIGHT: %d", map_size.y);
