@@ -315,20 +315,20 @@ static void thr_fetch()
 			if (text_pos.x == 0)
 				SDL_RenderClear(rend);
 			const struct render_text_pack* const pack = &txt_packs[thr_txt_packs_drawed++];
-			LOG("DRAWING: %s", pack->buffer);
+			//LOG("DRAWING: %s", pack->buffer);
 			const SDL_Rect dirty = FC_Draw(font, rend, 0, text_pos.y, pack->buffer);
 			if (dirty.w > text_pos.x)
 				text_pos.x = dirty.w;
 			text_pos.y += dirty.h;
 		}
-			
-		return;
+		
+		if (!has_work)	
+			return;
 	}
 }
 
 static void thr_present()
 {
-	LOG("FINISHING FRAME");
 	const SDL_Rect cam_rect = {
 		.x = cam_pos.x,
 		.y = cam_pos.y,
@@ -362,7 +362,7 @@ static void thr_present()
 
 void render_worker(void)
 {
-	SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
+	//SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
 	SDL_AtomicSet(&thr_state, RENDER_THR_WAIT_INIT);
 	while (SDL_AtomicGet(&thr_state) == RENDER_THR_WAIT_INIT)
 		timer_sleep(1);
@@ -399,6 +399,7 @@ void render_worker(void)
 	}
 
 	thr_term();
+	SDL_AtomicSet(&thr_state, RENDER_THR_TERMINATED);
 
 	return;
 }
@@ -499,7 +500,7 @@ void render_set_camera(int x, int y)
 void render_present(void)
 {
 	while (SDL_AtomicGet(&thr_state) != RENDER_THR_FETCH_DONE)
-		timer_sleep(1);
+		;
 	
 	map_pack_cnt = 0;
 	actors_packs_cnt = 0;
