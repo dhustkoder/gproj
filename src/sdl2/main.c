@@ -73,7 +73,7 @@ static void platform_term(void)
 
 
 volatile bool game_exit = false;
-
+volatile int exit_code = 0;
 
 bool thr_events_update(void)
 {
@@ -114,8 +114,8 @@ static int game_thread_dispatcher(void* p)
 	void** parr = ((void**)p);
 	int argc = *(int*)(parr[0]);
 	char** argv = (char**)(parr[1]);
-	LOG("ARGV[0]: %s ", argv[0]);
-	return gproj(argc, argv);
+	exit_code = gproj(argc, argv);
+	return exit_code;
 }
 
 int main(int argc, char** argv)
@@ -128,17 +128,18 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	
 	void* args[2] = { (void*) &argc, (void*) argv };
-	gproj_thread_t* gproj_thr = thread_start(game_thread_dispatcher,
-	                                         "GPROJ_THREAD",
-	                                         args);
+	gproj_thread_t* gproj_thr = thread_start(
+		game_thread_dispatcher,
+	    "GPROJ_THREAD",
+	    args
+	);
 
 	thread_detach(gproj_thr);
-	extern void render_worker();
 
-	render_worker();
+	extern void render_thr_main();
+	render_thr_main();
 
-	return 0;
-	//return thread_join(gproj_thr);
+	return exit_code;
 }
 
 

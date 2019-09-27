@@ -17,6 +17,9 @@
 
 typedef uint8_t render_thr_action_t;
 enum render_thr_actions {
+	RENDER_THR_DRAW_TXT,
+	RENDER_THR_DRAW_ACTORS,
+	RENDER_THR_DRAW_MAP,
 	RENDER_THR_FETCH,
 	RENDER_THR_PRESENT,
 	RENDER_THR_SETUP_FB,
@@ -258,71 +261,69 @@ static void thr_draw_map_layer(const int32_t* const gids,
 	}
 }
 
-static void thr_fetch()
+
+static void thr_draw_actors()
 {
-	for (;;) {
-		bool has_work = false;
-		
-		if (map_pack.gids != NULL) {
-			has_work = true;
-			SDL_SetRenderTarget(rend, tex_bg);
-			thr_draw_map_layer(map_pack.gids, *map_pack.map_size, *map_pack.tile_size);
-			SDL_SetRenderTarget(rend, tex_fg);
-			thr_draw_map_layer(map_pack.gids + MAP_LAYER_FG *
-					map_pack.map_size->x * map_pack.map_size->y,
-					*map_pack.map_size, *map_pack.tile_size);
-			map_pack.gids = NULL;
-		}
-
-		const int apc = actors_packs_cnt;
-		if (apc > thr_actors_packs_drawed) {
-			has_work = true;
-			const struct render_actors_pack* const pack = &actors_packs[thr_actors_packs_drawed++];
-			const struct recti* const ss_srcs = pack->ss_srcs;
-			const struct rectf* const scr_dsts = pack->scr_dsts;
-			const actor_anim_flag_t* const flags  = pack->flags;
-			const int cnt = pack->cnt;
-
-			SDL_SetRenderTarget(rend, tex_actors);
+	const int apc = actors_packs_cnt;
+	if (apc > thr_actors_packs_drawed) {
+		SDL_SetRenderTarget(rend, tex_actors);
+		if (thr_actors_packs_drawed == 0)
 			SDL_RenderClear(rend);
+		const struct render_actors_pack* const pack = &actors_packs[thr_actors_packs_drawed++];
+		const struct recti* const ss_srcs = pack->ss_srcs;
+		const struct rectf* const scr_dsts = pack->scr_dsts;
+		const actor_anim_flag_t* const flags  = pack->flags;
+		const int cnt = pack->cnt;
 
-			SDL_Rect scr, ss;
-			for (int i = 0; i < cnt; ++i) {
-				scr = (SDL_Rect) {
-					.x = scr_dsts[i].pos.x,
-						.y = scr_dsts[i].pos.y,
-						.w = scr_dsts[i].size.x,
-						.h = scr_dsts[i].size.y
-				};
-				ss = (SDL_Rect) {
-					.x = ss_srcs[i].pos.x,
-						.y = ss_srcs[i].pos.y,
-						.w = ss_srcs[i].size.x,
-						.h = ss_srcs[i].size.y
-				};
-				const int flip = flags[i]&ANIM_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
-				SDL_RenderCopyEx(rend, tex_ss, &ss, &scr, 0, NULL, flip);
-			}
+
+
+		SDL_Rect scr, ss;
+		for (int i = 0; i < cnt; ++i) {
+			scr = (SDL_Rect) {
+				.x = scr_dsts[i].pos.x,
+					.y = scr_dsts[i].pos.y,
+					.w = scr_dsts[i].size.x,
+					.h = scr_dsts[i].size.y
+			};
+			ss = (SDL_Rect) {
+				.x = ss_srcs[i].pos.x,
+					.y = ss_srcs[i].pos.y,
+					.w = ss_srcs[i].size.x,
+					.h = ss_srcs[i].size.y
+			};
+			const int flip = flags[i]&ANIM_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
+			SDL_RenderCopyEx(rend, tex_ss, &ss, &scr, 0, NULL, flip);
 		}
+	}
+}
 
-		const int tpc = txt_packs_cnt;
-		if (tpc > thr_txt_packs_drawed) {
-			has_work = true;
-			SDL_SetRenderTarget(rend, tex_txt);
-			if (thr_txt_packs_drawed == 0)
-				SDL_RenderClear(rend);
-			for (int i = thr_txt_packs_drawed; i < tpc; ++i) {
-				const struct render_text_pack* const pack = &txt_packs[thr_txt_packs_drawed++];
-				const SDL_Rect dirty = FC_Draw(font, rend, 0, text_pos.y, pack->buffer);
-				if (dirty.w > text_pos.x)
-					text_pos.x = dirty.w;
-				text_pos.y += dirty.h;
-			}
-
+static void thr_draw_txt()
+{
+	const int tpc = txt_packs_cnt;
+	if (tpc > thr_txt_packs_drawed) {
+		SDL_SetRenderTarget(rend, tex_txt);
+		if (thr_txt_packs_drawed == 0)
+			SDL_RenderClear(rend);
+		for (int i = thr_txt_packs_drawed; i < tpc; ++i) {
+			const struct render_text_pack* const pack = &txt_packs[thr_txt_packs_drawed++];
+			const SDL_Rect dirty = FC_Draw(font, rend, 0, text_pos.y, pack->buffer);
+			if (dirty.w > text_pos.x)
+				text_pos.x = dirty.w;
+			text_pos.y += dirty.h;
 		}
-		
-		if (!has_work)
-			return;
+	}
+}
+
+static void thr_draw_map()
+{
+	if (map_pack.gids != NULL) {
+		SDL_SetRenderTarget(rend, tex_bg);
+		thr_draw_map_layer(map_pack.gids, *map_pack.map_size, *map_pack.tile_size);
+		SDL_SetRenderTarget(rend, tex_fg);
+		thr_draw_map_layer(map_pack.gids + MAP_LAYER_FG *
+				map_pack.map_size->x * map_pack.map_size->y,
+				*map_pack.map_size, *map_pack.tile_size);
+		map_pack.gids = NULL;
 	}
 }
 
@@ -353,13 +354,13 @@ static void thr_present()
 	text_pos.y = 0;
 	thr_actors_packs_drawed = 0;
 	thr_txt_packs_drawed = 0;
-
 }
 
 
 
-void render_worker(void)
+void render_thr_main(void)
 {
+	extern void thr_events_update();
 	for (;;) {
 		thr_events_update();
 		const int idx = SDL_AtomicGet(&thr_action_idx);
@@ -368,8 +369,14 @@ void render_worker(void)
 			for (int i = idx; i < cnt; ++i) {
 				const render_thr_action_t action = thr_action_queue[i];
 				switch (action) {
-				case RENDER_THR_FETCH:
-					thr_fetch();
+				case RENDER_THR_DRAW_TXT:
+					thr_draw_txt();
+					break;
+				case RENDER_THR_DRAW_ACTORS:
+					thr_draw_actors();
+					break;
+				case RENDER_THR_DRAW_MAP:
+					thr_draw_map();
 					break;
 				case RENDER_THR_PRESENT:
 					thr_present();
@@ -385,6 +392,7 @@ void render_worker(void)
 					break;
 				default:
 					LOG_DEBUG("UNKNOWN ACTION: %d", (int)action);
+					assert(false && "UNKNOWN ACTION");
 					break;
 				}		
 			}
@@ -402,7 +410,9 @@ Lterminate:
 
 static void render_actions_push(const render_thr_action_t action)
 {
-	thr_action_queue[SDL_AtomicGet(&thr_action_cnt)] = action;
+	const int cnt = SDL_AtomicGet(&thr_action_cnt);
+	assert(cnt <= THR_ACTIONS_MAX);
+	thr_action_queue[cnt] = action;
 	SDL_AtomicIncRef(&thr_action_cnt);
 }
 
@@ -410,7 +420,7 @@ static void render_actions_wait(void)
 {
 	const int cnt = SDL_AtomicGet(&thr_action_cnt);
 	while (SDL_AtomicGet(&thr_action_idx) < cnt)
-		timer_sleep(1);
+		;
 }
 
 static void render_actions_reset(void)
@@ -473,7 +483,7 @@ void render_map(const int32_t* const gids,
 		.tile_size = tile_size
 	};
 	++map_pack_cnt;
-	render_actions_push(RENDER_THR_FETCH);
+	render_actions_push(RENDER_THR_DRAW_MAP);
 }
 
 
@@ -491,7 +501,7 @@ void render_actors(const struct recti* const ss_srcs,
 		.cnt = cnt
 	};
 	++actors_packs_cnt;
-	render_actions_push(RENDER_THR_FETCH);
+	render_actions_push(RENDER_THR_DRAW_ACTORS);
 }
 
 
@@ -504,7 +514,7 @@ void render_text(const char* const text, ...)
 	struct render_text_pack* const pack = &txt_packs[packs_cnt];
 	vsnprintf(pack->buffer, 256, text, vargs);
 	++txt_packs_cnt;
-	render_actions_push(RENDER_THR_FETCH);
+	render_actions_push(RENDER_THR_DRAW_TXT);
 	va_end(vargs);
 }
 
@@ -524,7 +534,6 @@ void render_set_camera(int x, int y)
 
 void render_present(void)
 {
-	LOG_DEBUG("RENDER PRESENT");
 	render_actions_push(RENDER_THR_PRESENT);
 	render_actions_wait();
 	render_actions_reset();
