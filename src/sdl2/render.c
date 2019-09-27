@@ -13,16 +13,15 @@
 #include "render.h"
 
 
-enum render_thr_states {
-	RENDER_THR_WAIT_INIT,
-	RENDER_THR_START,
-	RENDER_THR_WAIT_FB_SETUP,
-	RENDER_THR_SETUP_FB,
+#define THR_ACTIONS_MAX (2048)
+
+typedef uint8_t render_thr_action_t;
+enum render_thr_actions {
 	RENDER_THR_FETCH,
-	RENDER_THR_WAIT_DATA,
 	RENDER_THR_PRESENT,
-	RENDER_THR_TERMINATE,
-	RENDER_THR_TERMINATED
+	RENDER_THR_SETUP_FB,
+	RENDER_THR_INIT,
+	RENDER_THR_TERMINATE
 };
 
 static struct render_actors_pack {
@@ -42,15 +41,17 @@ static struct render_map_pack {
 	const struct vec2i* tile_size;
 } map_pack;
 
+static render_thr_action_t thr_action_queue[THR_ACTIONS_MAX];
+static SDL_atomic_t thr_action_cnt;
+static SDL_atomic_t thr_action_idx;
 
-static int actors_packs_cnt;
-static int txt_packs_cnt;
-static int map_pack_cnt;
+static volatile int actors_packs_cnt;
+static volatile int txt_packs_cnt;
+static volatile int map_pack_cnt;
 
 static int thr_actors_packs_drawed = 0;
 static int thr_txt_packs_drawed = 0;
 
-static SDL_atomic_t thr_state;
 static void* thr_winname = NULL;
 static void* thr_ts_path = NULL;
 static void* thr_ss_path = NULL;
@@ -357,46 +358,68 @@ static void thr_present()
 
 
 
-
 void render_worker(void)
 {
-	SDL_AtomicSet(&thr_state, RENDER_THR_WAIT_INIT);
-	while (SDL_AtomicGet(&thr_state) == RENDER_THR_WAIT_INIT)
-		timer_sleep(1);
-
-	SDL_AtomicSet(&thr_state, RENDER_THR_START);
-	thr_init();
-	SDL_AtomicSet(&thr_state, RENDER_THR_WAIT_FB_SETUP);
-
 	for (;;) {
 		thr_events_update();
-		const enum render_thr_states st = SDL_AtomicGet(&thr_state);
-		//LOG("THR STATE: %d", st);
-		switch (st) {
-		case RENDER_THR_TERMINATE:
-			thr_term();
-			SDL_AtomicSet(&thr_state, RENDER_THR_TERMINATED);
-			return;
-		case RENDER_THR_PRESENT:
-			thr_present();
-			SDL_AtomicSet(&thr_state, RENDER_THR_WAIT_DATA);
-			break;
-		case RENDER_THR_SETUP_FB:
-			thr_fb_setup();
-			SDL_AtomicSet(&thr_state, RENDER_THR_WAIT_DATA);
-			break;
-		case RENDER_THR_FETCH:
-			thr_fetch();
-			SDL_AtomicSet(&thr_state, RENDER_THR_WAIT_DATA);
-			break;
-		default: break;
+		const int idx = SDL_AtomicGet(&thr_action_idx);
+		const int cnt = SDL_AtomicGet(&thr_action_cnt);
+		if (cnt > idx) {
+			for (int i = idx; i < cnt; ++i) {
+				const render_thr_action_t action = thr_action_queue[i];
+				switch (action) {
+				case RENDER_THR_FETCH:
+					thr_fetch();
+					break;
+				case RENDER_THR_PRESENT:
+					thr_present();
+					break;
+				case RENDER_THR_SETUP_FB:
+					thr_fb_setup();
+					break;
+				case RENDER_THR_INIT:
+					thr_init();
+					break;
+				case RENDER_THR_TERMINATE:
+					goto Lterminate;
+					break;
+				default:
+					LOG_DEBUG("UNKNOWN ACTION: %d", (int)action);
+					break;
+				}		
+			}
+			SDL_AtomicSet(&thr_action_idx, cnt);
+		} else {
+			timer_sleep(1);
 		}
 	}
 
+Lterminate:
 	thr_term();
-	SDL_AtomicSet(&thr_state, RENDER_THR_TERMINATED);
-
 	return;
+}
+
+
+static void render_actions_push(const render_thr_action_t action)
+{
+	thr_action_queue[SDL_AtomicGet(&thr_action_cnt)] = action;
+	SDL_AtomicIncRef(&thr_action_cnt);
+}
+
+static void render_actions_wait(void)
+{
+	const int cnt = SDL_AtomicGet(&thr_action_cnt);
+	while (SDL_AtomicGet(&thr_action_idx) < cnt)
+		timer_sleep(1);
+}
+
+static void render_actions_reset(void)
+{
+	map_pack_cnt = 0;
+	actors_packs_cnt = 0;
+	txt_packs_cnt = 0;
+	SDL_AtomicSet(&thr_action_cnt, 0);
+	SDL_AtomicSet(&thr_action_idx, 0);
 }
 
 
@@ -404,30 +427,25 @@ void render_worker(void)
 void render_init(const char* const identifier)
 {
 	LOG_DEBUG("INITIALIZING RENDER");
-	map_pack_cnt = 0;
-	actors_packs_cnt = 0;
-	txt_packs_cnt = 0;
 	SDL_AtomicSetPtr(&thr_winname, (void*)identifier);
-	SDL_AtomicSet(&thr_state, RENDER_THR_START);
-	while (SDL_AtomicGet(&thr_state) != RENDER_THR_WAIT_FB_SETUP)
-		timer_sleep(1);
+	render_actions_reset();
+	render_actions_push(RENDER_THR_INIT);
+	render_actions_wait();
 }
 
 void render_term()
 {
 	LOG_DEBUG("TERMINATING RENDER");
-	SDL_AtomicSet(&thr_state, RENDER_THR_TERMINATE);
-	while (SDL_AtomicGet(&thr_state) != RENDER_THR_TERMINATED)
-		timer_sleep(1);
+	render_actions_push(RENDER_THR_TERMINATE);
+	render_actions_wait();
 }
 
 void render_fb_setup(const struct vec2i* const size)
 {
 	LOG_DEBUG("TRYING TO SETUP FB");
 	fb_size = *size;
-	SDL_AtomicSet(&thr_state, RENDER_THR_SETUP_FB);
-	while (SDL_AtomicGet(&thr_state) != RENDER_THR_WAIT_DATA)
-		timer_sleep(1);
+	render_actions_push(RENDER_THR_SETUP_FB);
+	render_actions_wait();
 }
 
 
@@ -455,6 +473,7 @@ void render_map(const int32_t* const gids,
 		.tile_size = tile_size
 	};
 	++map_pack_cnt;
+	render_actions_push(RENDER_THR_FETCH);
 }
 
 
@@ -472,7 +491,7 @@ void render_actors(const struct recti* const ss_srcs,
 		.cnt = cnt
 	};
 	++actors_packs_cnt;
-	SDL_AtomicSet(&thr_state, RENDER_THR_FETCH);
+	render_actions_push(RENDER_THR_FETCH);
 }
 
 
@@ -485,7 +504,7 @@ void render_text(const char* const text, ...)
 	struct render_text_pack* const pack = &txt_packs[packs_cnt];
 	vsnprintf(pack->buffer, 256, text, vargs);
 	++txt_packs_cnt;
-	SDL_AtomicSet(&thr_state, RENDER_THR_FETCH);
+	render_actions_push(RENDER_THR_FETCH);
 	va_end(vargs);
 }
 
@@ -506,15 +525,9 @@ void render_set_camera(int x, int y)
 void render_present(void)
 {
 	LOG_DEBUG("RENDER PRESENT");
-
-	while (SDL_AtomicGet(&thr_state) != RENDER_THR_WAIT_DATA)
-		;
-	
-	map_pack_cnt = 0;
-	actors_packs_cnt = 0;
-	txt_packs_cnt = 0;
-
-	SDL_AtomicSet(&thr_state, RENDER_THR_PRESENT);
+	render_actions_push(RENDER_THR_PRESENT);
+	render_actions_wait();
+	render_actions_reset();
 }
 
 
