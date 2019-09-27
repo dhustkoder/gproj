@@ -321,14 +321,8 @@ static void thr_fetch()
 				text_pos.x = dirty.w;
 			text_pos.y += dirty.h;
 		}
-		
-
-		if (!has_work) {
-			SDL_AtomicSet(&thr_state, RENDER_THR_FETCH_DONE);
-			return;
-		} else {
-			SDL_AtomicSet(&thr_state, RENDER_THR_FETCH);
-		}
+			
+		return;
 	}
 }
 
@@ -349,17 +343,17 @@ static void thr_present()
 		.h = text_pos.y
 	};
 
-	text_pos.x = 0;
-	text_pos.y = 0;
-	thr_actors_packs_drawed = 0;
-	thr_txt_packs_drawed = 0;
-
 	SDL_SetRenderTarget(rend, NULL);
 	SDL_RenderCopy(rend, tex_bg, &cam_rect, NULL);
 	SDL_RenderCopy(rend, tex_actors, &cam_rect, NULL);
 	SDL_RenderCopy(rend, tex_fg, &cam_rect, NULL);
 	SDL_RenderCopy(rend, tex_txt, &text_rect, &text_rect);
 	SDL_RenderPresent(rend);
+
+	text_pos.x = 0;
+	text_pos.y = 0;
+	thr_actors_packs_drawed = 0;
+	thr_txt_packs_drawed = 0;
 
 }
 
@@ -377,7 +371,7 @@ void render_worker(void)
 	thr_init();
 	SDL_AtomicSet(&thr_state, RENDER_THR_WAIT_FB_SETUP);
 
-	while (events_update()) {
+	while (thr_events_update()) {
 		const enum render_thr_states st = SDL_AtomicGet(&thr_state);
 		//LOG("THR STATE: %d", st);
 		switch (st) {
@@ -394,8 +388,11 @@ void render_worker(void)
 			SDL_AtomicSet(&thr_state, RENDER_THR_FETCH);
 			break;
 		case RENDER_THR_FETCH_DONE:
+			timer_sleep(1);
+			SDL_AtomicSet(&thr_state, RENDER_THR_FETCH);
 		case RENDER_THR_FETCH:
 			thr_fetch();
+			SDL_AtomicSet(&thr_state, RENDER_THR_FETCH_DONE);
 			break;
 		default: break;
 		}

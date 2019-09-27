@@ -16,9 +16,7 @@ int gproj(int argc, char** argv)
 	int fps = 0;
 	int currfps = 0;
 
-
-
-	while (1) {
+	while (events_update()) {
 		const timer_clk_t now = timer_now();
 		const float dt = (((float)now) - ((float)lastclk)) / 1000;
 

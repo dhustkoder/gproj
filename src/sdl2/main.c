@@ -71,13 +71,19 @@ static void platform_term(void)
 	SDL_Quit();
 }
 
-bool events_update(void)
+
+volatile bool game_exit = false;
+
+
+bool thr_events_update(void)
 {
 	SDL_Event ev;
 
 	while (SDL_PollEvent(&ev)) {
 		switch (ev.type) {
-		case SDL_QUIT: return false;
+		case SDL_QUIT:
+			game_exit = true;
+			return false;
 		case SDL_KEYDOWN:
 		case SDL_KEYUP: {
 			for (int idx = 0; idx < INPUT_BUTTON_NBUTTONS; ++idx) {
@@ -93,11 +99,15 @@ bool events_update(void)
 
 		}
 
-
 		}
 	}
 
 	return true;
+}
+
+bool events_update()
+{
+	return !game_exit;
 }
 
 static int game_thread_dispatcher(void* p)
