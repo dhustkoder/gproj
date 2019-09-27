@@ -320,13 +320,16 @@ void render_actors(const struct recti* const ss_srcs,
 
 void render_text(const char* const text, ...)
 {
+	static char buff[256];
 	va_list vargs;
 	va_start(vargs, text);
 
+	vsnprintf(buff, 256, text, vargs);
+
 	render_clear(RENDER_LAYER_TXT);
 	SDL_SetRenderTarget(rend, tex_txt);
-	const SDL_Rect dirty = FC_Draw_v(font, rend, 0, text_pos.y,
-	                                 text, vargs);
+
+	const SDL_Rect dirty = FC_Draw(font, rend, 0, text_pos.y, buff);
 	if (dirty.w > text_pos.x)
 		text_pos.x = dirty.w;
 	
