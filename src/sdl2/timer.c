@@ -104,13 +104,13 @@ void timer_profiler_block_end()
 
 	
 	if (blk->hits == blk->max_hits) {
-		blk->result = blk->adder / blk->hits;
+		blk->result = (blk->adder / blk->hits) * timer_hp_frequency;
 		blk->adder = 0;
 		blk->hits = 0;
 	}
 
 	const char* const id = ids[idx];
-	render_text("[PROFILER] %s: " TIMER_HP_CLK_FMT, id, blk->result);
+	render_text("[PROFILER] %s: %lld CPU cyles", id, (Uint64)blk->result);
 	
 	if (prevblk != NULL) {
 		const timer_hp_clk_t wasted = timer_profiler_end(waste_start);

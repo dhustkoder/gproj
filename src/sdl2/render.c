@@ -85,9 +85,9 @@ static struct vec2i cam_pos = { 0, 0 };
 
 static void render_actions_push(const render_thr_action_t action)
 {
-	const unsigned cnt = SDL_AtomicGet(&thr_action_cnt);
+	unsigned cnt = SDL_AtomicGet(&thr_action_cnt);
 	thr_action_queue[cnt] = action;
-	SDL_AtomicSet(&thr_action_cnt, (cnt + 1)&THR_ACTIONS_ADDMASK);
+	SDL_AtomicSet(&thr_action_cnt, INC_ACTIONS_CNTR(cnt));
 }
 
 static void render_actions_wait(void)
