@@ -13,7 +13,14 @@
 #include "render.h"
 
 
-#define THR_ACTIONS_MAX (2048)
+#define THR_ACTIONS_MAX     (4096)
+#define THR_ACTIONS_ADDMASK (THR_ACTIONS_MAX - 1)
+#define THR_PACKS_MAX       ((THR_ACTIONS_MAX * 2))
+#define THR_PACKS_ADDMASK   ((THR_ACTIONS_MAX * 2) - 1)
+#define INC_MASKED(n, mask) (n = ((n + 1)&mask))
+#define INC_ACTIONS_CNTR(n) INC_MASKED(n, THR_ACTIONS_ADDMASK)
+#define INC_PACKS_CNTR(n)   INC_MASKED(n, THR_PACKS_ADDMASK)
+
 
 typedef uint8_t render_thr_action_t;
 enum render_thr_actions {
@@ -32,11 +39,11 @@ static struct render_actors_pack {
 	const struct rectf* scr_dsts;
 	const actor_anim_flag_t* flags;
 	int cnt;
-} actors_packs[256];
+} actors_packs[THR_PACKS_MAX];
 
 static struct render_text_pack {
 	char buffer[256];
-} txt_packs[256];
+} txt_packs[THR_PACKS_MAX];
 
 static struct render_map_pack {
 	const int32_t* gids;
@@ -48,12 +55,12 @@ static render_thr_action_t thr_action_queue[THR_ACTIONS_MAX];
 static SDL_atomic_t thr_action_cnt;
 static SDL_atomic_t thr_action_idx;
 
-static volatile int actors_packs_cnt;
-static volatile int txt_packs_cnt;
-static volatile int map_pack_cnt;
+static unsigned actors_packs_cnt = 0;
+static unsigned txt_packs_cnt = 0;
+static unsigned map_pack_cnt = 0;
 
-static int thr_actors_packs_drawed = 0;
-static int thr_txt_packs_drawed = 0;
+static unsigned thr_actors_packs_drawed = 0;
+static unsigned thr_txt_packs_drawed = 0;
 
 static void* thr_winname = NULL;
 static void* thr_ts_path = NULL;
@@ -73,6 +80,22 @@ static struct vec2i ts_size = { 0, 0 };
 static struct vec2i fb_size = { 0, 0 };
 static struct vec2i text_pos = { 0, 0 };
 static struct vec2i cam_pos = { 0, 0 };
+
+
+
+static void render_actions_push(const render_thr_action_t action)
+{
+	const unsigned cnt = SDL_AtomicGet(&thr_action_cnt);
+	thr_action_queue[cnt] = action;
+	SDL_AtomicSet(&thr_action_cnt, (cnt + 1)&THR_ACTIONS_ADDMASK);
+}
+
+static void render_actions_wait(void)
+{
+	const int cnt = SDL_AtomicGet(&thr_action_cnt);
+	while (SDL_AtomicGet(&thr_action_idx) != cnt)
+		;
+}
 
 
 static void thr_init()
@@ -264,53 +287,52 @@ static void thr_draw_map_layer(const int32_t* const gids,
 
 static void thr_draw_actors()
 {
-	const int apc = actors_packs_cnt;
-	if (apc > thr_actors_packs_drawed) {
+	const unsigned apc = actors_packs_cnt;
+	if (apc != thr_actors_packs_drawed) {
 		SDL_SetRenderTarget(rend, tex_actors);
-		if (thr_actors_packs_drawed == 0)
-			SDL_RenderClear(rend);
-		const struct render_actors_pack* const pack = &actors_packs[thr_actors_packs_drawed++];
-		const struct recti* const ss_srcs = pack->ss_srcs;
-		const struct rectf* const scr_dsts = pack->scr_dsts;
-		const actor_anim_flag_t* const flags  = pack->flags;
-		const int cnt = pack->cnt;
-
-
-
-		SDL_Rect scr, ss;
-		for (int i = 0; i < cnt; ++i) {
-			scr = (SDL_Rect) {
-				.x = scr_dsts[i].pos.x,
+		SDL_RenderClear(rend);
+		//do {
+			const struct render_actors_pack* const pack = &actors_packs[thr_actors_packs_drawed];
+			INC_PACKS_CNTR(thr_actors_packs_drawed);
+			const struct recti* const ss_srcs = pack->ss_srcs;
+			const struct rectf* const scr_dsts = pack->scr_dsts;
+			const actor_anim_flag_t* const flags  = pack->flags;
+			const int cnt = pack->cnt;
+			for (int i = 0; i < cnt; ++i) {
+				const SDL_Rect scr = (SDL_Rect) {
+					.x = scr_dsts[i].pos.x,
 					.y = scr_dsts[i].pos.y,
 					.w = scr_dsts[i].size.x,
 					.h = scr_dsts[i].size.y
-			};
-			ss = (SDL_Rect) {
-				.x = ss_srcs[i].pos.x,
+				};
+				const SDL_Rect ss = (SDL_Rect) {
+					.x = ss_srcs[i].pos.x,
 					.y = ss_srcs[i].pos.y,
 					.w = ss_srcs[i].size.x,
 					.h = ss_srcs[i].size.y
-			};
-			const int flip = flags[i]&ANIM_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
-			SDL_RenderCopyEx(rend, tex_ss, &ss, &scr, 0, NULL, flip);
-		}
+				};
+				const int flip = flags[i]&ANIM_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
+				SDL_RenderCopyEx(rend, tex_ss, &ss, &scr, 0, NULL, flip);		
+			}
+		//} while (thr_actors_packs_drawed != apc);
 	}
 }
 
 static void thr_draw_txt()
 {
-	const int tpc = txt_packs_cnt;
-	if (tpc > thr_txt_packs_drawed) {
+	const unsigned tpc = txt_packs_cnt;
+	if (tpc != thr_txt_packs_drawed) {
 		SDL_SetRenderTarget(rend, tex_txt);
-		if (thr_txt_packs_drawed == 0)
+		if (text_pos.x == 0)
 			SDL_RenderClear(rend);
-		for (int i = thr_txt_packs_drawed; i < tpc; ++i) {
-			const struct render_text_pack* const pack = &txt_packs[thr_txt_packs_drawed++];
+		//do {
+			const struct render_text_pack* const pack = &txt_packs[thr_txt_packs_drawed];
+			INC_PACKS_CNTR(thr_txt_packs_drawed);
 			const SDL_Rect dirty = FC_Draw(font, rend, 0, text_pos.y, pack->buffer);
 			if (dirty.w > text_pos.x)
 				text_pos.x = dirty.w;
 			text_pos.y += dirty.h;
-		}
+		//} while (thr_txt_packs_drawed != tpc);
 	}
 }
 
@@ -352,8 +374,6 @@ static void thr_present()
 
 	text_pos.x = 0;
 	text_pos.y = 0;
-	thr_actors_packs_drawed = 0;
-	thr_txt_packs_drawed = 0;
 }
 
 
@@ -363,11 +383,13 @@ void render_thr_main(void)
 	extern void thr_events_update();
 	for (;;) {
 		thr_events_update();
-		const int idx = SDL_AtomicGet(&thr_action_idx);
-		const int cnt = SDL_AtomicGet(&thr_action_cnt);
-		if (cnt > idx) {
-			for (int i = idx; i < cnt; ++i) {
-				const render_thr_action_t action = thr_action_queue[i];
+		
+		unsigned idx = SDL_AtomicGet(&thr_action_idx);
+		const unsigned cnt = SDL_AtomicGet(&thr_action_cnt);
+
+		if (idx != cnt) {
+			do {
+				const render_thr_action_t action = thr_action_queue[idx];
 				switch (action) {
 				case RENDER_THR_DRAW_TXT:
 					thr_draw_txt();
@@ -394,43 +416,20 @@ void render_thr_main(void)
 					LOG_DEBUG("UNKNOWN ACTION: %d", (int)action);
 					assert(false && "UNKNOWN ACTION");
 					break;
-				}		
-			}
-			SDL_AtomicSet(&thr_action_idx, cnt);
-		} else {
-			timer_sleep(1);
+				}
+				INC_ACTIONS_CNTR(idx);
+			} while (idx != cnt);
+			SDL_AtomicSet(&thr_action_idx, idx);
 		}
+
 	}
 
 Lterminate:
 	thr_term();
+	SDL_AtomicSet(&thr_action_idx, SDL_AtomicGet(&thr_action_cnt));
 	return;
 }
 
-
-static void render_actions_push(const render_thr_action_t action)
-{
-	const int cnt = SDL_AtomicGet(&thr_action_cnt);
-	assert(cnt <= THR_ACTIONS_MAX);
-	thr_action_queue[cnt] = action;
-	SDL_AtomicIncRef(&thr_action_cnt);
-}
-
-static void render_actions_wait(void)
-{
-	const int cnt = SDL_AtomicGet(&thr_action_cnt);
-	while (SDL_AtomicGet(&thr_action_idx) < cnt)
-		;
-}
-
-static void render_actions_reset(void)
-{
-	map_pack_cnt = 0;
-	actors_packs_cnt = 0;
-	txt_packs_cnt = 0;
-	SDL_AtomicSet(&thr_action_cnt, 0);
-	SDL_AtomicSet(&thr_action_idx, 0);
-}
 
 
 
@@ -438,7 +437,6 @@ void render_init(const char* const identifier)
 {
 	LOG_DEBUG("INITIALIZING RENDER");
 	SDL_AtomicSetPtr(&thr_winname, (void*)identifier);
-	render_actions_reset();
 	render_actions_push(RENDER_THR_INIT);
 	render_actions_wait();
 }
@@ -482,7 +480,7 @@ void render_map(const int32_t* const gids,
 		.map_size = map_size,
 		.tile_size = tile_size
 	};
-	++map_pack_cnt;
+	INC_PACKS_CNTR(map_pack_cnt);
 	render_actions_push(RENDER_THR_DRAW_MAP);
 }
 
@@ -492,15 +490,13 @@ void render_actors(const struct recti* const ss_srcs,
 		const actor_anim_flag_t* const flags,
 		const int cnt)
 {
-	const int packs_cnt = actors_packs_cnt;
-	assert(packs_cnt < 256);
-	actors_packs[packs_cnt] = (struct render_actors_pack) {
+	actors_packs[actors_packs_cnt] = (struct render_actors_pack) {
 		.ss_srcs = ss_srcs,
 		.scr_dsts = scr_dsts,
 		.flags = flags,
 		.cnt = cnt
 	};
-	++actors_packs_cnt;
+	INC_PACKS_CNTR(actors_packs_cnt);
 	render_actions_push(RENDER_THR_DRAW_ACTORS);
 }
 
@@ -509,11 +505,9 @@ void render_text(const char* const text, ...)
 {
 	va_list vargs;
 	va_start(vargs, text);
-	const int packs_cnt = txt_packs_cnt;
-	assert(packs_cnt < 256);
-	struct render_text_pack* const pack = &txt_packs[packs_cnt];
+	struct render_text_pack* const pack = &txt_packs[txt_packs_cnt];
 	vsnprintf(pack->buffer, 256, text, vargs);
-	++txt_packs_cnt;
+	INC_PACKS_CNTR(txt_packs_cnt);
 	render_actions_push(RENDER_THR_DRAW_TXT);
 	va_end(vargs);
 }
@@ -534,9 +528,8 @@ void render_set_camera(int x, int y)
 
 void render_present(void)
 {
-	render_actions_push(RENDER_THR_PRESENT);
 	render_actions_wait();
-	render_actions_reset();
+	render_actions_push(RENDER_THR_PRESENT);
 }
 
 
