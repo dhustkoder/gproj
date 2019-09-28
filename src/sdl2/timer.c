@@ -41,6 +41,7 @@ void timer_profiler_init()
 	((void)err);
 	assert(err == 0);
 	timer_hp_frequency = SDL_GetPerformanceFrequency();
+	LOG_DEBUG("HP FREQUENCY: %.0lf", timer_hp_frequency);
 }
 
 void timer_profiler_block_start(const char* const id,
@@ -110,7 +111,7 @@ void timer_profiler_block_end()
 	}
 
 	const char* const id = ids[idx];
-	render_text("[PROFILER] %s: %lld CPU cyles", id, (Uint64)blk->result);
+	render_text("[PROFILER] %s: %lld CYCLES", id, (Uint64)blk->result);
 	
 	if (prevblk != NULL) {
 		const timer_hp_clk_t wasted = timer_profiler_end(waste_start);
