@@ -40,6 +40,7 @@ static input_button_t prev_buttons_states;
 static float velx = 0;
 static int walking_sfx_id = 0;
 
+
 void characters_init(void)
 {
 	render_load_ss("richter-ss.png");
@@ -58,6 +59,34 @@ void characters_init(void)
 		anim_flags,
 		timer_now()
 	);
+
+	int x = 0, y = 0;
+	for (int i = 0; i < GPROJ_MAX_ACTORS - 1; ++i) {
+		const int id = actors_create(
+			&(struct rectf) {
+				.size = { 26, 46 },
+				.pos  = { x + (i * 0.46), y + (i * 0.06) }
+			}
+		);
+
+		x += 20;
+		if (x > GPROJ_SCR_WIDTH) {
+			x = 0;
+			y += 40;
+			if (y >= GPROJ_SCR_HEIGHT)
+				y = 0;
+		}
+
+		actors_anim_set(
+			id,
+			id%2?idle_frames:walking_frames,
+			id%2?ARRSZ(idle_frames):ARRSZ(walking_frames),
+			anim_flags,
+			timer_now()
+		);
+
+		actors_mov_set(id, 0.2, 0);
+	}
 
 	walking_sfx_id = audio_load_sfx("sounds/stepstone_4.wav");	
 }

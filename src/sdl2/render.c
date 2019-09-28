@@ -80,6 +80,7 @@ static struct vec2i ts_size = { 0, 0 };
 static struct vec2i fb_size = { 0, 0 };
 static struct vec2i text_pos = { 0, 0 };
 static struct vec2i cam_pos = { 0, 0 };
+static struct recti view_area = { {0, 0}, {GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT}};
 
 
 
@@ -298,6 +299,7 @@ static void thr_draw_actors()
 			const struct rectf* const scr_dsts = pack->scr_dsts;
 			const actor_anim_flag_t* const flags  = pack->flags;
 			const int cnt = pack->cnt;
+			const struct recti view = view_area;
 			for (int i = 0; i < cnt; ++i) {
 				const SDL_Rect scr = (SDL_Rect) {
 					.x = scr_dsts[i].pos.x,
@@ -305,12 +307,19 @@ static void thr_draw_actors()
 					.w = scr_dsts[i].size.x,
 					.h = scr_dsts[i].size.y
 				};
+
+				if      ((scr.x + scr.w) < view.pos.x) continue;
+				else if ((scr.y + scr.h) < view.pos.y) continue;
+				else if (scr.x > (view.pos.x + view.size.x)) continue;
+				else if (scr.y > (view.pos.y + view.size.y)) continue;
+
 				const SDL_Rect ss = (SDL_Rect) {
 					.x = ss_srcs[i].pos.x,
 					.y = ss_srcs[i].pos.y,
 					.w = ss_srcs[i].size.x,
 					.h = ss_srcs[i].size.y
 				};
+
 				const int flip = flags[i]&ANIM_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
 				SDL_RenderCopyEx(rend, tex_ss, &ss, &scr, 0, NULL, flip);		
 			}
@@ -523,6 +532,9 @@ void render_set_camera(int x, int y)
 
 	cam_pos.x = x < 0 ? 0 : x;
 	cam_pos.y = y < 0 ? 0 : y;
+
+	view_area.pos.x = cam_pos.x;
+	view_area.pos.y = cam_pos.y;
 }
 
 
