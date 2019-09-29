@@ -79,7 +79,6 @@ void map_load(const char* const path)
 	tmx_map_free(map);
 
 	LOG_DEBUG("MAP LAYER CNT: %d", map_layer_cnt);
-	map_send_render();
 }
 
 void map_free(void)
