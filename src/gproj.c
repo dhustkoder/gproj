@@ -25,7 +25,6 @@ int gproj(int argc, char** argv)
 		timer_profiler_block_start("GAME STEP", 512);
 		game_step(now, dt);
 		timer_profiler_block_end();
-
 		render_present();
 
 		++fps;

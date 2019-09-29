@@ -15,6 +15,10 @@ static int32_t* map_layers = NULL;
 static int map_layer_cnt = 0;
 
 
+
+
+
+
 void map_load(const char* const path)
 {
 	LOG_DEBUG("LOADING MAP %s", path);
@@ -74,8 +78,6 @@ void map_load(const char* const path)
 	tmx_map_free(map);
 
 	LOG_DEBUG("MAP LAYER CNT: %d", map_layer_cnt);
-
-	render_map(map_layers, &map_size, &tile_size);
 }
 
 void map_free(void)
@@ -90,3 +92,8 @@ void map_update(const timer_clk_t now, const float dt)
 	((void)dt);
 }
 
+
+void map_send_render(void)
+{
+	render_map(map_layers, &map_size, &tile_size);
+}

@@ -1,4 +1,5 @@
 #include <assert.h>
+#include "workman.h"
 #include "logger.h"
 #include "timer.h"
 #include "render.h"
@@ -14,7 +15,7 @@ static int16_t anim_ms[GPROJ_MAX_ACTORS];
 static int8_t anim_cnts[GPROJ_MAX_ACTORS];
 static int8_t anim_idxs[GPROJ_MAX_ACTORS];
 static actor_anim_flag_t anim_flags[GPROJ_MAX_ACTORS];
-static int nacts;
+static int nacts = 0;
 
 static bool need_render = false;
 
@@ -72,11 +73,16 @@ struct vec2f actors_get_pos(int actor_id)
 }
 
 
-void actors_update(const timer_clk_t now, const float dt)
-{
-	const int cnt = nacts;
+struct workpack {
+	timer_clk_t now;
+	float dt;
+};
 
-	timer_profiler_block_start("ACTORS_MOVE", 512);
+static void actors_move(void* p)
+{
+	// timer_profiler_block_start("ACTORS_MOVE", 512);
+	const float dt = ((struct workpack*)p)->dt;
+	const int cnt = nacts;
 	for (int i = 0; i < cnt; ++i) {
 		if (movs[i].x < -0.01f || movs[i].x > 0.01f ||
 		    movs[i].y < -0.01f || movs[i].y > 0.01f) {
@@ -85,10 +91,15 @@ void actors_update(const timer_clk_t now, const float dt)
 			need_render = true;
 		}
 	}
-	timer_profiler_block_end();
+	// timer_profiler_block_end();
+}
 
-
-	timer_profiler_block_start("ACTORS_ANIM", 512);
+static void actors_animate(void* p)
+{
+	// timer_profiler_block_start("ACTORS_ANIM", 512);
+	const timer_clk_t now = ((struct workpack*)p)->now;
+	//LOG("ANIMATE NOW: %ld", now);
+	const int cnt = nacts;
 	for (int i = 0; i < cnt; ++i) {
 		const int flags = anim_flags[i];
 		if (flags&ANIM_FLAG_DISABLED)
@@ -119,11 +130,25 @@ void actors_update(const timer_clk_t now, const float dt)
 			ss_rects[i] = anim_frames[i][anim_idxs[i]].ss;
 		}
 	}
-	timer_profiler_block_end();
-
-	if (need_render) {
-		need_render = false;
-		render_actors(ss_rects, scr_rects, anim_flags, cnt);
-	}
+	// timer_profiler_block_end();
 }
 
+void actors_update(const timer_clk_t now, const float dt)
+{
+	static struct workpack pack;
+	pack.now = now;
+	pack.dt = dt;
+	//actors_move(&pack);
+	//actors_animate(&pack);
+	workman_push_work(actors_move, &pack);
+	workman_push_work(actors_animate, &pack);
+}
+
+
+void actors_send_render(void)
+{
+	if (need_render) {
+		need_render = false;
+		render_actors(ss_rects, scr_rects, anim_flags, nacts);
+	}
+}

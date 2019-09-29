@@ -7,64 +7,9 @@
 #include <SDL_FontCache.h>
 #include <tmx.h>
 #include "events.h"
-#include "threads.h"
 #include "logger.h"
 #include "map.h"
 #include "render.h"
-
-
-#define THR_ACTIONS_MAX     (4096)
-#define THR_ACTIONS_ADDMASK (THR_ACTIONS_MAX - 1)
-#define THR_PACKS_MAX       ((THR_ACTIONS_MAX * 2))
-#define THR_PACKS_ADDMASK   ((THR_ACTIONS_MAX * 2) - 1)
-#define INC_MASKED(n, mask) (n = ((n + 1)&mask))
-#define INC_ACTIONS_CNTR(n) INC_MASKED(n, THR_ACTIONS_ADDMASK)
-#define INC_PACKS_CNTR(n)   INC_MASKED(n, THR_PACKS_ADDMASK)
-
-
-typedef uint8_t render_thr_action_t;
-enum render_thr_actions {
-	RENDER_THR_DRAW_TXT,
-	RENDER_THR_DRAW_ACTORS,
-	RENDER_THR_DRAW_MAP,
-	RENDER_THR_FETCH,
-	RENDER_THR_PRESENT,
-	RENDER_THR_SETUP_FB,
-	RENDER_THR_INIT,
-	RENDER_THR_TERMINATE
-};
-
-static struct render_actors_pack {
-	const struct recti* ss_srcs;
-	const struct rectf* scr_dsts;
-	const actor_anim_flag_t* flags;
-	int cnt;
-} actors_packs[THR_PACKS_MAX];
-
-static struct render_text_pack {
-	char buffer[256];
-} txt_packs[THR_PACKS_MAX];
-
-static struct render_map_pack {
-	const int32_t* gids;
-	const struct vec2i* map_size;
-	const struct vec2i* tile_size;
-} map_pack;
-
-static render_thr_action_t thr_action_queue[THR_ACTIONS_MAX];
-static SDL_atomic_t thr_action_cnt;
-static SDL_atomic_t thr_action_idx;
-
-static unsigned actors_packs_cnt = 0;
-static unsigned txt_packs_cnt = 0;
-static unsigned map_pack_cnt = 0;
-
-static unsigned thr_actors_packs_drawed = 0;
-static unsigned thr_txt_packs_drawed = 0;
-
-static void* thr_winname = NULL;
-static void* thr_ts_path = NULL;
-static void* thr_ss_path = NULL;
 
 static SDL_Window* win = NULL;
 static SDL_Renderer* rend;
@@ -83,63 +28,7 @@ static struct vec2i cam_pos = { 0, 0 };
 static struct recti view_area = { {0, 0}, {GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT}};
 
 
-
-static void render_actions_push(const render_thr_action_t action)
-{
-	unsigned cnt = SDL_AtomicGet(&thr_action_cnt);
-	thr_action_queue[cnt] = action;
-	SDL_AtomicSet(&thr_action_cnt, INC_ACTIONS_CNTR(cnt));
-}
-
-static void render_actions_wait(void)
-{
-	const int cnt = SDL_AtomicGet(&thr_action_cnt);
-	while (SDL_AtomicGet(&thr_action_idx) != cnt)
-		;
-}
-
-
-static void thr_init()
-{
-	int err;
-	((void)err);
-
-	const char* const winname = (char*)SDL_AtomicGetPtr(&thr_winname);
-	assert(winname != NULL);
-
-	win = SDL_CreateWindow(winname,
-			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-			GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT,
-			SDL_WINDOW_RESIZABLE);
-	assert(win != NULL);
-
-	rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED|SDL_RENDERER_TARGETTEXTURE);
-	assert(rend != NULL);
-
-	tex_txt = SDL_CreateTexture(rend, SDL_PIXELFORMAT_RGB888,
-			SDL_TEXTUREACCESS_TARGET,
-			GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
-	assert(tex_txt != NULL);
-
-
-	font = FC_CreateFont();
-	assert(font != NULL);
-
-	err = FC_LoadFont(font, rend, "8bit-madness.ttf", 16,
-			FC_MakeColor(0xFF,0xFF,0xFF,0xFF), TTF_STYLE_NORMAL);
-	assert(err != 0);
-
-	err = SDL_SetTextureBlendMode(tex_txt, 0);
-	assert(err == 0);
-
-	SDL_SetRenderTarget(rend, tex_txt);
-	SDL_RenderClear(rend);
-	SDL_SetRenderTarget(rend, NULL);
-	SDL_RenderPresent(rend);
-}
-
-
-static void thr_fb_free(void)
+static void fb_free(void)
 {
 	if (tex_fg != NULL)
 		SDL_DestroyTexture(tex_fg);
@@ -149,77 +38,8 @@ static void thr_fb_free(void)
 		SDL_DestroyTexture(tex_bg);
 }
 
-static void thr_term()
-{
-	FC_FreeFont(font);
 
-	if (tex_ts != NULL)
-		SDL_DestroyTexture(tex_ts);
-	if (tex_ss != NULL)
-		SDL_DestroyTexture(tex_ss);
-
-	thr_fb_free();
-	
-	if (tex_txt != NULL)
-		SDL_DestroyTexture(tex_txt);
-	if (rend != NULL)
-		SDL_DestroyRenderer(rend);
-	if (win != NULL)
-		SDL_DestroyWindow(win);
-}
-
-static void thr_fb_setup()
-{
-	int err;
-	((void)err);
-
-	if (tex_ts)
-		SDL_DestroyTexture(tex_ts);
-
-	const char* const ts_path = (char*)SDL_AtomicGetPtr(&thr_ts_path);
-	assert(ts_path != NULL);
-
-	tex_ts = IMG_LoadTexture(rend, ts_path);
-	assert(tex_ts != NULL);
-	SDL_QueryTexture(tex_ts, NULL, NULL, &ts_size.x, &ts_size.y);
-
-
-	if (tex_ss)
-		SDL_DestroyTexture(tex_ss);
-
-	const char* const ss_path = (char*)SDL_AtomicGetPtr(&thr_ss_path);
-	assert(ss_path != NULL);
-
-	tex_ss = IMG_LoadTexture(rend, ss_path);
-	assert(tex_ss != NULL);
-
-
-	thr_fb_free();
-	tex_bg = SDL_CreateTexture(rend,
-			SDL_PIXELFORMAT_RGB888,
-			SDL_TEXTUREACCESS_TARGET,
-			fb_size.x, fb_size.y);
-	assert(tex_bg != NULL);
-
-	tex_actors = SDL_CreateTexture(rend,
-			SDL_PIXELFORMAT_RGB888,
-			SDL_TEXTUREACCESS_TARGET,
-			fb_size.x, fb_size.y);
-	assert(tex_actors != NULL);
-
-	tex_fg = SDL_CreateTexture(rend,
-			SDL_PIXELFORMAT_RGB888,
-			SDL_TEXTUREACCESS_TARGET,
-			fb_size.x, fb_size.y);
-	assert(tex_fg != NULL);
-
-	err = SDL_SetTextureBlendMode(tex_actors, SDL_BLENDMODE_BLEND);
-	assert(err == 0);
-	err = SDL_SetTextureBlendMode(tex_fg, SDL_BLENDMODE_BLEND);
-	assert(err == 0);
-}
-
-static void thr_draw_flipped_gid(const int32_t gid,
+static void draw_flipped_gid(const int32_t gid,
 		const SDL_Rect* const src,
 		const SDL_Rect* const dst)
 {
@@ -244,7 +64,7 @@ static void thr_draw_flipped_gid(const int32_t gid,
 	SDL_RenderCopyEx(rend, tex_ts, src, dst, degrees, NULL, flips);
 }
 
-static void thr_draw_map_layer(const int32_t* const gids,
+static void draw_map_layer(const int32_t* const gids,
 		const struct vec2i map_size,
 		const struct vec2i tile_size)
 {
@@ -278,7 +98,7 @@ static void thr_draw_map_layer(const int32_t* const gids,
 			if ((gid&(~TMX_FLIP_BITS_REMOVAL)) == 0x00)
 				SDL_RenderCopy(rend, tex_ts, &src, &dst);
 			else
-				thr_draw_flipped_gid(gid, &src, &dst);
+				draw_flipped_gid(gid, &src, &dst);
 		}
 
 		dst.y += tile_size.y;
@@ -286,79 +106,219 @@ static void thr_draw_map_layer(const int32_t* const gids,
 }
 
 
-static void thr_draw_actors()
+
+void render_init(const char* const identifier)
 {
-	const unsigned apc = actors_packs_cnt;
-	if (apc != thr_actors_packs_drawed) {
-		SDL_SetRenderTarget(rend, tex_actors);
+	LOG_DEBUG("INITIALIZING RENDER");
+	int err;
+	((void)err);
+
+	const char* const winname = identifier;
+	assert(winname != NULL);
+
+	win = SDL_CreateWindow(winname,
+			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+			GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT,
+			SDL_WINDOW_RESIZABLE);
+	assert(win != NULL);
+
+	rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED|SDL_RENDERER_TARGETTEXTURE);
+	assert(rend != NULL);
+
+	tex_txt = SDL_CreateTexture(rend, SDL_PIXELFORMAT_RGB888,
+			SDL_TEXTUREACCESS_TARGET,
+			GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
+	assert(tex_txt != NULL);
+
+
+	font = FC_CreateFont();
+	assert(font != NULL);
+
+	err = FC_LoadFont(font, rend, "8bit-madness.ttf", 16,
+			FC_MakeColor(0xFF,0xFF,0xFF,0xFF), TTF_STYLE_NORMAL);
+	assert(err != 0);
+
+	err = SDL_SetTextureBlendMode(tex_txt, 0);
+	assert(err == 0);
+
+	SDL_SetRenderTarget(rend, tex_txt);
+	SDL_RenderClear(rend);
+	SDL_SetRenderTarget(rend, NULL);
+	SDL_RenderPresent(rend);
+}
+
+void render_term()
+{
+	LOG_DEBUG("TERMINATING RENDER");
+	FC_FreeFont(font);
+
+	if (tex_ts != NULL)
+		SDL_DestroyTexture(tex_ts);
+	if (tex_ss != NULL)
+		SDL_DestroyTexture(tex_ss);
+
+	fb_free();
+	
+	if (tex_txt != NULL)
+		SDL_DestroyTexture(tex_txt);
+	if (rend != NULL)
+		SDL_DestroyRenderer(rend);
+	if (win != NULL)
+		SDL_DestroyWindow(win);
+}
+
+void render_fb_setup(const struct vec2i* const size)
+{
+	LOG_DEBUG("TRYING TO SETUP FB");
+	fb_size = *size;
+	int err;
+	((void)err);
+
+	fb_free();
+	tex_bg = SDL_CreateTexture(rend,
+			SDL_PIXELFORMAT_RGB888,
+			SDL_TEXTUREACCESS_TARGET,
+			fb_size.x, fb_size.y);
+	assert(tex_bg != NULL);
+
+	tex_actors = SDL_CreateTexture(rend,
+			SDL_PIXELFORMAT_RGB888,
+			SDL_TEXTUREACCESS_TARGET,
+			fb_size.x, fb_size.y);
+	assert(tex_actors != NULL);
+
+	tex_fg = SDL_CreateTexture(rend,
+			SDL_PIXELFORMAT_RGB888,
+			SDL_TEXTUREACCESS_TARGET,
+			fb_size.x, fb_size.y);
+	assert(tex_fg != NULL);
+
+	err = SDL_SetTextureBlendMode(tex_actors, SDL_BLENDMODE_BLEND);
+	assert(err == 0);
+	err = SDL_SetTextureBlendMode(tex_fg, SDL_BLENDMODE_BLEND);
+	assert(err == 0);
+}
+
+
+void render_load_ts(const char* const path)
+{
+	LOG_DEBUG("LOADING TILESET: %s", path);
+	if (tex_ts)
+		SDL_DestroyTexture(tex_ts);
+
+	assert(path != NULL);
+
+	tex_ts = IMG_LoadTexture(rend, path);
+	assert(tex_ts != NULL);
+	SDL_QueryTexture(tex_ts, NULL, NULL, &ts_size.x, &ts_size.y);
+
+}
+
+
+void render_load_ss(const char* const path)
+{
+	LOG_DEBUG("LOADING SPRITESHEET: %s", path);
+	if (tex_ss)
+		SDL_DestroyTexture(tex_ss);
+
+	assert(path != NULL);
+
+	tex_ss = IMG_LoadTexture(rend, path);
+	assert(tex_ss != NULL);
+}
+
+
+void render_map(const int32_t* const gids,
+                const struct vec2i* const map_size,
+                const struct vec2i* const tile_size) 
+{
+	SDL_SetRenderTarget(rend, tex_bg);
+	draw_map_layer(gids, *map_size, *tile_size);
+	SDL_SetRenderTarget(rend, tex_fg);
+	draw_map_layer(gids + MAP_LAYER_FG *
+			map_size->x * map_size->y,
+			*map_size, *tile_size);
+}
+
+
+void render_actors(const struct recti* const ss_srcs,
+		const struct rectf* const scr_dsts,
+		const actor_anim_flag_t* const flags,
+		const int cnt)
+{
+	SDL_SetRenderTarget(rend, tex_actors);
+	SDL_RenderClear(rend);
+
+	const struct recti view = view_area;
+	for (int i = 0; i < cnt; ++i) {
+		const SDL_Rect scr = (SDL_Rect) {
+			.x = scr_dsts[i].pos.x,
+			.y = scr_dsts[i].pos.y,
+			.w = scr_dsts[i].size.x,
+			.h = scr_dsts[i].size.y
+		};
+
+		if      ((scr.x + scr.w) < view.pos.x) continue;
+		else if ((scr.y + scr.h) < view.pos.y) continue;
+		else if (scr.x > (view.pos.x + view.size.x)) continue;
+		else if (scr.y > (view.pos.y + view.size.y)) continue;
+
+		const SDL_Rect ss = (SDL_Rect) {
+			.x = ss_srcs[i].pos.x,
+			.y = ss_srcs[i].pos.y,
+			.w = ss_srcs[i].size.x,
+			.h = ss_srcs[i].size.y
+		};
+
+		const int flip = flags[i]&ANIM_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
+		SDL_RenderCopyEx(rend, tex_ss, &ss, &scr, 0, NULL, flip);
+	}	
+			
+}
+
+
+void render_text(const char* const text, ...)
+{
+	static char buffer[256];
+	va_list vargs;
+	va_start(vargs, text);
+
+	vsnprintf(buffer, 256, text, vargs);
+	
+	SDL_SetRenderTarget(rend, tex_txt);
+	
+	if (text_pos.x == 0)
 		SDL_RenderClear(rend);
-		//do {
-			const struct render_actors_pack* const pack = &actors_packs[thr_actors_packs_drawed];
-			INC_PACKS_CNTR(thr_actors_packs_drawed);
-			const struct recti* const ss_srcs = pack->ss_srcs;
-			const struct rectf* const scr_dsts = pack->scr_dsts;
-			const actor_anim_flag_t* const flags  = pack->flags;
-			const int cnt = pack->cnt;
-			const struct recti view = view_area;
-			for (int i = 0; i < cnt; ++i) {
-				const SDL_Rect scr = (SDL_Rect) {
-					.x = scr_dsts[i].pos.x,
-					.y = scr_dsts[i].pos.y,
-					.w = scr_dsts[i].size.x,
-					.h = scr_dsts[i].size.y
-				};
 
-				if      ((scr.x + scr.w) < view.pos.x) continue;
-				else if ((scr.y + scr.h) < view.pos.y) continue;
-				else if (scr.x > (view.pos.x + view.size.x)) continue;
-				else if (scr.y > (view.pos.y + view.size.y)) continue;
+	const SDL_Rect dirty = FC_Draw(font, rend, 0, text_pos.y, buffer);
 
-				const SDL_Rect ss = (SDL_Rect) {
-					.x = ss_srcs[i].pos.x,
-					.y = ss_srcs[i].pos.y,
-					.w = ss_srcs[i].size.x,
-					.h = ss_srcs[i].size.y
-				};
+	if (dirty.w > text_pos.x)
+		text_pos.x = dirty.w;
+	
+	text_pos.y += dirty.h;
 
-				const int flip = flags[i]&ANIM_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
-				SDL_RenderCopyEx(rend, tex_ss, &ss, &scr, 0, NULL, flip);		
-			}
-		//} while (thr_actors_packs_drawed != apc);
-	}
+
+	va_end(vargs);
 }
 
-static void thr_draw_txt()
+
+void render_set_camera(int x, int y)
 {
-	const unsigned tpc = txt_packs_cnt;
-	if (tpc != thr_txt_packs_drawed) {
-		SDL_SetRenderTarget(rend, tex_txt);
-		if (text_pos.x == 0)
-			SDL_RenderClear(rend);
-		//do {
-			const struct render_text_pack* const pack = &txt_packs[thr_txt_packs_drawed];
-			INC_PACKS_CNTR(thr_txt_packs_drawed);
-			const SDL_Rect dirty = FC_Draw(font, rend, 0, text_pos.y, pack->buffer);
-			if (dirty.w > text_pos.x)
-				text_pos.x = dirty.w;
-			text_pos.y += dirty.h;
-		//} while (thr_txt_packs_drawed != tpc);
-	}
+	if (x > fb_size.x - GPROJ_SCR_WIDTH)
+		x = fb_size.x - GPROJ_SCR_WIDTH;
+
+	if (y > fb_size.y - GPROJ_SCR_HEIGHT)
+		y = fb_size.y - GPROJ_SCR_HEIGHT;
+
+	cam_pos.x = x < 0 ? 0 : x;
+	cam_pos.y = y < 0 ? 0 : y;
+
+	view_area.pos.x = cam_pos.x;
+	view_area.pos.y = cam_pos.y;
 }
 
-static void thr_draw_map()
-{
-	if (map_pack.gids != NULL) {
-		SDL_SetRenderTarget(rend, tex_bg);
-		thr_draw_map_layer(map_pack.gids, *map_pack.map_size, *map_pack.tile_size);
-		SDL_SetRenderTarget(rend, tex_fg);
-		thr_draw_map_layer(map_pack.gids + MAP_LAYER_FG *
-				map_pack.map_size->x * map_pack.map_size->y,
-				*map_pack.map_size, *map_pack.tile_size);
-		map_pack.gids = NULL;
-	}
-}
 
-static void thr_present()
+void render_present(void)
 {
 	const SDL_Rect cam_rect = {
 		.x = cam_pos.x,
@@ -383,165 +343,6 @@ static void thr_present()
 
 	text_pos.x = 0;
 	text_pos.y = 0;
-}
-
-
-
-void render_thr_main(void)
-{
-	extern void thr_events_update();
-	for (;;) {
-		thr_events_update();
-		
-		unsigned idx = SDL_AtomicGet(&thr_action_idx);
-		const unsigned cnt = SDL_AtomicGet(&thr_action_cnt);
-
-		if (idx != cnt) {
-			do {
-				const render_thr_action_t action = thr_action_queue[idx];
-				switch (action) {
-				case RENDER_THR_DRAW_TXT:
-					thr_draw_txt();
-					break;
-				case RENDER_THR_DRAW_ACTORS:
-					thr_draw_actors();
-					break;
-				case RENDER_THR_DRAW_MAP:
-					thr_draw_map();
-					break;
-				case RENDER_THR_PRESENT:
-					thr_present();
-					break;
-				case RENDER_THR_SETUP_FB:
-					thr_fb_setup();
-					break;
-				case RENDER_THR_INIT:
-					thr_init();
-					break;
-				case RENDER_THR_TERMINATE:
-					goto Lterminate;
-					break;
-				default:
-					LOG_DEBUG("UNKNOWN ACTION: %d", (int)action);
-					assert(false && "UNKNOWN ACTION");
-					break;
-				}
-				INC_ACTIONS_CNTR(idx);
-			} while (idx != cnt);
-			SDL_AtomicSet(&thr_action_idx, idx);
-		}
-
-	}
-
-Lterminate:
-	thr_term();
-	SDL_AtomicSet(&thr_action_idx, SDL_AtomicGet(&thr_action_cnt));
-	return;
-}
-
-
-
-
-void render_init(const char* const identifier)
-{
-	LOG_DEBUG("INITIALIZING RENDER");
-	SDL_AtomicSetPtr(&thr_winname, (void*)identifier);
-	render_actions_push(RENDER_THR_INIT);
-	render_actions_wait();
-}
-
-void render_term()
-{
-	LOG_DEBUG("TERMINATING RENDER");
-	render_actions_push(RENDER_THR_TERMINATE);
-	render_actions_wait();
-}
-
-void render_fb_setup(const struct vec2i* const size)
-{
-	LOG_DEBUG("TRYING TO SETUP FB");
-	fb_size = *size;
-	render_actions_push(RENDER_THR_SETUP_FB);
-	render_actions_wait();
-}
-
-
-void render_load_ts(const char* const path)
-{
-	LOG_DEBUG("LOADING TILESET: %s", path);
-	SDL_AtomicSetPtr(&thr_ts_path, (void*)path);
-}
-
-
-void render_load_ss(const char* const path)
-{
-	LOG_DEBUG("LOADING SPRITESHEET: %s", path);
-	SDL_AtomicSetPtr(&thr_ss_path, (void*)path);
-}
-
-
-void render_map(const int32_t* const gids,
-                const struct vec2i* const map_size,
-                const struct vec2i* const tile_size) 
-{
-	map_pack = (struct render_map_pack) {
-		.gids = gids,
-		.map_size = map_size,
-		.tile_size = tile_size
-	};
-	INC_PACKS_CNTR(map_pack_cnt);
-	render_actions_push(RENDER_THR_DRAW_MAP);
-}
-
-
-void render_actors(const struct recti* const ss_srcs,
-		const struct rectf* const scr_dsts,
-		const actor_anim_flag_t* const flags,
-		const int cnt)
-{
-	actors_packs[actors_packs_cnt] = (struct render_actors_pack) {
-		.ss_srcs = ss_srcs,
-		.scr_dsts = scr_dsts,
-		.flags = flags,
-		.cnt = cnt
-	};
-	INC_PACKS_CNTR(actors_packs_cnt);
-	render_actions_push(RENDER_THR_DRAW_ACTORS);
-}
-
-
-void render_text(const char* const text, ...)
-{
-	va_list vargs;
-	va_start(vargs, text);
-	struct render_text_pack* const pack = &txt_packs[txt_packs_cnt];
-	vsnprintf(pack->buffer, 256, text, vargs);
-	INC_PACKS_CNTR(txt_packs_cnt);
-	render_actions_push(RENDER_THR_DRAW_TXT);
-	va_end(vargs);
-}
-
-
-void render_set_camera(int x, int y)
-{
-	if (x > fb_size.x - GPROJ_SCR_WIDTH)
-		x = fb_size.x - GPROJ_SCR_WIDTH;
-
-	if (y > fb_size.y - GPROJ_SCR_HEIGHT)
-		y = fb_size.y - GPROJ_SCR_HEIGHT;
-
-	cam_pos.x = x < 0 ? 0 : x;
-	cam_pos.y = y < 0 ? 0 : y;
-
-	view_area.pos.x = cam_pos.x;
-	view_area.pos.y = cam_pos.y;
-}
-
-
-void render_present(void)
-{
-	render_actions_wait();
-	render_actions_push(RENDER_THR_PRESENT);
 }
 
 

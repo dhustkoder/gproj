@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 #include "SDL_FontCache.h"
 #include "threads.h"
+#include "workman.h"
 #include "logger.h"
 #include "render.h"
 #include "audio.h"
@@ -72,16 +74,13 @@ static void platform_term(void)
 }
 
 
-volatile bool game_exit = false;
-volatile int exit_code = 0;
-
-bool thr_events_update(void)
+bool events_update(void)
 {
 	SDL_Event ev;
 
 	while (SDL_PollEvent(&ev)) {
 		switch (ev.type) {
-		case SDL_QUIT: game_exit = true; break;
+		case SDL_QUIT: return false;
 		case SDL_KEYDOWN:
 		case SDL_KEYUP: {
 			for (int idx = 0; idx < INPUT_BUTTON_NBUTTONS; ++idx) {
@@ -103,20 +102,7 @@ bool thr_events_update(void)
 	return true;
 }
 
-bool events_update()
-{
-	return !game_exit;
-}
 
-static int game_thread_dispatcher(void* p)
-{
-	SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
-	void** parr = ((void**)p);
-	int argc = *(int*)(parr[0]);
-	char** argv = (char**)(parr[1]);
-	exit_code = gproj(argc, argv);
-	return exit_code;
-}
 
 int main(int argc, char** argv)
 {
@@ -126,20 +112,41 @@ int main(int argc, char** argv)
 
 	if (!platform_init())
 		return EXIT_FAILURE;
+
+	return gproj(argc, argv);
 	
-	void* args[2] = { (void*) &argc, (void*) argv };
-	gproj_thread_t* gproj_thr = thread_start(
-		game_thread_dispatcher,
-	    "GPROJ_THREAD",
-	    args
-	);
+	workman_init();
+	//timer_sleep(50);
+	/*
+	workman_push_work(print_string, (void*)"1");
+	workman_push_work(print_string, (void*)"2");
+	workman_push_work(print_string, (void*)"3");
+	workman_push_work(print_string, (void*)"4");
+	workman_push_work(print_string, (void*)"5");
+	workman_push_work(print_string, (void*)"6");
+	workman_push_work(print_string, (void*)"7");
+	workman_push_work(print_string, (void*)"8");
+	workman_push_work(print_string, (void*)"9");
+	workman_push_work(print_string, (void*)"10");
+	workman_push_work(print_string, (void*)"11");
+	workman_push_work(print_string, (void*)"12");
+	workman_push_work(print_string, (void*)"13");
+	workman_push_work(print_string, (void*)"14");
+	workman_push_work(print_string, (void*)"15");
+	workman_push_work(print_string, (void*)"16");
+	workman_push_work(print_string, (void*)"17");
+	workman_push_work(print_string, (void*)"18");
+	workman_push_work(print_string, (void*)"19");
+	workman_push_work(print_string, (void*)"20");
+	workman_push_work(print_string, (void*)"21");
+	workman_push_work(print_string, (void*)"22");
+	workman_push_work(print_string, (void*)"23");
+	workman_push_work(print_string, (void*)"24");
 
-	thread_detach(gproj_thr);
+	workman_work_until_empty();
 
-	extern void render_thr_main();
-	render_thr_main();
+	workman_term(); */
 
-	return exit_code;
 }
 
 

@@ -93,7 +93,7 @@ void characters_init(void)
 
 void characters_update(const timer_clk_t now, const float dt)
 {
-
+	((void)dt);
 	timer_profiler_block_start("PLAYER_UPDATE", 512);
 	if (prev_buttons_states != input_buttons_states) {
 		const struct actor_frame* anim = NULL;
@@ -127,7 +127,6 @@ void characters_update(const timer_clk_t now, const float dt)
 	
 	timer_profiler_block_end();
 
-	actors_update(now, dt);
 
 	timer_profiler_block_start("PLAYER_POS", 512);
 	const struct vec2f player_pos = actors_get_pos(player_id);
