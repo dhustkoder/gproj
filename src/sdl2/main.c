@@ -7,7 +7,6 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 #include "SDL_FontCache.h"
-#include "threads.h"
 #include "workman.h"
 #include "logger.h"
 #include "render.h"
