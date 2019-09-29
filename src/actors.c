@@ -17,7 +17,7 @@ static int8_t anim_idxs[GPROJ_MAX_ACTORS];
 static actor_anim_flag_t anim_flags[GPROJ_MAX_ACTORS];
 static int nacts = 0;
 
-static bool need_render = false;
+static volatile bool need_render = false;
 
 int actors_create(const struct rectf* const scr)
 {
@@ -76,14 +76,21 @@ struct vec2f actors_get_pos(int actor_id)
 struct workpack {
 	timer_clk_t now;
 	float dt;
+	int start;
+	int end;
 };
+
 
 static void actors_move(void* p)
 {
+	//static timer_clk_t prevnow = 0;
+	//assert(prevnow != ((struct workpack*)p)->now);
+	//prevnow = ((struct workpack*)p)->now;
 	// timer_profiler_block_start("ACTORS_MOVE", 512);
 	const float dt = ((struct workpack*)p)->dt;
-	const int cnt = nacts;
-	for (int i = 0; i < cnt; ++i) {
+	const int start = ((struct workpack*)p)->start;
+	const int cnt = ((struct workpack*)p)->end;
+	for (int i = start; i < cnt; ++i) {
 		if (movs[i].x < -0.01f || movs[i].x > 0.01f ||
 		    movs[i].y < -0.01f || movs[i].y > 0.01f) {
 			scr_rects[i].pos.x += movs[i].x * dt;
@@ -96,11 +103,14 @@ static void actors_move(void* p)
 
 static void actors_animate(void* p)
 {
+	//static timer_clk_t prevnow = 0;
+	//assert(prevnow != ((struct workpack*)p)->now);
+	//prevnow = ((struct workpack*)p)->now;
 	// timer_profiler_block_start("ACTORS_ANIM", 512);
 	const timer_clk_t now = ((struct workpack*)p)->now;
-	//LOG("ANIMATE NOW: %ld", now);
-	const int cnt = nacts;
-	for (int i = 0; i < cnt; ++i) {
+	const int start = ((struct workpack*)p)->start;
+	const int cnt = ((struct workpack*)p)->end;
+	for (int i = start; i < cnt; ++i) {
 		const int flags = anim_flags[i];
 		if (flags&ANIM_FLAG_DISABLED)
 			continue;
@@ -133,20 +143,74 @@ static void actors_animate(void* p)
 	// timer_profiler_block_end();
 }
 
+/*
+static void move_n_animate(void* p)
+{
+	const timer_clk_t now = ((struct workpack*)p)->now;
+	const float dt = ((struct workpack*)p)->dt;
+	const int start = ((struct workpack*)p)->start;
+	const int cnt = ((struct workpack*)p)->end;
+	for (int i = start; i < cnt; ++i) {
+		if (movs[i].x < -0.01f || movs[i].x > 0.01f ||
+		    movs[i].y < -0.01f || movs[i].y > 0.01f) {
+			scr_rects[i].pos.x += movs[i].x * dt;
+			scr_rects[i].pos.y += movs[i].y * dt;
+			need_render = true;
+		}
+	}
+
+	for (int i = start; i < cnt; ++i) {
+		const int flags = anim_flags[i];
+		if (flags&ANIM_FLAG_DISABLED)
+			continue;
+
+		if (((int)(now - anim_clks[i])) >= anim_ms[i]) {
+			need_render = true;
+			anim_clks[i] = now;
+			anim_idxs[i] += flags&ANIM_FLAG_BKWD ? -1 : 1;
+			if (anim_idxs[i] >= anim_cnts[i] || anim_idxs[i] < 0) {
+				if (flags&ANIM_FLAG_LOOP) {
+					if (anim_idxs[i] > 0 && flags&ANIM_FLAG_BIDIR) {
+						anim_idxs[i] = anim_cnts[i] - 2;
+						anim_flags[i] |= ANIM_FLAG_BKWD;
+					} else if (anim_idxs[i] < 0) {
+						anim_idxs[i] = 1;
+						anim_flags[i] &= ~ANIM_FLAG_BKWD;
+					} else {
+						anim_idxs[i] = 0;
+					}
+				} else {
+					anim_idxs[i] = 0;
+					anim_flags[i] |= ANIM_FLAG_DISABLED;
+				}
+			}
+
+			anim_ms[i] = anim_frames[i][anim_idxs[i]].ms;
+			ss_rects[i] = anim_frames[i][anim_idxs[i]].ss;
+		}
+	}
+}*/
+
+static struct workpack pack;
+/*static void sleeper(void* p) {
+	((void)p);
+	timer_sleep(1);
+}*/
+
 void actors_update(const timer_clk_t now, const float dt)
 {
-	static struct workpack pack;
-	pack.now = now;
-	pack.dt = dt;
+	pack = (struct workpack) { .now=now,.dt=dt,.start=0,.end=nacts };
 	//actors_move(&pack);
 	//actors_animate(&pack);
 	workman_push_work(actors_move, &pack);
 	workman_push_work(actors_animate, &pack);
+	//workman_push_work(sleeper, NULL);
 }
 
 
 void actors_send_render(void)
 {
+	workman_work_until_empty();
 	if (need_render) {
 		need_render = false;
 		render_actors(ss_rects, scr_rects, anim_flags, nacts);

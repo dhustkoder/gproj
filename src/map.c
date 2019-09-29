@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <tmx.h>
 #include "logger.h"
+#include "workman.h"
 #include "types.h"
 #include "render.h"
 #include "map.h"
@@ -78,6 +79,7 @@ void map_load(const char* const path)
 	tmx_map_free(map);
 
 	LOG_DEBUG("MAP LAYER CNT: %d", map_layer_cnt);
+	map_send_render();
 }
 
 void map_free(void)
@@ -86,14 +88,24 @@ void map_free(void)
 	map_layers = NULL;
 }
 
+/*
+static void sleeper(void* p)
+{
+	((void)p);
+	timer_sleep(1);
+}
+*/
+
 void map_update(const timer_clk_t now, const float dt)
 {
 	((void)now);
 	((void)dt);
+	//workman_push_work(sleeper, NULL);
 }
 
 
 void map_send_render(void)
 {
+	workman_work_until_empty();
 	render_map(map_layers, &map_size, &tile_size);
 }

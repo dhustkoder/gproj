@@ -30,7 +30,6 @@ void game_step(timer_clk_t now, float dt)
 	map_update(now, dt);
 	characters_update(now, dt);
 	actors_update(now, dt);
-	workman_work_until_empty();
 	map_send_render();
 	actors_send_render();
 }
