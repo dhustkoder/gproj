@@ -18,8 +18,8 @@ static volatile unsigned work_cnt = 0;
 static volatile unsigned work_next = 0;
 static volatile bool terminated = false;
 static SDL_Thread** threads;
-static SDL_mutex* mu;
 static SDL_SpinLock splk;
+static SDL_sem* sem;
 static int threads_cnt;
 
 
@@ -32,23 +32,6 @@ static int worker_thr_fn(void* dummy)
 	LOG_DEBUG("TERMINATING WORKER THREAD %ld", SDL_ThreadID());
 	return 0;
 }
-
-
-struct work_queue_entry* try_get_work_mu(void)
-{
-	if (SDL_TryLockMutex(mu) == 0) {
-		if (work_cnt == work_next) {
-			SDL_UnlockMutex(mu);
-			return NULL;
-		}
-		const unsigned entry = work_next;
-		work_next = (work_next + 1)&(WORKQUEUE_MAX_ENTRIES - 1);
-		SDL_UnlockMutex(mu);
-		return &queue[entry];		
-	}
-	return NULL;
-}
-
 
 static struct work_queue_entry* try_get_work_splk(void)
 {
@@ -65,18 +48,30 @@ static struct work_queue_entry* try_get_work_splk(void)
 	return NULL;
 }
 
+static bool try_work(void)
+{
+	const struct work_queue_entry* const entry = try_get_work_splk();
+	if (entry != NULL) {
+		entry->fn(entry->arg);
+		return true;
+	}
+	return false;
+}
+
+
 void workman_init(void)
 {
 	char namebuff[32];
 	threads_cnt = SDL_GetCPUCount() - 1;
-	mu = SDL_CreateMutex();
-	assert(mu != NULL);
-	threads = malloc(sizeof(SDL_Thread*) * threads_cnt);
-	for (int i = 0; i < threads_cnt; ++i) {
-		sprintf(namebuff, "WORKER_THREAD %d", i);
-		threads[i] = SDL_CreateThread(worker_thr_fn, namebuff, NULL);
-		assert(threads[i] != NULL);
-		SDL_DetachThread(threads[i]);
+	sem = SDL_CreateSemaphore(0);
+	if (threads_cnt > 0) {
+		threads = malloc(sizeof(SDL_Thread*) * threads_cnt);
+		for (int i = 0; i < threads_cnt; ++i) {
+			sprintf(namebuff, "WORKER_THREAD %d", i);
+			threads[i] = SDL_CreateThread(worker_thr_fn, namebuff, NULL);
+			assert(threads[i] != NULL);
+			SDL_DetachThread(threads[i]);
+		}
 	}
 }
 
@@ -86,7 +81,10 @@ void workman_term(void)
 	workman_work_until_empty();
 	SDL_CompilerBarrier();
 	terminated = true;
-	free(threads);
+	if (threads_cnt > 0) {
+		free(threads);
+		SDL_DestroySemaphore(sem);
+	}
 }
 
 
@@ -96,29 +94,28 @@ void workman_push_work(work_fn_ptr fn, void* arg)
 		.fn = fn,
 		.arg = arg
 	};
-	SDL_CompilerBarrier();
 	work_cnt = (work_cnt + 1)&(WORKQUEUE_MAX_ENTRIES - 1);
+	SDL_CompilerBarrier();
+	SDL_SemPost(sem);
 }
 
-
-void workman_do_work(void)
-{
-	const struct work_queue_entry* const entry = try_get_work_splk();
-	if (entry != NULL)
-		entry->fn(entry->arg);
-}
 
 void workman_work_until_empty(void)
 {
 	while (work_next != work_cnt) {
-		workman_do_work();
+		try_work();
 	}
 }
 
 void workman_work_until_term(void)
 {
 	while (!terminated) {
-		workman_do_work();
+		if (work_next != work_cnt) {
+			while (try_work())
+				;
+		} else {
+			SDL_SemWait(sem);
+		}
 	}
 }
 
