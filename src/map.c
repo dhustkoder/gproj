@@ -18,8 +18,6 @@ static int map_layer_cnt = 0;
 
 
 
-
-
 void map_load(const char* const path)
 {
 	LOG_DEBUG("LOADING MAP %s", path);
@@ -87,19 +85,12 @@ void map_free(void)
 	map_layers = NULL;
 }
 
-/*
-static void sleeper(void* p)
-{
-	((void)p);
-	timer_sleep(1);
-}
-*/
 
 void map_update(const timer_clk_t now, const float dt)
 {
 	((void)now);
 	((void)dt);
-	//workman_push_work(sleeper, NULL);
+	workman_push_sleep(1);
 }
 
 

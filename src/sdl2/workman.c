@@ -8,8 +8,8 @@
 
 
 struct work_queue_entry {
-	work_fn_ptr fn;
-	void* arg;
+	work_ptr_t fn;
+	union work_arg arg;
 };
 
 
@@ -46,7 +46,7 @@ static void work_ownership_monitor_init(SDL_Thread** thrs, int cnt)
 static void work_ownership_monitor_verify_update(const int entry)
 {
 	const SDL_threadID myid = SDL_ThreadID();
-	LOG_DEBUG("THREAD %lx GOT WORK %d", myid, entry);
+	LOG_DEBUG("THREAD %lx GOT WORK IDX => %d : WORK_CNT => %d", myid, entry, work_cnt);
 	for (int i = 0; i < thread_cnt; ++i) {
 		if (thread_ids[i] == myid) {
 			thread_curr_work[i] = entry;
@@ -69,6 +69,8 @@ static void work_ownership_monitor_term(void)
 #define work_ownership_monitor_term(...)           ((void)0)
 #endif
 
+
+
 static int worker_thr_fn(void* dummy) 
 {
 	((void)dummy);
@@ -79,7 +81,7 @@ static int worker_thr_fn(void* dummy)
 	return 0;
 }
 
-struct work_queue_entry* try_get_work_splk(void)
+static struct work_queue_entry* try_get_work(void)
 {
 	if (SDL_AtomicTryLock(&splk) == SDL_TRUE) {
 		const int next = work_next;
@@ -98,7 +100,7 @@ struct work_queue_entry* try_get_work_splk(void)
 
 static bool try_work(void)
 {
-	const struct work_queue_entry* const entry = try_get_work_splk();
+	const struct work_queue_entry* const entry = try_get_work();
 	if (entry != NULL) {
 		entry->fn(entry->arg);
 		return true;
@@ -106,6 +108,10 @@ static bool try_work(void)
 	return false;
 }
 
+static void sleeper(union work_arg arg)
+{
+	timer_sleep(arg.clk);
+}
 
 void workman_init(void)
 {
@@ -143,7 +149,7 @@ void workman_term(void)
 }
 
 
-void workman_push_work(work_fn_ptr fn, void* arg)
+void workman_push_work(work_ptr_t fn, union work_arg arg)
 {
 	const int cnt = work_cnt;
 	queue[cnt] = (struct work_queue_entry) {
@@ -154,11 +160,19 @@ void workman_push_work(work_fn_ptr fn, void* arg)
 	SDL_SemPost(sem);
 }
 
+void workman_push_sleep(timer_clk_t ms)
+{
+	((void)ms);
+	((void)sleeper);
+	//workman_push_work(sleeper, (union work_arg){.clk = ms});
+}
 
 void workman_work_until_empty(void)
 {
 	while (work_next != work_cnt) {
-		try_work();
+		while (try_work()) {
+			// ...
+		}
 	}
 }
 
@@ -166,7 +180,9 @@ void workman_work_until_term(void)
 {
 	while (!terminated) {
 		SDL_SemWait(sem);
-		try_work();
+		while (try_work()) {
+			// ...
+		}
 	}
 }
 
