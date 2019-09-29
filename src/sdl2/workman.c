@@ -118,7 +118,7 @@ void workman_init(void)
 	char namebuff[32];
 	work_cnt = 0;
 	work_next =  0;
-	thread_cnt = SDL_GetCPUCount() - 1;
+	thread_cnt = SDL_GetCPUCount();
 	sem = SDL_CreateSemaphore(0);
 
 	if (thread_cnt > 0) {
@@ -164,7 +164,7 @@ void workman_push_sleep(timer_clk_t ms)
 {
 	((void)ms);
 	((void)sleeper);
-	//workman_push_work(sleeper, (union work_arg){.clk = ms});
+	workman_push_work(sleeper, (union work_arg){.clk = ms});
 }
 
 void workman_work_until_empty(void)

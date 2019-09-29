@@ -114,39 +114,38 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 
 	return gproj(argc, argv);
-	
-	workman_init();
-	//timer_sleep(50);
 	/*
-	workman_push_work(print_string, (void*)"1");
-	workman_push_work(print_string, (void*)"2");
-	workman_push_work(print_string, (void*)"3");
-	workman_push_work(print_string, (void*)"4");
-	workman_push_work(print_string, (void*)"5");
-	workman_push_work(print_string, (void*)"6");
-	workman_push_work(print_string, (void*)"7");
-	workman_push_work(print_string, (void*)"8");
-	workman_push_work(print_string, (void*)"9");
-	workman_push_work(print_string, (void*)"10");
-	workman_push_work(print_string, (void*)"11");
-	workman_push_work(print_string, (void*)"12");
-	workman_push_work(print_string, (void*)"13");
-	workman_push_work(print_string, (void*)"14");
-	workman_push_work(print_string, (void*)"15");
-	workman_push_work(print_string, (void*)"16");
-	workman_push_work(print_string, (void*)"17");
-	workman_push_work(print_string, (void*)"18");
-	workman_push_work(print_string, (void*)"19");
-	workman_push_work(print_string, (void*)"20");
-	workman_push_work(print_string, (void*)"21");
-	workman_push_work(print_string, (void*)"22");
-	workman_push_work(print_string, (void*)"23");
-	workman_push_work(print_string, (void*)"24");
+	workman_init();
+
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
 
 	workman_work_until_empty();
 
-	workman_term(); */
-
+	workman_term();
+	*/
 }
 
 
