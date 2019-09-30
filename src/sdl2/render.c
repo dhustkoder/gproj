@@ -291,7 +291,7 @@ void render_text(const char* const text, ...)
 		SDL_RenderClear(rend);
 
 	const SDL_Rect dirty = FC_Draw(font, rend, 0, text_pos.y, buffer);
-
+  
 	if (dirty.w > text_pos.x)
 		text_pos.x = dirty.w;
 	
