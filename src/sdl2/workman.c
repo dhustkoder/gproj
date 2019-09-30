@@ -180,7 +180,7 @@ void workman_push_sleep(timer_clk_t ms)
 {
 	((void)ms);
 	((void)sleeper);
-	workman_push_work(sleeper, (union work_arg){.clk = ms});
+	//workman_push_work(sleeper, (union work_arg){.clk = ms});
 }
 
 void workman_work_until_empty(void)
@@ -196,9 +196,7 @@ void workman_work_until_term(void)
 {
 	while (!terminated) {
 		SDL_SemWait(sem);
-		while (try_work()) {
-			// ...
-		}
+		workman_work_until_empty();
 	}
 }
 

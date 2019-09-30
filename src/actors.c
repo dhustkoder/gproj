@@ -20,67 +20,12 @@ static int nacts = 0;
 static volatile bool need_render = false;
 
 
-
-int actors_create(const struct rectf* const scr)
-{
-	assert(nacts < GPROJ_MAX_ACTORS);
-	const int id = nacts++;
-	scr_rects[id] = *scr;
-	return id;
-}
-
-void actors_anim_set(const int actor_id,
-                     const struct actor_frame* const frames,
-                     const int8_t nframes,
-                     const actor_anim_flag_t flags,
-                     const timer_clk_t clk)
-{
-	assert(frames != NULL);
-	assert(nframes <= MAX_ACTOR_FRAMES);
-	need_render = true;
-	anim_idxs[actor_id] = 0;
-	anim_clks[actor_id] = clk;
-	anim_frames[actor_id] = frames;
-	anim_cnts[actor_id] = nframes;
-	anim_flags[actor_id] = flags;
-	anim_ms[actor_id] = frames[0].ms;
-	ss_rects[actor_id] = frames[0].ss;
-}
-
-
-int actors_anim_get_flags(int actor_id)
-{
-	return anim_flags[actor_id];
-}
-
-
-void actors_anim_set_flags(int actor_id, int flags)
-{
-	anim_flags[actor_id] = flags;
-}
-
-
-void actors_mov_set(const int actor_id,
-                    const float velx,
-                    const float vely)
-{
-	movs[actor_id].x = velx;
-	movs[actor_id].y = vely;
-}
-
-
-struct vec2f actors_get_pos(int actor_id)
-{
-	return scr_rects[actor_id].pos;
-}
-
-
-struct workpack {
+static struct workpack {
 	timer_clk_t now;
 	float dt;
 	int start;
 	int end;
-};
+} wpack;
 
 
 static void actors_move(union work_arg arg)
@@ -138,13 +83,69 @@ static void actors_animate(union work_arg arg)
 }
 
 
-static struct workpack pack;
+
+
+
+
+int actors_create(const struct rectf* const scr)
+{
+	assert(nacts < GPROJ_MAX_ACTORS);
+	const int id = nacts++;
+	scr_rects[id] = *scr;
+	return id;
+}
+
+void actors_anim_set(const int actor_id,
+                     const struct actor_frame* const frames,
+                     const int8_t nframes,
+                     const actor_anim_flag_t flags,
+                     const timer_clk_t clk)
+{
+	assert(frames != NULL);
+	assert(nframes <= MAX_ACTOR_FRAMES);
+	need_render = true;
+	anim_idxs[actor_id] = 0;
+	anim_clks[actor_id] = clk;
+	anim_frames[actor_id] = frames;
+	anim_cnts[actor_id] = nframes;
+	anim_flags[actor_id] = flags;
+	anim_ms[actor_id] = frames[0].ms;
+	ss_rects[actor_id] = frames[0].ss;
+}
+
+
+int actors_anim_get_flags(int actor_id)
+{
+	return anim_flags[actor_id];
+}
+
+
+void actors_anim_set_flags(int actor_id, int flags)
+{
+	anim_flags[actor_id] = flags;
+}
+
+
+void actors_mov_set(const int actor_id,
+                    const float velx,
+                    const float vely)
+{
+	movs[actor_id].x = velx;
+	movs[actor_id].y = vely;
+}
+
+
+struct vec2f actors_get_pos(int actor_id)
+{
+	return scr_rects[actor_id].pos;
+}
+
 
 void actors_update(const timer_clk_t now, const float dt)
 {
-	pack = (struct workpack) { .now=now,.dt=dt,.start=0,.end=nacts };
-	workman_push_work(actors_move, (union work_arg){.ptr = &pack});
-	workman_push_work(actors_animate, (union work_arg){.ptr = &pack});
+	wpack = (struct workpack) { .now=now,.dt=dt,.start=0,.end=nacts };
+	workman_push_work(actors_move, (union work_arg){.ptr = &wpack});
+	workman_push_work(actors_animate, (union work_arg){.ptr = &wpack});
 	workman_push_sleep(1);
 }
 

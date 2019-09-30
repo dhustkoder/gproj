@@ -28,10 +28,12 @@ void game_init(int argc, char** argv)
 
 void game_step(timer_clk_t now, float dt)
 {
+	// update
 	characters_update(now, dt);
 	actors_update(now, dt);
 	map_update(now, dt);
-	
+
+	// send render
 	actors_send_render();
 }
 

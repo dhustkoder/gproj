@@ -272,7 +272,7 @@ void render_actors(const struct recti* const ss_srcs,
 
 		const int flip = flags[i]&ANIM_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
 		SDL_RenderCopyEx(rend, tex_ss, &ss, &scr, 0, NULL, flip);
-	}	
+	}
 			
 }
 
