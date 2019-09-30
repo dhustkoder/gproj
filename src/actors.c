@@ -1,4 +1,5 @@
 #include <assert.h>
+#include "workman.h"
 #include "logger.h"
 #include "timer.h"
 #include "render.h"
@@ -14,9 +15,77 @@ static int16_t anim_ms[GPROJ_MAX_ACTORS];
 static int8_t anim_cnts[GPROJ_MAX_ACTORS];
 static int8_t anim_idxs[GPROJ_MAX_ACTORS];
 static actor_anim_flag_t anim_flags[GPROJ_MAX_ACTORS];
-static int nacts;
+static int nacts = 0;
 
-static bool need_render = false;
+static volatile bool need_render = false;
+
+
+static struct workpack {
+	timer_clk_t now;
+	float dt;
+	int start;
+	int end;
+} wpack;
+
+
+static void actors_move(union work_arg arg)
+{
+	const struct workpack* const pack = arg.ptr;
+	const float dt = pack->dt;
+	const int start = pack->start;
+	const int cnt = pack->end;
+	for (int i = start; i < cnt; ++i) {
+		if (movs[i].x < -0.01f || movs[i].x > 0.01f ||
+		    movs[i].y < -0.01f || movs[i].y > 0.01f) {
+			scr_rects[i].pos.x += movs[i].x * dt;
+			scr_rects[i].pos.y += movs[i].y * dt;
+			need_render = true;
+		}
+	}
+}
+
+static void actors_animate(union work_arg arg)
+{
+	const struct workpack* const pack = arg.ptr;
+	const timer_clk_t now = pack->now;
+	const int start = pack->start;
+	const int cnt = pack->end;
+	for (int i = start; i < cnt; ++i) {
+		const int flags = anim_flags[i];
+		if (flags&ANIM_FLAG_DISABLED)
+			continue;
+
+		if (((int)(now - anim_clks[i])) >= anim_ms[i]) {
+			need_render = true;
+			anim_clks[i] = now;
+			anim_idxs[i] += flags&ANIM_FLAG_BKWD ? -1 : 1;
+			if (anim_idxs[i] >= anim_cnts[i] || anim_idxs[i] < 0) {
+				if (flags&ANIM_FLAG_LOOP) {
+					if (anim_idxs[i] > 0 && flags&ANIM_FLAG_BIDIR) {
+						anim_idxs[i] = anim_cnts[i] - 2;
+						anim_flags[i] |= ANIM_FLAG_BKWD;
+					} else if (anim_idxs[i] < 0) {
+						anim_idxs[i] = 1;
+						anim_flags[i] &= ~ANIM_FLAG_BKWD;
+					} else {
+						anim_idxs[i] = 0;
+					}
+				} else {
+					anim_idxs[i] = 0;
+					anim_flags[i] |= ANIM_FLAG_DISABLED;
+				}
+			}
+
+			anim_ms[i] = anim_frames[i][anim_idxs[i]].ms;
+			ss_rects[i] = anim_frames[i][anim_idxs[i]].ss;
+		}
+	}
+}
+
+
+
+
+
 
 int actors_create(const struct rectf* const scr)
 {
@@ -74,56 +143,18 @@ struct vec2f actors_get_pos(int actor_id)
 
 void actors_update(const timer_clk_t now, const float dt)
 {
-	const int cnt = nacts;
-
-	timer_profiler_block_start("ACTORS_MOVE", 512);
-	for (int i = 0; i < cnt; ++i) {
-		if (movs[i].x < -0.01f || movs[i].x > 0.01f ||
-		    movs[i].y < -0.01f || movs[i].y > 0.01f) {
-			scr_rects[i].pos.x += movs[i].x * dt;
-			scr_rects[i].pos.y += movs[i].y * dt;
-			need_render = true;
-		}
-	}
-	timer_profiler_block_end();
-
-
-	timer_profiler_block_start("ACTORS_ANIM", 512);
-	for (int i = 0; i < cnt; ++i) {
-		const int flags = anim_flags[i];
-		if (flags&ANIM_FLAG_DISABLED)
-			continue;
-
-		if (((int)(now - anim_clks[i])) >= anim_ms[i]) {
-			need_render = true;
-			anim_clks[i] = now;
-			anim_idxs[i] += flags&ANIM_FLAG_BKWD ? -1 : 1;
-			if (anim_idxs[i] >= anim_cnts[i] || anim_idxs[i] < 0) {
-				if (flags&ANIM_FLAG_LOOP) {
-					if (anim_idxs[i] > 0 && flags&ANIM_FLAG_BIDIR) {
-						anim_idxs[i] = anim_cnts[i] - 2;
-						anim_flags[i] |= ANIM_FLAG_BKWD;
-					} else if (anim_idxs[i] < 0) {
-						anim_idxs[i] = 1;
-						anim_flags[i] &= ~ANIM_FLAG_BKWD;
-					} else {
-						anim_idxs[i] = 0;
-					}
-				} else {
-					anim_idxs[i] = 0;
-					anim_flags[i] |= ANIM_FLAG_DISABLED;
-				}
-			}
-
-			anim_ms[i] = anim_frames[i][anim_idxs[i]].ms;
-			ss_rects[i] = anim_frames[i][anim_idxs[i]].ss;
-		}
-	}
-	timer_profiler_block_end();
-
-	if (need_render) {
-		need_render = false;
-		render_actors(ss_rects, scr_rects, anim_flags, cnt);
-	}
+	wpack = (struct workpack) { .now=now,.dt=dt,.start=0,.end=nacts };
+	workman_push_work(actors_move, (union work_arg){.ptr = &wpack});
+	workman_push_work(actors_animate, (union work_arg){.ptr = &wpack});
+	workman_push_sleep(1);
 }
 
+
+void actors_send_render(void)
+{
+	workman_work_until_empty();
+	if (need_render) {
+		need_render = false;
+		render_actors(ss_rects, scr_rects, anim_flags, nacts);
+	}
+}

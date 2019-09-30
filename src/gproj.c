@@ -16,18 +16,12 @@ int gproj(int argc, char** argv)
 	int fps = 0;
 	int currfps = 0;
 
-
-
 	while (events_update()) {
 		const timer_clk_t now = timer_now();
 		const float dt = (((float)now) - ((float)lastclk)) / 1000;
 
 		render_text("FPS: %d", currfps);
-
-		timer_profiler_block_start("GAME STEP", 512);
 		game_step(now, dt);
-		timer_profiler_block_end();
-
 		render_present();
 
 		++fps;

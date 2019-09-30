@@ -14,7 +14,7 @@ enum map_layer {
 extern void map_load(const char* path);
 extern void map_free(void);
 extern void map_update(timer_clk_t now, float dt);
-
+extern void map_send_render(void);
 
 
 

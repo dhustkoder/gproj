@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <tmx.h>
 #include "logger.h"
+#include "workman.h"
 #include "types.h"
 #include "render.h"
 #include "map.h"
@@ -13,6 +14,8 @@ static struct vec2i world_size;
 
 static int32_t* map_layers = NULL;
 static int map_layer_cnt = 0;
+
+
 
 
 void map_load(const char* const path)
@@ -46,8 +49,8 @@ void map_load(const char* const path)
 		map_size.y * tile_size.y
 	};
 
-	render_fb_setup(&world_size);
 	render_load_ts(map->ts_head->tileset->image->source);
+	render_fb_setup(&world_size);
 
 	LOG_DEBUG("MAP WIDTH: %d", map_size.x);
 	LOG_DEBUG("MAP HEIGHT: %d", map_size.y);
@@ -74,8 +77,6 @@ void map_load(const char* const path)
 	tmx_map_free(map);
 
 	LOG_DEBUG("MAP LAYER CNT: %d", map_layer_cnt);
-
-	render_map(map_layers, &map_size, &tile_size);
 }
 
 void map_free(void)
@@ -84,9 +85,17 @@ void map_free(void)
 	map_layers = NULL;
 }
 
+
 void map_update(const timer_clk_t now, const float dt)
 {
 	((void)now);
 	((void)dt);
+	workman_push_sleep(1);
 }
 
+
+void map_send_render(void)
+{
+	workman_work_until_empty();
+	render_map(map_layers, &map_size, &tile_size);
+}

@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 #include "SDL_FontCache.h"
+#include "workman.h"
 #include "logger.h"
 #include "render.h"
 #include "audio.h"
@@ -70,6 +72,7 @@ static void platform_term(void)
 	SDL_Quit();
 }
 
+
 bool events_update(void)
 {
 	SDL_Event ev;
@@ -92,12 +95,12 @@ bool events_update(void)
 
 		}
 
-
 		}
 	}
 
 	return true;
 }
+
 
 
 int main(int argc, char** argv)
@@ -110,6 +113,38 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 
 	return gproj(argc, argv);
+	/*
+	workman_init();
+
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+	workman_push_sleep(500);
+
+	workman_work_until_empty();
+
+	workman_term();
+	*/
 }
 
 
