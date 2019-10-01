@@ -16,5 +16,3 @@ car.sh
 *.a
 .DS_Store
 *.vscode
-build-run.sh
-
