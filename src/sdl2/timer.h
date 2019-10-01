@@ -5,9 +5,9 @@
 #include <inttypes.h>
 
 typedef Uint32 timer_clk_t;
-#define TIMER_CLK_FMT PRIu32
-#define timer_sleep(ms)                  SDL_Delay(ms)
-#define timer_now()                      ((timer_clk_t)SDL_GetTicks())
+#define TIMER_CLK_FMT   PRIu32
+#define timer_sleep(ms) SDL_Delay(ms)
+#define timer_now()     ((timer_clk_t)SDL_GetTicks())
 
 
 

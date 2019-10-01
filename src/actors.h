@@ -1,6 +1,16 @@
 #ifndef GPROJ_ACTORS_H_
 #define GPROJ_ACTORS_H_
+#include <limits.h>
 #include "types.h"
+
+
+#ifndef GPROJ_MAX_ACTORS
+#error "GPROJ_MAX_ACTORS must be defined"
+#endif
+
+#if GPROJ_MAX_ACTORS > INT_MAX || GPROJ_MAX_ACTORS < 2 || (GPROJ_MAX_ACTORS % 2) != 0
+#error "GPROJ_MAX_ACTORS out of range; Must fit into an int. Must be multiple of 2"
+#endif
 
 extern int actors_create(const struct rectf* scr);
 

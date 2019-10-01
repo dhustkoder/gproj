@@ -96,6 +96,6 @@ void map_update(const timer_clk_t now, const float dt)
 
 void map_send_render(void)
 {
-	workman_work_until_empty();
+	workman_work_until_all_finished();
 	render_map(map_layers, &map_size, &tile_size);
 }

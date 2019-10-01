@@ -152,7 +152,7 @@ void actors_update(const timer_clk_t now, const float dt)
 
 void actors_send_render(void)
 {
-	workman_work_until_empty();
+	workman_work_until_all_finished();
 	if (need_render) {
 		need_render = false;
 		render_actors(ss_rects, scr_rects, anim_flags, nacts);
