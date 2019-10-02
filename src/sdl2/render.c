@@ -122,12 +122,13 @@ void render_init(const char* const identifier)
 			SDL_WINDOW_RESIZABLE);
 	assert(win != NULL);
 
-	rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED|SDL_RENDERER_TARGETTEXTURE);
+	rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED|
+	                                   SDL_RENDERER_TARGETTEXTURE);
 	assert(rend != NULL);
 
 	tex_txt = SDL_CreateTexture(rend, SDL_PIXELFORMAT_RGB888,
-			SDL_TEXTUREACCESS_TARGET,
-			GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
+	                            SDL_TEXTUREACCESS_TARGET,
+	                            GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	assert(tex_txt != NULL);
 
 
@@ -135,15 +136,10 @@ void render_init(const char* const identifier)
 	assert(font != NULL);
 
 	err = FC_LoadFont(font, rend, "8bit-madness.ttf", 16,
-			FC_MakeColor(0xFF,0xFF,0xFF,0xFF), TTF_STYLE_NORMAL);
+	                  FC_MakeColor(0xFF,0xFF,0xFF,0xFF), TTF_STYLE_NORMAL);
 	assert(err != 0);
 
-	err = SDL_SetTextureBlendMode(tex_txt, 0);
-	assert(err == 0);
-
-	SDL_SetRenderTarget(rend, tex_txt);
-	SDL_RenderClear(rend);
-	SDL_SetRenderTarget(rend, NULL);
+	SDL_SetRenderTarget(rend, NULL);	
 	SDL_RenderPresent(rend);
 }
 
@@ -176,23 +172,25 @@ void render_fb_setup(const struct vec2i* const size)
 
 	fb_free();
 	tex_bg = SDL_CreateTexture(rend,
-			SDL_PIXELFORMAT_RGB888,
+			SDL_PIXELFORMAT_RGBA8888,
 			SDL_TEXTUREACCESS_TARGET,
 			fb_size.x, fb_size.y);
 	assert(tex_bg != NULL);
 
 	tex_actors = SDL_CreateTexture(rend,
-			SDL_PIXELFORMAT_RGB888,
+			SDL_PIXELFORMAT_RGBA8888,
 			SDL_TEXTUREACCESS_TARGET,
 			fb_size.x, fb_size.y);
 	assert(tex_actors != NULL);
 
 	tex_fg = SDL_CreateTexture(rend,
-			SDL_PIXELFORMAT_RGB888,
+			SDL_PIXELFORMAT_RGBA8888,
 			SDL_TEXTUREACCESS_TARGET,
 			fb_size.x, fb_size.y);
 	assert(tex_fg != NULL);
 
+	err = SDL_SetTextureBlendMode(tex_bg, SDL_BLENDMODE_BLEND);
+	assert(err == 0);
 	err = SDL_SetTextureBlendMode(tex_actors, SDL_BLENDMODE_BLEND);
 	assert(err == 0);
 	err = SDL_SetTextureBlendMode(tex_fg, SDL_BLENDMODE_BLEND);
@@ -248,7 +246,7 @@ void render_actors(const struct recti* const ss_srcs,
 {
 	SDL_SetRenderTarget(rend, tex_actors);
 	SDL_RenderClear(rend);
-
+	
 	const struct recti view = view_area;
 	for (int i = 0; i < cnt; ++i) {
 		const SDL_Rect scr = (SDL_Rect) {
