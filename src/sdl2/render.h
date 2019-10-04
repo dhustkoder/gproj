@@ -5,7 +5,14 @@
 #include <stdarg.h>
 #include <SDL2/SDL.h>
 #include "types.h"
-#include "actors.h"
+
+
+enum render_flag {
+	RENDER_FLAG_FLIPH = SDL_FLIP_HORIZONTAL,
+	RENDER_FLAG_FLIPV = SDL_FLIP_VERTICAL
+};
+
+typedef int render_flag_t;
 
 
 extern void render_init(const char* identifier);
@@ -25,7 +32,7 @@ extern void render_ss(const struct vec2f* wpos,
                       const struct vec2i* wsize,
 		      const struct vec2i* spos,
 		      const struct vec2i* ssize,
-                      const sprite_flag_t* flags,
+                      const render_flag_t* flags,
                       const int cnt);
 
 extern void render_text(const char* text, ...);

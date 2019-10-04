@@ -4,29 +4,26 @@
 #include "types.h"
 
 /*
-	An actor is a single object that appears in the game world 
-	that has a set of animations (each animation is a sequence of frames).
-	single position and size in game world
-	multiple positions and sizes in the sprite sheet
+	An actor is an object that appears in the game world with position and size.
+	An actor can have an animation (a sequence of frames).
+	An actor can have a single position and size in game world
+	An actor can have multiple positions and sizes in the sprite sheet
 */
 
-
-enum animation_flag {
-	ANIMATION_FLAG_LOOP     = (0x01),
-	ANIMATION_FLAG_BIDIR    = (0x02),
-	ANIMATION_FLAG_BKWD     = (0x04),
-};
-
-enum sprite_flag {
-	SPRITE_FLAG_FLIPH = (0x01),
-};
-
-typedef uint8_t animation_flag_t;
-typedef uint8_t sprite_flag_t;
-
-struct actor_frame {
+struct frame {
 	const int16_t ms;
 	const struct recti ss;
+};
+
+struct animation {
+	const struct frame* frames;
+	int8_t cnt;
+	int8_t idx;
+};
+
+struct frame_timing {
+	timer_clk_t clk;
+	int16_t ms;
 };
 
  
@@ -37,5 +34,11 @@ extern void actors_move(float dt,
                         int cnt);
 
 
+void actors_animate(const timer_clk_t now,
+                    struct frame_timing* restrict const timings,
+                    struct animation* restrict const animations,
+                    int cnt);
+
 
 #endif
+

@@ -242,7 +242,7 @@ void render_ss(const struct vec2f* const wpos,
                const struct vec2i* const wsize,
                const struct vec2i* const spos,
                const struct vec2i* const ssize,
-               const sprite_flag_t* const flags,
+               const render_flag_t* const flags,
                const int cnt)
 {
 	SDL_SetRenderTarget(rend, tex_actors);
@@ -263,8 +263,7 @@ void render_ss(const struct vec2f* const wpos,
 			.h = ssize[i].y
 		};
 
-		const int flip = flags[i]&SPRITE_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
-		SDL_RenderCopyEx(rend, tex_ss, &sr, &wr, 0, NULL, flip);
+		SDL_RenderCopyEx(rend, tex_ss, &sr, &wr, 0, NULL, flags[i]);
 	}
 			
 }
