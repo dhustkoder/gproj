@@ -41,35 +41,5 @@ typedef uint8_t input_button_t;
 
 
 
-#define MAX_ACTOR_FRAMES   (INT8_MAX - 1)
-#define MAX_ACTOR_FRAME_MS (INT16_MAX - 1)
-
-
-enum actor_anim_flag {
-	ANIM_FLAG_DISABLED = (0x01),
-	ANIM_FLAG_ENDED    = ANIM_FLAG_DISABLED,
-	ANIM_FLAG_LOOP     = (0x02),
-	ANIM_FLAG_BIDIR    = (0x04),
-	ANIM_FLAG_BKWD     = (0x08),
-	ANIM_FLAG_FLIPH    = (0x10)
-};
-
-typedef uint8_t actor_anim_flag_t;
-
-struct actor_frame {
-	int16_t ms;
-	struct recti ss;
-};
-
-
-struct actor_anim {
-	const struct actor_frame* frames;
-	timer_clk_t clk;
-	int16_t ms;
-	int8_t cnt;
-	int8_t idx;
-	uint8_t flags;
-};
-
 
 #endif

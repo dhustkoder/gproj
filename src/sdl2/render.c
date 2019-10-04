@@ -239,10 +239,10 @@ void render_map(const int32_t* const gids,
 }
 
 
-void render_actors(const struct recti* const ss_srcs,
-		const struct rectf* const scr_dsts,
-		const actor_anim_flag_t* const flags,
-		const int cnt)
+void render_ss(const struct recti* const ss_srcs,
+               const struct rectf* const scr_dsts,
+               const actor_flag_t* const flags,
+               const int cnt)
 {
 	SDL_SetRenderTarget(rend, tex_actors);
 	SDL_RenderClear(rend);
@@ -268,7 +268,7 @@ void render_actors(const struct recti* const ss_srcs,
 			.h = ss_srcs[i].size.y
 		};
 
-		const int flip = flags[i]&ANIM_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
+		const int flip = flags[i]&ACTOR_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
 		SDL_RenderCopyEx(rend, tex_ss, &ss, &scr, 0, NULL, flip);
 	}
 			

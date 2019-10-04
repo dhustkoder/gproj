@@ -30,11 +30,10 @@ void game_step(timer_clk_t now, float dt)
 {
 	// update
 	characters_update(now, dt);
-	actors_update(now, dt);
 	map_update(now, dt);
 
 	// send render
-	actors_send_render();
+	characters_send_render();
 }
 
 void game_term()

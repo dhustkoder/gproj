@@ -11,6 +11,8 @@
 
 input_button_t input_buttons_states;
 
+
+/* PLAYER ANIMATIONS */
 static const struct actor_frame idle_frames[] = {
 	{ 196, { .size = { 26, 46 }, .pos = { 90, 56 } } },
 	{ 196, { .size = { 26, 46 }, .pos = { 124, 56 } } },
@@ -28,108 +30,68 @@ static const struct actor_frame walking_frames[] = {
 	{ 96, { .size = { 26, 46 }, .pos = { 560, 56 } } },
 };
 
-
-
-enum {
-	CHR_STATE_IDLE    = 0x01,
+static const struct actor_animation player_animations[] = {
+	{ .frames = idle_frames,    .cnt = ARRSZ(idle_frames)    },
+	{ .frames = walking_frames, .cnt = ARRSZ(walking_frames) }
 };
 
-static const float player_defvel = GPROJ_SCR_WIDTH / 4;
-static int player_id = 0;
-static int anim_flags = ANIM_FLAG_LOOP;
+
+static const struct actor_animation_collection anim_collections[] = {
+	{ .animations = player_animations, .cnt = ARRSZ(player_animations) }
+};
+
 static input_button_t prev_buttons_states;
-static float velx = 0;
-static int walking_sfx_id = 0;
+
+static struct actors_ctrl actrl;
 
 
 void characters_init(void)
 {
 	render_load_ss("richter-ss.png");
-
-	player_id = actors_create(
-		&(struct rectf) {
-			.size = { 26, 46 },
-			.pos  = { 26, 160 - 46 - 16 }
-		}
-	);
-
-	actors_anim_set(
-		player_id,
-		idle_frames,
-		ARRSZ(idle_frames),
-		anim_flags,
-		timer_now()
-	);
-
-	int x = 0, y = 0;
-	for (int i = 0; i < GPROJ_MAX_ACTORS - 1; ++i) {
-		const int id = actors_create(
-			&(struct rectf) {
-				.size = { 26, 46 },
-				.pos  = { x + (i * 0.46), y + (i * 0.06) }
-			}
-		);
-
-		x += 20;
-		if (x > GPROJ_SCR_WIDTH) {
-			x = 0;
-			y += 40;
-			if (y >= GPROJ_SCR_HEIGHT)
-				y = 0;
-		}
-
-		actors_anim_set(
-			id,
-			id%2?idle_frames:walking_frames,
-			id%2?ARRSZ(idle_frames):ARRSZ(walking_frames),
-			anim_flags,
-			timer_now()
-		);
-
-		actors_mov_set(id, 0.2, 0);
-	}
-
-	walking_sfx_id = audio_load_sfx("sounds/stepstone_4.wav");	
+	actrl = actors_create(anim_collections, ARRSZ(anim_collections));
+	actrl.flags[0] = ACTOR_FLAG_LOOP;
+	actrl.wrects[0].size.x = 26;
+	actrl.wrects[0].size.y = 46;
+	actrl.wrects[0].pos.x = 26;
+	actrl.wrects[0].pos.y = GPROJ_SCR_HEIGHT - 46 - 32;
 }
 
 void characters_update(const timer_clk_t now, const float dt)
 {
 	((void)dt);
-
-	const struct vec2f player_pos = actors_get_pos(player_id);
-	const int camx = player_pos.x - (GPROJ_SCR_WIDTH / 2);
-	render_set_camera(camx, 0);
+	((void)now);
 
 	if (prev_buttons_states != input_buttons_states) {
-		const struct actor_frame* anim = NULL;
-		int anim_sz = 0;
 		if (input_buttons_states&(INPUT_BUTTON_LEFT |
 		                          INPUT_BUTTON_RIGHT|
 		                          INPUT_BUTTON_UP   |
 		                          INPUT_BUTTON_DOWN)) {
 
 			if (input_buttons_states&INPUT_BUTTON_RIGHT) {
-				velx = +player_defvel;
-				anim_flags &= ~ANIM_FLAG_FLIPH;
+				actrl.vels[0].x = +128;
+				actrl.flags[0] &= ~ACTOR_FLAG_FLIPH;
 			} else {
-				velx = -player_defvel;
-				anim_flags |= ANIM_FLAG_FLIPH;
+				actrl.vels[0].x = -128;
+				actrl.flags[0] |= ACTOR_FLAG_FLIPH;
 			}
-			anim = walking_frames;
-			anim_sz = ARRSZ(walking_frames);
-			audio_play_sfx(walking_sfx_id);
+			actrl.anim_idxs[0] = 1;
 		} else {
-			audio_stop_sfx(walking_sfx_id);
-			velx = 0;
-			anim = idle_frames;
-			anim_sz = ARRSZ(idle_frames);
+			actrl.vels[0].x = 0;
+			actrl.anim_idxs[0] = 0;
 		}
 
-		actors_mov_set(player_id, velx, 0);
-		actors_anim_set(player_id, anim, anim_sz, anim_flags, now);
 		prev_buttons_states = input_buttons_states;
 	}
 
-	workman_push_sleep(1);
+	actors_update(now, dt);
 }
 
+
+void characters_send_render(void)
+{
+	workman_work_until_all_finished();
+	const int camx = actrl.wrects[0].pos.x - (GPROJ_SCR_WIDTH / 2) + (26 / 2);
+	render_set_camera(camx, 0);
+
+	actors_send_render();
+}
