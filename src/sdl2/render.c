@@ -25,7 +25,6 @@ static struct vec2i ts_size = { 0, 0 };
 static struct vec2i fb_size = { 0, 0 };
 static struct vec2i text_pos = { 0, 0 };
 static struct vec2i cam_pos = { 0, 0 };
-static struct recti view_area = { {0, 0}, {GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT}};
 
 
 static void fb_free(void)
@@ -239,37 +238,33 @@ void render_map(const int32_t* const gids,
 }
 
 
-void render_ss(const struct recti* const ss_srcs,
-               const struct rectf* const scr_dsts,
-               const actor_flag_t* const flags,
+void render_ss(const struct vec2f* const wpos,
+               const struct vec2i* const wsize,
+               const struct vec2i* const spos,
+               const struct vec2i* const ssize,
+               const sprite_flag_t* const flags,
                const int cnt)
 {
 	SDL_SetRenderTarget(rend, tex_actors);
 	SDL_RenderClear(rend);
 	
-	const struct recti view = view_area;
 	for (int i = 0; i < cnt; ++i) {
-		const SDL_Rect scr = (SDL_Rect) {
-			.x = scr_dsts[i].pos.x,
-			.y = scr_dsts[i].pos.y,
-			.w = scr_dsts[i].size.x,
-			.h = scr_dsts[i].size.y
+		const SDL_Rect wr = (SDL_Rect) {
+			.x = wpos[i].x,
+			.y = wpos[i].y,
+			.w = wsize[i].x,
+			.h = wsize[i].y
 		};
 
-		if      ((scr.x + scr.w) < view.pos.x) continue;
-		else if ((scr.y + scr.h) < view.pos.y) continue;
-		else if (scr.x > (view.pos.x + view.size.x)) continue;
-		else if (scr.y > (view.pos.y + view.size.y)) continue;
-
-		const SDL_Rect ss = (SDL_Rect) {
-			.x = ss_srcs[i].pos.x,
-			.y = ss_srcs[i].pos.y,
-			.w = ss_srcs[i].size.x,
-			.h = ss_srcs[i].size.y
+		const SDL_Rect sr = (SDL_Rect) {
+			.x = spos[i].x,
+			.y = spos[i].y,
+			.w = ssize[i].x,
+			.h = ssize[i].y
 		};
 
-		const int flip = flags[i]&ACTOR_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
-		SDL_RenderCopyEx(rend, tex_ss, &ss, &scr, 0, NULL, flip);
+		const int flip = flags[i]&SPRITE_FLAG_FLIPH ? SDL_FLIP_HORIZONTAL : 0;
+		SDL_RenderCopyEx(rend, tex_ss, &sr, &wr, 0, NULL, flip);
 	}
 			
 }
@@ -310,9 +305,6 @@ void render_set_camera(int x, int y)
 
 	cam_pos.x = x < 0 ? 0 : x;
 	cam_pos.y = y < 0 ? 0 : y;
-
-	view_area.pos.x = cam_pos.x;
-	view_area.pos.y = cam_pos.y;
 }
 
 

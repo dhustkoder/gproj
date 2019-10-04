@@ -21,11 +21,12 @@ extern void render_map(const int32_t* gids,
                        const struct vec2i* map_size,
                        const struct vec2i* tile_size);
 
-extern void render_ss(const struct recti* const srects,
-                      const struct rectf* const wrects,
-                      const actor_flag_t* flags,
-                      const int count);
-
+extern void render_ss(const struct vec2f* wpos,
+                      const struct vec2i* wsize,
+		      const struct vec2i* spos,
+		      const struct vec2i* ssize,
+                      const sprite_flag_t* flags,
+                      const int cnt);
 
 extern void render_text(const char* text, ...);
 

@@ -30,30 +30,19 @@ static const struct actor_frame walking_frames[] = {
 	{ 96, { .size = { 26, 46 }, .pos = { 560, 56 } } },
 };
 
-static const struct actor_animation player_animations[] = {
-	{ .frames = idle_frames,    .cnt = ARRSZ(idle_frames)    },
-	{ .frames = walking_frames, .cnt = ARRSZ(walking_frames) }
-};
-
-
-static const struct actor_animation_collection anim_collections[] = {
-	{ .animations = player_animations, .cnt = ARRSZ(player_animations) }
-};
+static struct vec2f vel = { 0, 0 };
+static struct vec2f wpos = { .x = 26, .y = GPROJ_SCR_HEIGHT - 46 - 32 };
+static struct vec2i wsize = { .x = 26, .y = 46 };
+static struct vec2i spos = idle_frames[0].ss.pos;
+static struct vec2i ssize = walking_frames[0].ss.size;
+static sprite_flag_t flag = 0;
 
 static input_button_t prev_buttons_states;
-
-static struct actors_ctrl actrl;
 
 
 void characters_init(void)
 {
 	render_load_ss("richter-ss.png");
-	actrl = actors_create(anim_collections, ARRSZ(anim_collections));
-	actrl.flags[0] = ACTOR_FLAG_LOOP;
-	actrl.wrects[0].size.x = 26;
-	actrl.wrects[0].size.y = 46;
-	actrl.wrects[0].pos.x = 26;
-	actrl.wrects[0].pos.y = GPROJ_SCR_HEIGHT - 46 - 32;
 }
 
 void characters_update(const timer_clk_t now, const float dt)
@@ -68,30 +57,29 @@ void characters_update(const timer_clk_t now, const float dt)
 		                          INPUT_BUTTON_DOWN)) {
 
 			if (input_buttons_states&INPUT_BUTTON_RIGHT) {
-				actrl.vels[0].x = +128;
-				actrl.flags[0] &= ~ACTOR_FLAG_FLIPH;
+				vel.x = +128;
+				flag &= ~SPRITE_FLAG_FLIPH;
 			} else {
-				actrl.vels[0].x = -128;
-				actrl.flags[0] |= ACTOR_FLAG_FLIPH;
-			}
-			actrl.anim_idxs[0] = 1;
+				vel.x = -128;
+				flag |= SPRITE_FLAG_FLIPH;
+			};
 		} else {
-			actrl.vels[0].x = 0;
-			actrl.anim_idxs[0] = 0;
+			vel.x = 0;
 		}
 
 		prev_buttons_states = input_buttons_states;
 	}
 
-	actors_update(now, dt);
+	actors_move(dt, &wpos, &vel, &wpos, 1);
+
 }
 
 
 void characters_send_render(void)
 {
 	workman_work_until_all_finished();
-	const int camx = actrl.wrects[0].pos.x - (GPROJ_SCR_WIDTH / 2) + (26 / 2);
+	const int camx = wpos.x - (GPROJ_SCR_WIDTH / 2) + (26 / 2);
 	render_set_camera(camx, 0);
-
-	actors_send_render();
+	render_ss(&wpos, &wsize, &spos, &ssize, &flag, 1);
 }
+

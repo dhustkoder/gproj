@@ -11,57 +11,30 @@
 */
 
 
-#define ACTOR_MAX_ANIMATIONS         (INT8_MAX - 1)
-#define ACTOR_MAX_ANIMATION_FRAMES   (INT8_MAX - 1)
-#define ACTOR_MAX_ANIMATION_FRAME_MS (INT16_MAX - 1)
-
-#ifndef GPROJ_MAX_ACTORS
-#error "GPROJ_MAX_ACTORS must be defined"
-#endif
-
-#if GPROJ_MAX_ACTORS > INT_MAX || GPROJ_MAX_ACTORS < 2 || (GPROJ_MAX_ACTORS % 2) != 0
-#error "GPROJ_MAX_ACTORS out of range; Must fit into an int. Must be multiple of 2"
-#endif
-
-enum actor_flag {
-	ACTOR_FLAG_DISABLED = (0x01),
-	ACTOR_FLAG_LOOP     = (0x02),
-	ACTOR_FLAG_BIDIR    = (0x04),
-	ACTOR_FLAG_BKWD     = (0x08),
-	ACTOR_FLAG_FLIPH    = (0x10)
+enum animation_flag {
+	ANIMATION_FLAG_LOOP     = (0x01),
+	ANIMATION_FLAG_BIDIR    = (0x02),
+	ANIMATION_FLAG_BKWD     = (0x04),
 };
 
-typedef uint8_t actor_flag_t;
+enum sprite_flag {
+	SPRITE_FLAG_FLIPH = (0x01),
+};
+
+typedef uint8_t animation_flag_t;
+typedef uint8_t sprite_flag_t;
 
 struct actor_frame {
 	const int16_t ms;
 	const struct recti ss;
 };
 
-struct actor_animation {
-	const struct actor_frame* frames;
-	int8_t cnt;
-};
-
-
-struct actor_animation_collection  {
-	const struct actor_animation* animations;
-	int8_t cnt;
-};
-
-struct actors_ctrl {
-	struct rectf* wrects;
-	struct vec2f* vels;
-	int8_t* anim_idxs;
-	actor_flag_t* flags;
-};
-
-extern struct actors_ctrl actors_create(
-	const struct actor_animation_collection* collections,
-	int cnt
-);
-
-extern void actors_update(timer_clk_t now, float dt);
+ 
+extern void actors_move(float dt,
+                        const struct vec2f* wpos,
+                        const struct vec2f* vels,
+                        struct vec2f* out,
+                        int cnt);
 
 
 
