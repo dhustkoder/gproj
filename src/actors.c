@@ -174,3 +174,5 @@ void actors_send_render(void)
 		render_ss(srects, wrects, actor_flags, nacts);
 	}
 }
+
+
