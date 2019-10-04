@@ -27,16 +27,17 @@ struct frame_timing {
 };
 
  
-extern void actors_move(float dt,
-                        const struct vec2f* wpos,
-                        const struct vec2f* vels,
-                        struct vec2f* out,
-                        int cnt);
 
+extern void actors_move(const float dt,
+                 const struct vec2f* restrict const vels,
+                 struct vec2f* restrict const wpos,
+                 const int cnt);
 
 void actors_animate(const timer_clk_t now,
-                    struct frame_timing* restrict const timings,
-                    struct animation* restrict const animations,
+                    struct frame_timing* restrict timings,
+                    struct animation* restrict animations,
+		    struct vec2i* restrict spos,
+		    struct vec2i* restrict ssize,
                     int cnt);
 
 

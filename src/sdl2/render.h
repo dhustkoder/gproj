@@ -18,27 +18,20 @@ typedef int render_flag_t;
 extern void render_init(const char* identifier);
 extern void render_term();
 
-extern void render_fb_setup(const struct vec2i* size);
+extern void render_layers_setup(struct vec2i size, int cnt);
 
 extern void render_load_ts(const char* path);
 extern void render_load_ss(const char* path);
 
-
-extern void render_map(const int32_t* gids,
-                       const struct vec2i* map_size,
-                       const struct vec2i* tile_size);
-
-extern void render_ss(const struct vec2f* wpos,
+extern void render_ss(int layer,
+                      const struct vec2f* wpos,
                       const struct vec2i* wsize,
-		      const struct vec2i* spos,
-		      const struct vec2i* ssize,
+                      const struct vec2i* spos,
+                      const struct vec2i* ssize,
                       const render_flag_t* flags,
                       const int cnt);
 
 extern void render_text(const char* text, ...);
-
-extern void render_set_camera(int x, int y);
-
 extern void render_present(void);
 
 

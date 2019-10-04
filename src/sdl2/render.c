@@ -8,100 +8,27 @@
 #include <tmx.h>
 #include "events.h"
 #include "logger.h"
-#include "map.h"
 #include "render.h"
 
 static SDL_Window* win = NULL;
 static SDL_Renderer* rend;
-static SDL_Texture* tex_bg;
-static SDL_Texture* tex_actors;
-static SDL_Texture* tex_fg;
+static SDL_Texture** layers;
 static SDL_Texture* tex_txt;
 static SDL_Texture* tex_ts;
 static SDL_Texture* tex_ss;
 static FC_Font* font;
 
+static int layers_cnt = 0;
+static struct vec2i layers_size = { 0, 0 };
 static struct vec2i ts_size = { 0, 0 };
-static struct vec2i fb_size = { 0, 0 };
 static struct vec2i text_pos = { 0, 0 };
-static struct vec2i cam_pos = { 0, 0 };
 
 
 static void fb_free(void)
 {
-	if (tex_fg != NULL)
-		SDL_DestroyTexture(tex_fg);
-	if (tex_actors != NULL)
-		SDL_DestroyTexture(tex_actors);
-	if (tex_bg != NULL)
-		SDL_DestroyTexture(tex_bg);
-}
-
-
-static void draw_flipped_gid(const int32_t gid,
-		const SDL_Rect* const src,
-		const SDL_Rect* const dst)
-{
-	SDL_RendererFlip flips = SDL_FLIP_NONE;
-	double degrees = 0;
-
-	if (gid&TMX_FLIPPED_DIAGONALLY) {
-		degrees = 90;
-		flips |= SDL_FLIP_VERTICAL;
-		if (gid&TMX_FLIPPED_VERTICALLY)
-			flips |= SDL_FLIP_HORIZONTAL;
-		if (gid&TMX_FLIPPED_HORIZONTALLY)
-			flips &= ~SDL_FLIP_VERTICAL;
-	} else {
-		if (gid&TMX_FLIPPED_VERTICALLY)
-			flips |= SDL_FLIP_VERTICAL;
-
-		if (gid&TMX_FLIPPED_HORIZONTALLY)
-			flips |= SDL_FLIP_HORIZONTAL;
-	}
-
-	SDL_RenderCopyEx(rend, tex_ts, src, dst, degrees, NULL, flips);
-}
-
-static void draw_map_layer(const int32_t* const gids,
-		const struct vec2i map_size,
-		const struct vec2i tile_size)
-{
-	SDL_Rect src = {
-		.w = tile_size.x,
-		.h = tile_size.y
-	};
-
-	SDL_Rect dst = {
-		.y = 0,
-		.w = tile_size.x,
-		.h = tile_size.y
-	};
-
-	const int y_tiles = map_size.y;
-	const int x_tiles = map_size.x;
-	const int ts_w = ts_size.x;
-
-
-	for (int y = 0; y < y_tiles; ++y) {
-		for (int x = 0; x < x_tiles; ++x) {
-			const int32_t gid = gids[(y * x_tiles) + x];
-			if (gid == 0)
-				continue;
-			const int32_t id = (gid&TMX_FLIP_BITS_REMOVAL) - 1;
-
-			src.x = (id * tile_size.x) % ts_w,
-				src.y = (id / (ts_w / tile_size.x)) * tile_size.y;
-			dst.x = x * tile_size.x;
-
-			if ((gid&(~TMX_FLIP_BITS_REMOVAL)) == 0x00)
-				SDL_RenderCopy(rend, tex_ts, &src, &dst);
-			else
-				draw_flipped_gid(gid, &src, &dst);
-		}
-
-		dst.y += tile_size.y;
-	}
+	for (int i = 0; i < layers_cnt; ++i)
+		SDL_DestroyTexture(layers[i]);
+	free(layers);
 }
 
 
@@ -138,7 +65,8 @@ void render_init(const char* const identifier)
 	                  FC_MakeColor(0xFF,0xFF,0xFF,0xFF), TTF_STYLE_NORMAL);
 	assert(err != 0);
 
-	SDL_SetRenderTarget(rend, NULL);	
+	SDL_SetRenderTarget(rend, NULL);
+	SDL_RenderClear(rend);
 	SDL_RenderPresent(rend);
 }
 
@@ -162,40 +90,29 @@ void render_term()
 		SDL_DestroyWindow(win);
 }
 
-void render_fb_setup(const struct vec2i* const size)
+void render_layers_setup(const struct vec2i _layers_size, const int _layers_cnt)
 {
-	LOG_DEBUG("TRYING TO SETUP FB");
-	fb_size = *size;
-	int err;
-	((void)err);
+	LOG_DEBUG("RENDER LAYERS SETUP");
 
 	fb_free();
-	tex_bg = SDL_CreateTexture(rend,
-			SDL_PIXELFORMAT_RGBA8888,
-			SDL_TEXTUREACCESS_TARGET,
-			fb_size.x, fb_size.y);
-	assert(tex_bg != NULL);
 
-	tex_actors = SDL_CreateTexture(rend,
-			SDL_PIXELFORMAT_RGBA8888,
-			SDL_TEXTUREACCESS_TARGET,
-			fb_size.x, fb_size.y);
-	assert(tex_actors != NULL);
+	layers_size = _layers_size;
+	layers_cnt = _layers_cnt;
+	layers = malloc(sizeof(*layers) * layers_cnt);
+	assert(layers != NULL);	
 
-	tex_fg = SDL_CreateTexture(rend,
-			SDL_PIXELFORMAT_RGBA8888,
-			SDL_TEXTUREACCESS_TARGET,
-			fb_size.x, fb_size.y);
-	assert(tex_fg != NULL);
-
-	err = SDL_SetTextureBlendMode(tex_bg, SDL_BLENDMODE_BLEND);
-	assert(err == 0);
-	err = SDL_SetTextureBlendMode(tex_actors, SDL_BLENDMODE_BLEND);
-	assert(err == 0);
-	err = SDL_SetTextureBlendMode(tex_fg, SDL_BLENDMODE_BLEND);
-	assert(err == 0);
+	int err;
+	((void)err);
+	for (int i = 0; i < layers_cnt; ++i) {
+		layers[i] = SDL_CreateTexture(rend,
+		                              SDL_PIXELFORMAT_UNKNOWN,
+		                              SDL_TEXTUREACCESS_TARGET,
+		                              layers_size.x, layers_size.y);
+		assert(layers[i] != NULL);
+		err = SDL_SetTextureBlendMode(layers[i], SDL_BLENDMODE_BLEND);
+		assert(err == 0);
+	}
 }
-
 
 void render_load_ts(const char* const path)
 {
@@ -225,27 +142,16 @@ void render_load_ss(const char* const path)
 }
 
 
-void render_map(const int32_t* const gids,
-                const struct vec2i* const map_size,
-                const struct vec2i* const tile_size) 
-{
-	SDL_SetRenderTarget(rend, tex_bg);
-	draw_map_layer(gids, *map_size, *tile_size);
-	SDL_SetRenderTarget(rend, tex_fg);
-	draw_map_layer(gids + MAP_LAYER_FG *
-			map_size->x * map_size->y,
-			*map_size, *tile_size);
-}
 
-
-void render_ss(const struct vec2f* const wpos,
+void render_ss(const int layer,
+               const struct vec2f* const wpos,
                const struct vec2i* const wsize,
                const struct vec2i* const spos,
                const struct vec2i* const ssize,
                const render_flag_t* const flags,
                const int cnt)
 {
-	SDL_SetRenderTarget(rend, tex_actors);
+	SDL_SetRenderTarget(rend, layers[layer]);
 	SDL_RenderClear(rend);
 	
 	for (int i = 0; i < cnt; ++i) {
@@ -294,28 +200,8 @@ void render_text(const char* const text, ...)
 }
 
 
-void render_set_camera(int x, int y)
-{
-	if (x > fb_size.x - GPROJ_SCR_WIDTH)
-		x = fb_size.x - GPROJ_SCR_WIDTH;
-
-	if (y > fb_size.y - GPROJ_SCR_HEIGHT)
-		y = fb_size.y - GPROJ_SCR_HEIGHT;
-
-	cam_pos.x = x < 0 ? 0 : x;
-	cam_pos.y = y < 0 ? 0 : y;
-}
-
-
 void render_present(void)
 {
-	const SDL_Rect cam_rect = {
-		.x = cam_pos.x,
-		.y = cam_pos.y,
-		.w = GPROJ_SCR_WIDTH,
-		.h = GPROJ_SCR_HEIGHT
-	};
-
 	const SDL_Rect text_rect = {
 		.x = 0,
 		.y = 0,
@@ -324,9 +210,11 @@ void render_present(void)
 	};
 
 	SDL_SetRenderTarget(rend, NULL);
-	SDL_RenderCopy(rend, tex_bg, &cam_rect, NULL);
-	SDL_RenderCopy(rend, tex_actors, &cam_rect, NULL);
-	SDL_RenderCopy(rend, tex_fg, &cam_rect, NULL);
+	SDL_RenderClear(rend);
+	
+	for (int i = 0; i < layers_cnt; ++i)
+		SDL_RenderCopy(rend, layers[i], NULL, NULL);
+
 	SDL_RenderCopy(rend, tex_txt, &text_rect, &text_rect);
 	SDL_RenderPresent(rend);
 

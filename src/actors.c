@@ -7,14 +7,13 @@
 
 
 void actors_move(const float dt,
-                 const struct vec2f* const wpos,
-                 const struct vec2f* const vels,
-                 struct vec2f* const out,
+                 const struct vec2f* restrict const vels,
+                 struct vec2f* restrict const wpos,
                  const int cnt)
 {
 	for (int i = 0; i < cnt; ++i) {
-		out[i].x = wpos[i].x + vels[i].x * dt;
-		out[i].y = wpos[i].y + vels[i].y * dt;
+		wpos[i].x += vels[i].x * dt;
+		wpos[i].y += vels[i].y * dt;
 	}
 }
 
@@ -22,6 +21,8 @@ void actors_move(const float dt,
 void actors_animate(const timer_clk_t now,
                     struct frame_timing* restrict const timings,
                     struct animation* restrict const animations,
+		    struct vec2i* const restrict spos,
+		    struct vec2i* const restrict ssize,
                     const int cnt)
 {
 	for (int i = 0; i < cnt; ++i) {
@@ -33,6 +34,8 @@ void actors_animate(const timer_clk_t now,
 				animations[i].idx = 0;
 			}
 			timings[i].ms = animations[i].frames[animations[i].idx].ms;
+			spos[i] = animations[i].frames[animations[i].idx].ss.pos;
+			ssize[i] = animations[i].frames[animations[i].idx].ss.size;
 		}
 	}
 }

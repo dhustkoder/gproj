@@ -4,9 +4,8 @@
 #include "render.h"
 #include "logger.h"
 #include "actors.h"
-#include "map.h"
 #include "timer.h"
-#include "characters.h"
+#include "chars.h"
 
 
 input_button_t input_buttons_states;
@@ -46,12 +45,12 @@ static render_flag_t flag = 0;
 static input_button_t prev_buttons_states;
 
 
-void characters_init(void)
+void chars_init(void)
 {
 	render_load_ss("richter-ss.png");
 }
 
-void characters_update(const timer_clk_t now, const float dt)
+void chars_update(const timer_clk_t now, const float dt)
 {
 	((void)dt);
 	((void)now);
@@ -82,18 +81,13 @@ void characters_update(const timer_clk_t now, const float dt)
 		prev_buttons_states = input_buttons_states;
 	}
 
-	actors_move(dt, &wpos, &vel, &wpos, 1);
-	actors_animate(now, &timing, &animation, 1);
-	spos = animation.frames[animation.idx].ss.pos;
-	ssize = animation.frames[animation.idx].ss.size;
+	actors_move(dt, &vel, &wpos, 1);
+	actors_animate(now, &timing, &animation, &spos, &ssize, 1);
 }
 
 
-void characters_send_render(void)
+void chars_send_render(void)
 {
-	workman_work_until_all_finished();
-	const int camx = wpos.x - (GPROJ_SCR_WIDTH / 2) + (26 / 2);
-	render_set_camera(camx, 0);
-	render_ss(&wpos, &wsize, &spos, &ssize, &flag, 1);
+	render_ss(0, &wpos, &wsize, &spos, &ssize, &flag, 1);
 }
 
