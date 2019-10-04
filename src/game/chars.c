@@ -36,10 +36,10 @@ static struct frame_timing timing = { .clk = 0, .ms = 0 };
 static struct animation animation = { .frames = idle_frames, .cnt = ARRSZ(idle_frames), .idx = 0 };
 
 static struct vec2f vel = { 0, 0 };
-static struct vec2f wpos = { .x = 26, .y = GPROJ_SCR_HEIGHT - 46 - 32 };
+static struct vec2f wpos = { .x = 0, .y = GPROJ_SCR_HEIGHT - 46 };
 static struct vec2i wsize = { .x = 26, .y = 46 };
-static struct vec2i spos = idle_frames[0].ss.pos;
-static struct vec2i ssize = idle_frames[0].ss.size;
+static struct vec2i spos = {0, 0};
+static struct vec2i ssize = {0, 0};
 static render_flag_t flag = 0;
 
 static input_button_t prev_buttons_states;

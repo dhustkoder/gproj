@@ -16,7 +16,7 @@ void game_init(int argc, char** argv)
 	workman_init();
 	timer_profiler_init();
 	render_init("GProj Testing");
-	render_layers_setup((struct vec2i){GPROJ_SCR_HEIGHT, GPROJ_SCR_WIDTH}, 1);
+	render_layers_setup((struct vec2i){GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT}, 1);
 	audio_init();
 	chars_init();
 	LOG_DEBUG("GAME INITIALIZED");

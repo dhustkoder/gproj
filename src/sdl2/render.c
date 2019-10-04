@@ -99,7 +99,7 @@ void render_layers_setup(const struct vec2i _layers_size, const int _layers_cnt)
 	layers_size = _layers_size;
 	layers_cnt = _layers_cnt;
 	layers = malloc(sizeof(*layers) * layers_cnt);
-	assert(layers != NULL);	
+	assert(layers != NULL);
 
 	int err;
 	((void)err);

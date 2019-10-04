@@ -21,8 +21,8 @@ void actors_move(const float dt,
 void actors_animate(const timer_clk_t now,
                     struct frame_timing* restrict const timings,
                     struct animation* restrict const animations,
-		    struct vec2i* const restrict spos,
-		    struct vec2i* const restrict ssize,
+                    struct vec2i* const restrict spos,
+                    struct vec2i* const restrict ssize,
                     const int cnt)
 {
 	for (int i = 0; i < cnt; ++i) {
