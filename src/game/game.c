@@ -7,6 +7,8 @@
 #include "chars.h"
 #include "game.h"
 
+static struct vec2i game_camera = { 0, 0 };
+
 
 void game_init(int argc, char** argv)
 {
@@ -20,7 +22,7 @@ void game_init(int argc, char** argv)
 	render_layers_setup(GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	audio_init();
 	chars_init();
-
+	maps_init();
 	LOG_DEBUG("GAME INITIALIZED");
 }
 
@@ -28,9 +30,10 @@ void game_step(timer_clk_t now, float dt)
 {
 	// update
 	chars_update(now, dt);
-
+	maps_update(&game_camera, now, dt);
 	// send render
 	chars_send_render();
+	maps_send_render();
 }
 
 void game_term()

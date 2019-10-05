@@ -7,6 +7,7 @@
 #include <SDL_FontCache.h>
 #include "events.h"
 #include "logger.h"
+#include "world.h"
 #include "render.h"
 
 static SDL_Window* win = NULL;
@@ -93,7 +94,10 @@ void render_layers_setup(int w, int h)
 
 	fb_free();
 
-	layers_size = (struct vec2i){.x = w, .y = h};
+	layers_size = (struct vec2i) {
+		.x = w,
+		.y = h 
+	};
 	assert(layers != NULL);
 
 	int err;
@@ -120,7 +124,6 @@ void render_load_ts(const char* const path)
 	tex_ts = IMG_LoadTexture(rend, path);
 	assert(tex_ts != NULL);
 	SDL_QueryTexture(tex_ts, NULL, NULL, &ts_size.x, &ts_size.y);
-
 }
 
 
@@ -136,7 +139,32 @@ void render_load_ss(const char* const path)
 	assert(tex_ss != NULL);
 }
 
-
+void render_ts(const int layer, const int16_t* const ids)
+{
+	assert(layer >= 0 && layer < GPROJ_RENDER_NLAYERS);
+	SDL_SetRenderTarget(rend, layers[layer]);
+	SDL_RenderClear(rend);
+	for (int y = 0; y < 8; ++y) {
+		for (int x = 0; x < 12; ++x) {
+			int16_t id = ids[y * 12 + x];
+			if (id == 0) continue;
+			id -= 1;
+			const SDL_Rect ts_rect = {
+				.x = (id * GPROJ_TILE_WIDTH) % ts_size.x,
+				.y = ((id * GPROJ_TILE_WIDTH) / ts_size.x) * GPROJ_TILE_HEIGHT,
+				.w = GPROJ_TILE_WIDTH,
+				.h = GPROJ_TILE_HEIGHT
+			};
+			const SDL_Rect scr_rect = {
+				.x = x * GPROJ_TILE_WIDTH,
+				.y = y * GPROJ_TILE_HEIGHT,
+				.w = GPROJ_TILE_WIDTH,
+				.h = GPROJ_TILE_HEIGHT
+			};
+			SDL_RenderCopy(rend, tex_ts, &ts_rect, &scr_rect);
+		}
+	}
+}
 
 void render_ss(const int layer,
                const struct vec2f* const wpos,
@@ -146,6 +174,7 @@ void render_ss(const int layer,
                const render_flag_t* const flags,
                const int cnt)
 {
+	assert(layer >= 0 && layer < GPROJ_RENDER_NLAYERS);
 	SDL_SetRenderTarget(rend, layers[layer]);
 	SDL_RenderClear(rend);
 	

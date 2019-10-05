@@ -16,6 +16,7 @@
 #endif 
 
 
+
 enum render_flag {
 	RENDER_FLAG_FLIPH = SDL_FLIP_HORIZONTAL,
 	RENDER_FLAG_FLIPV = SDL_FLIP_VERTICAL
@@ -32,6 +33,7 @@ extern void render_layers_setup(int w, int h);
 extern void render_load_ts(const char* path);
 extern void render_load_ss(const char* path);
 
+extern void render_ts(int layer, const int16_t* ids);
 extern void render_ss(int layer,
                       const struct vec2f* wpos,
                       const struct vec2i* wsize,
