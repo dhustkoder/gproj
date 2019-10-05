@@ -5,20 +5,18 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL_FontCache.h>
-#include <tmx.h>
 #include "events.h"
 #include "logger.h"
 #include "render.h"
 
 static SDL_Window* win = NULL;
 static SDL_Renderer* rend;
-static SDL_Texture** layers;
+static SDL_Texture* layers[GPROJ_RENDER_NLAYERS];
 static SDL_Texture* tex_txt;
 static SDL_Texture* tex_ts;
 static SDL_Texture* tex_ss;
 static FC_Font* font;
 
-static int layers_cnt = 0;
 static struct vec2i layers_size = { 0, 0 };
 static struct vec2i ts_size = { 0, 0 };
 static struct vec2i text_pos = { 0, 0 };
@@ -26,9 +24,8 @@ static struct vec2i text_pos = { 0, 0 };
 
 static void fb_free(void)
 {
-	for (int i = 0; i < layers_cnt; ++i)
+	for (int i = 0; i < GPROJ_RENDER_NLAYERS; ++i)
 		SDL_DestroyTexture(layers[i]);
-	free(layers);
 }
 
 
@@ -90,20 +87,18 @@ void render_term()
 		SDL_DestroyWindow(win);
 }
 
-void render_layers_setup(const struct vec2i _layers_size, const int _layers_cnt)
+void render_layers_setup(int w, int h)
 {
 	LOG_DEBUG("RENDER LAYERS SETUP");
 
 	fb_free();
 
-	layers_size = _layers_size;
-	layers_cnt = _layers_cnt;
-	layers = malloc(sizeof(*layers) * layers_cnt);
+	layers_size = (struct vec2i){.x = w, .y = h};
 	assert(layers != NULL);
 
 	int err;
 	((void)err);
-	for (int i = 0; i < layers_cnt; ++i) {
+	for (int i = 0; i < GPROJ_RENDER_NLAYERS; ++i) {
 		layers[i] = SDL_CreateTexture(rend,
 		                              SDL_PIXELFORMAT_UNKNOWN,
 		                              SDL_TEXTUREACCESS_TARGET,
@@ -212,7 +207,7 @@ void render_present(void)
 	SDL_SetRenderTarget(rend, NULL);
 	SDL_RenderClear(rend);
 	
-	for (int i = 0; i < layers_cnt; ++i)
+	for (int i = 0; i < GPROJ_RENDER_NLAYERS; ++i)
 		SDL_RenderCopy(rend, layers[i], NULL, NULL);
 
 	SDL_RenderCopy(rend, tex_txt, &text_rect, &text_rect);

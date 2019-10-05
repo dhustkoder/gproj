@@ -7,6 +7,15 @@
 #include "types.h"
 
 
+#ifndef GPROJ_RENDER_NLAYERS
+#error "Need GPROJ_RENDER_NLAYERS definition"
+#endif
+
+#if GPROJ_RENDER_NLAYERS <= 0 || GPROJ_RENDER_NLAYERS >= 8
+#error "GPROJ_RENDER_NLAYERS out of range"
+#endif 
+
+
 enum render_flag {
 	RENDER_FLAG_FLIPH = SDL_FLIP_HORIZONTAL,
 	RENDER_FLAG_FLIPV = SDL_FLIP_VERTICAL
@@ -18,7 +27,7 @@ typedef int render_flag_t;
 extern void render_init(const char* identifier);
 extern void render_term();
 
-extern void render_layers_setup(struct vec2i size, int cnt);
+extern void render_layers_setup(int w, int h);
 
 extern void render_load_ts(const char* path);
 extern void render_load_ss(const char* path);

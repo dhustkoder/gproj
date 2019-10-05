@@ -13,12 +13,14 @@ void game_init(int argc, char** argv)
 	((void)argc);
 	((void)argv);
 	LOG_DEBUG("INITIALIZING GAME");
+
 	workman_init();
 	timer_profiler_init();
 	render_init("GProj Testing");
-	render_layers_setup((struct vec2i){GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT}, 1);
+	render_layers_setup(GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	audio_init();
 	chars_init();
+
 	LOG_DEBUG("GAME INITIALIZED");
 }
 
