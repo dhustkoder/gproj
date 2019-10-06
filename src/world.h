@@ -38,8 +38,8 @@ struct world_map {
 };
 
 struct world_map_view {
-	struct vec2i* tspos; // pointer to tsmap right position relative world camera
-	struct vec2i size;   // size in tiles that fills the screen 
+	struct vec2i* map; // pointer to tsmap right position relative world camera
+	struct vec2i size; // size in tiles to fill the screen or to map limits
 };
 
 
