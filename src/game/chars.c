@@ -50,6 +50,11 @@ void chars_init(void)
 	render_load_ss("richter-ss.png");
 }
 
+void chars_term(void)
+{
+
+}
+
 void chars_update(const timer_clk_t now, const float dt)
 {
 	((void)dt);

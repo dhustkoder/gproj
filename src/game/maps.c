@@ -2,11 +2,9 @@
 #include "maps.h"
 #include "types.h"
 
-struct map_info {
-	const char* ts_img_path;
-	const struct vec2i ts_img_size;
-	const struct vec2i map_size;
-	int16_t* mapping;
+struct game_map {
+	const char* const ts_img_path;
+	struct world_ts ts_info;
 };
 
 
@@ -21,34 +19,49 @@ static int16_t level_1_mapping[] = {
 	0,0,0,0,0,0,0,0,0,0,0,0
 };
 
-static struct map_info maps[] = {
+static struct game_map maps[] = {
 	{
 		.ts_img_path = "test-ts.png",
-		.ts_img_size = { 3840, 1080 },
-	        .map_size = { 12, 8 },
-		.mapping = level_1_mapping
+		.ts_info = { 
+			.ts_img_size_in_pixels = { 3840, 1080 },
+			.map_size = { 12, 8 },
+			.map = level_1_mapping
+		},
 	}
 };
 
 static int wid = 0;
-static struct world_info* wi;
+#define WM_BUFF_SIZE (256 * 256)
+static unsigned char world_map_buffer [
+	sizeof(struct world_map) + 
+	(sizeof(((struct world_map*)0)->map[0]) * WM_BUFF_SIZE)
+];
+
+static struct world_map* wi = (void*)&world_map_buffer[0];
 
 void maps_init(void)
 {
 	render_load_ts(maps[wid].ts_img_path);
-	wi = world_create(maps[wid].mapping, maps[wid].map_size, maps[wid].ts_img_size);
+	world_map_fill(&maps[wid].ts_info, wi);
+}
+
+void maps_term(void)
+{
+
 }
 
 void maps_update(const struct vec2i* campos,
                  timer_clk_t now,
                  float dt)
 {
-	//world_make_view(campos, &worlds[wid], &world_view[0]);
+	((void)campos);
+	((void)now);
+	((void)dt);
 }
 
 void maps_send_render(void)
 {
-	render_ts(0, &wi->tsmap[0], wi->size);
+	render_ts(0, wi->map, wi->size);
 }
 
 

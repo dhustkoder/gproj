@@ -22,8 +22,8 @@ void game_init(int argc, char** argv)
 	render_init("GProj Testing");
 	render_layers_setup(GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	audio_init();
-	chars_init();
 	maps_init();
+	chars_init();
 	LOG_DEBUG("GAME INITIALIZED");
 }
 
@@ -40,6 +40,8 @@ void game_step(timer_clk_t now, float dt)
 void game_term()
 {
 	LOG_DEBUG("TERMINATING GAME");
+	chars_term();
+	maps_term();
 	audio_term();
 	render_term();
 	workman_term();
