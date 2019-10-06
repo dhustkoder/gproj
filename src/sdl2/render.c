@@ -20,7 +20,6 @@ static FC_Font* font;
 
 static unsigned layers_cleared = 0;
 static struct vec2i layers_size = { 0, 0 };
-static struct vec2i ts_size = { 0, 0 };
 static struct vec2i text_pos = { 0, 0 };
 
 
@@ -136,7 +135,6 @@ void render_load_ts(const char* const path)
 
 	tex_ts = IMG_LoadTexture(rend, path);
 	assert(tex_ts != NULL);
-	SDL_QueryTexture(tex_ts, NULL, NULL, &ts_size.x, &ts_size.y);
 }
 
 
