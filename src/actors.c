@@ -6,155 +6,38 @@
 #include "actors.h"
 
 
-static struct recti ss_rects[GPROJ_MAX_ACTORS];
-static struct rectf scr_rects[GPROJ_MAX_ACTORS];
-static struct vec2f movs[GPROJ_MAX_ACTORS];
-static const struct actor_frame* anim_frames[GPROJ_MAX_ACTORS];
-static timer_clk_t anim_clks[GPROJ_MAX_ACTORS];
-static int16_t anim_ms[GPROJ_MAX_ACTORS];
-static int8_t anim_cnts[GPROJ_MAX_ACTORS];
-static int8_t anim_idxs[GPROJ_MAX_ACTORS];
-static actor_anim_flag_t anim_flags[GPROJ_MAX_ACTORS];
-static int nacts = 0;
-
-static volatile bool need_render = false;
-
-
-static struct workpack {
-	timer_clk_t now;
-	float dt;
-	int start;
-	int end;
-} wpack;
-
-
-static void actors_move(union work_arg arg)
+void actors_move(const float dt,
+                 const struct vec2f* restrict const vels,
+                 struct vec2f* restrict const wpos,
+                 const int cnt)
 {
-	const struct workpack* const pack = arg.ptr;
-	const float dt = pack->dt;
-	const int start = pack->start;
-	const int cnt = pack->end;
-	for (int i = start; i < cnt; ++i) {
-		if (movs[i].x < -0.01f || movs[i].x > 0.01f ||
-		    movs[i].y < -0.01f || movs[i].y > 0.01f) {
-			scr_rects[i].pos.x += movs[i].x * dt;
-			scr_rects[i].pos.y += movs[i].y * dt;
-			need_render = true;
-		}
+	for (int i = 0; i < cnt; ++i) {
+		wpos[i].x += vels[i].x * dt;
+		wpos[i].y += vels[i].y * dt;
 	}
 }
 
-static void actors_animate(union work_arg arg)
-{
-	const struct workpack* const pack = arg.ptr;
-	const timer_clk_t now = pack->now;
-	const int start = pack->start;
-	const int cnt = pack->end;
-	for (int i = start; i < cnt; ++i) {
-		const int flags = anim_flags[i];
-		if (flags&ANIM_FLAG_DISABLED)
-			continue;
 
-		if (((int)(now - anim_clks[i])) >= anim_ms[i]) {
-			need_render = true;
-			anim_clks[i] = now;
-			anim_idxs[i] += flags&ANIM_FLAG_BKWD ? -1 : 1;
-			if (anim_idxs[i] >= anim_cnts[i] || anim_idxs[i] < 0) {
-				if (flags&ANIM_FLAG_LOOP) {
-					if (anim_idxs[i] > 0 && flags&ANIM_FLAG_BIDIR) {
-						anim_idxs[i] = anim_cnts[i] - 2;
-						anim_flags[i] |= ANIM_FLAG_BKWD;
-					} else if (anim_idxs[i] < 0) {
-						anim_idxs[i] = 1;
-						anim_flags[i] &= ~ANIM_FLAG_BKWD;
-					} else {
-						anim_idxs[i] = 0;
-					}
-				} else {
-					anim_idxs[i] = 0;
-					anim_flags[i] |= ANIM_FLAG_DISABLED;
-				}
+void actors_animate(const timer_clk_t now,
+                    struct frame_timing* restrict const timings,
+                    struct animation* restrict const animations,
+                    struct vec2i* const restrict spos,
+                    struct vec2i* const restrict ssize,
+                    const int cnt)
+{
+	for (int i = 0; i < cnt; ++i) {
+		if ((int)(now - timings[i].clk) > timings[i].ms) {
+			timings[i].clk = now;
+			if ((animations[i].idx + 1) < animations[i].cnt) {
+				animations[i].idx += 1;
+			} else {
+				animations[i].idx = 0;
 			}
-
-			anim_ms[i] = anim_frames[i][anim_idxs[i]].ms;
-			ss_rects[i] = anim_frames[i][anim_idxs[i]].ss;
+			timings[i].ms = animations[i].frames[animations[i].idx].ms;
+			spos[i] = animations[i].frames[animations[i].idx].ss.pos;
+			ssize[i] = animations[i].frames[animations[i].idx].ss.size;
 		}
 	}
 }
 
 
-
-
-
-
-int actors_create(const struct rectf* const scr)
-{
-	assert(nacts < GPROJ_MAX_ACTORS);
-	const int id = nacts++;
-	scr_rects[id] = *scr;
-	return id;
-}
-
-void actors_anim_set(const int actor_id,
-                     const struct actor_frame* const frames,
-                     const int8_t nframes,
-                     const actor_anim_flag_t flags,
-                     const timer_clk_t clk)
-{
-	assert(frames != NULL);
-	assert(nframes <= MAX_ACTOR_FRAMES);
-	need_render = true;
-	anim_idxs[actor_id] = 0;
-	anim_clks[actor_id] = clk;
-	anim_frames[actor_id] = frames;
-	anim_cnts[actor_id] = nframes;
-	anim_flags[actor_id] = flags;
-	anim_ms[actor_id] = frames[0].ms;
-	ss_rects[actor_id] = frames[0].ss;
-}
-
-
-int actors_anim_get_flags(int actor_id)
-{
-	return anim_flags[actor_id];
-}
-
-
-void actors_anim_set_flags(int actor_id, int flags)
-{
-	anim_flags[actor_id] = flags;
-}
-
-
-void actors_mov_set(const int actor_id,
-                    const float velx,
-                    const float vely)
-{
-	movs[actor_id].x = velx;
-	movs[actor_id].y = vely;
-}
-
-
-struct vec2f actors_get_pos(int actor_id)
-{
-	return scr_rects[actor_id].pos;
-}
-
-
-void actors_update(const timer_clk_t now, const float dt)
-{
-	wpack = (struct workpack) { .now=now,.dt=dt,.start=0,.end=nacts };
-	workman_push_work(actors_move, (union work_arg){.ptr = &wpack});
-	workman_push_work(actors_animate, (union work_arg){.ptr = &wpack});
-	workman_push_sleep(1);
-}
-
-
-void actors_send_render(void)
-{
-	workman_work_until_all_finished();
-	if (need_render) {
-		need_render = false;
-		render_actors(ss_rects, scr_rects, anim_flags, nacts);
-	}
-}

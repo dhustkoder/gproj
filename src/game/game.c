@@ -3,44 +3,45 @@
 #include "render.h"
 #include "audio.h"
 #include "timer.h"
-#include "map.h"
 #include "actors.h"
-#include "characters.h"
+#include "chars.h"
+#include "maps.h"
 #include "game.h"
 
+static struct vec2i game_camera = { 0, 0 };
 
-static int bgm_id;
 
 void game_init(int argc, char** argv)
 {
+	((void)argc);
+	((void)argv);
 	LOG_DEBUG("INITIALIZING GAME");
+
 	workman_init();
 	timer_profiler_init();
 	render_init("GProj Testing");
+	render_layers_setup(GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	audio_init();
-	characters_init();
-	map_load(argc > 1 ? argv[1] : "map00-00.tmx");
-	map_send_render();
-	bgm_id = audio_load_bgm("bloodlines.ogg");
-	audio_play_bgm(bgm_id);
+	maps_init();
+	chars_init();
 	LOG_DEBUG("GAME INITIALIZED");
 }
 
 void game_step(timer_clk_t now, float dt)
 {
 	// update
-	characters_update(now, dt);
-	actors_update(now, dt);
-	map_update(now, dt);
-
+	chars_update(now, dt);
+	maps_update(&game_camera, now, dt);
 	// send render
-	actors_send_render();
+	chars_send_render();
+	maps_send_render();
 }
 
 void game_term()
 {
 	LOG_DEBUG("TERMINATING GAME");
-	map_free();
+	chars_term();
+	maps_term();
 	audio_term();
 	render_term();
 	workman_term();

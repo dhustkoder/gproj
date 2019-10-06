@@ -5,31 +5,47 @@
 #include <stdarg.h>
 #include <SDL2/SDL.h>
 #include "types.h"
-#include "actors.h"
+
+
+#ifndef GPROJ_RENDER_NLAYERS
+#error "Need GPROJ_RENDER_NLAYERS definition"
+#endif
+
+#if GPROJ_RENDER_NLAYERS <= 0 || GPROJ_RENDER_NLAYERS >= 8
+#error "GPROJ_RENDER_NLAYERS out of range"
+#endif 
+
+
+
+enum render_flag {
+	RENDER_FLAG_FLIPH = SDL_FLIP_HORIZONTAL,
+	RENDER_FLAG_FLIPV = SDL_FLIP_VERTICAL
+};
+
+typedef int render_flag_t;
 
 
 extern void render_init(const char* identifier);
 extern void render_term();
 
-extern void render_fb_setup(const struct vec2i* size);
+extern void render_layers_setup(int w, int h);
 
 extern void render_load_ts(const char* path);
 extern void render_load_ss(const char* path);
 
-extern void render_map(const int32_t* gids,
-                       const struct vec2i* map_size,
-		       const struct vec2i* tile_size);
+extern void render_ts(const int layer,
+                      const struct vec2i* restrict tspos,
+		      struct vec2i size);
 
-extern void render_actors(const struct recti* const ss_srcs,
-                          const struct rectf* const scr_dsts,
-                          const actor_anim_flag_t* flags,
-                          const int count);
-
+extern void render_ss(int layer,
+                      const struct vec2f* restrict wpos,
+                      const struct vec2i* restrict wsize,
+                      const struct vec2i* restrict spos,
+                      const struct vec2i* restrict ssize,
+                      const render_flag_t* restrict flags,
+                      const int cnt);
 
 extern void render_text(const char* text, ...);
-
-extern void render_set_camera(int x, int y);
-
 extern void render_present(void);
 
 
