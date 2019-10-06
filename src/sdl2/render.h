@@ -33,13 +33,16 @@ extern void render_layers_setup(int w, int h);
 extern void render_load_ts(const char* path);
 extern void render_load_ss(const char* path);
 
-extern void render_ts(int layer, const int16_t* ids);
+extern void render_ts(const int layer,
+                      const struct vec2i* restrict tspos,
+		      struct vec2i size);
+
 extern void render_ss(int layer,
-                      const struct vec2f* wpos,
-                      const struct vec2i* wsize,
-                      const struct vec2i* spos,
-                      const struct vec2i* ssize,
-                      const render_flag_t* flags,
+                      const struct vec2f* restrict wpos,
+                      const struct vec2i* restrict wsize,
+                      const struct vec2i* restrict spos,
+                      const struct vec2i* restrict ssize,
+                      const render_flag_t* restrict flags,
                       const int cnt);
 
 extern void render_text(const char* text, ...);

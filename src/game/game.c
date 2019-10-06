@@ -5,6 +5,7 @@
 #include "timer.h"
 #include "actors.h"
 #include "chars.h"
+#include "maps.h"
 #include "game.h"
 
 static struct vec2i game_camera = { 0, 0 };

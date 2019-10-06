@@ -18,9 +18,22 @@ static SDL_Texture* tex_ts;
 static SDL_Texture* tex_ss;
 static FC_Font* font;
 
+static unsigned layers_cleared = 0;
 static struct vec2i layers_size = { 0, 0 };
 static struct vec2i ts_size = { 0, 0 };
 static struct vec2i text_pos = { 0, 0 };
+
+
+
+static void prepare_target_layer(const int layer)
+{
+	assert(layer >= 0 && layer < GPROJ_RENDER_NLAYERS);
+	SDL_SetRenderTarget(rend, layers[layer]);
+	if (!(layers_cleared&(1<<layer))) {
+		SDL_RenderClear(rend);
+		layers_cleared |= (1<<layer);
+	}
+}
 
 
 static void fb_free(void)
@@ -104,7 +117,7 @@ void render_layers_setup(int w, int h)
 	((void)err);
 	for (int i = 0; i < GPROJ_RENDER_NLAYERS; ++i) {
 		layers[i] = SDL_CreateTexture(rend,
-		                              SDL_PIXELFORMAT_UNKNOWN,
+		                              SDL_PIXELFORMAT_RGBA8888,
 		                              SDL_TEXTUREACCESS_TARGET,
 		                              layers_size.x, layers_size.y);
 		assert(layers[i] != NULL);
@@ -139,19 +152,21 @@ void render_load_ss(const char* const path)
 	assert(tex_ss != NULL);
 }
 
-void render_ts(const int layer, const int16_t* const ids)
+void render_ts(const int layer,
+               const struct vec2i* restrict const tsmap,
+               const struct vec2i size)
 {
-	assert(layer >= 0 && layer < GPROJ_RENDER_NLAYERS);
-	SDL_SetRenderTarget(rend, layers[layer]);
-	SDL_RenderClear(rend);
-	for (int y = 0; y < 8; ++y) {
-		for (int x = 0; x < 12; ++x) {
-			int16_t id = ids[y * 12 + x];
-			if (id == 0) continue;
-			id -= 1;
+	
+	prepare_target_layer(layer);
+	const struct vec2i cnt = size;
+	for (int y = 0; y < cnt.y; ++y) {
+		for (int x = 0; x < cnt.x; ++x) {
+			const int offset = y * cnt.x + x;
+			const struct vec2i tspos = tsmap[offset];
+			if (tspos.x < 0) continue;
 			const SDL_Rect ts_rect = {
-				.x = (id * GPROJ_TILE_WIDTH) % ts_size.x,
-				.y = ((id * GPROJ_TILE_WIDTH) / ts_size.x) * GPROJ_TILE_HEIGHT,
+				.x = tspos.x,
+				.y = tspos.y,
 				.w = GPROJ_TILE_WIDTH,
 				.h = GPROJ_TILE_HEIGHT
 			};
@@ -167,16 +182,14 @@ void render_ts(const int layer, const int16_t* const ids)
 }
 
 void render_ss(const int layer,
-               const struct vec2f* const wpos,
-               const struct vec2i* const wsize,
-               const struct vec2i* const spos,
-               const struct vec2i* const ssize,
-               const render_flag_t* const flags,
+               const struct vec2f* restrict const wpos,
+               const struct vec2i* restrict const wsize,
+               const struct vec2i* restrict const spos,
+               const struct vec2i* restrict const ssize,
+               const render_flag_t* restrict const flags,
                const int cnt)
 {
-	assert(layer >= 0 && layer < GPROJ_RENDER_NLAYERS);
-	SDL_SetRenderTarget(rend, layers[layer]);
-	SDL_RenderClear(rend);
+	prepare_target_layer(layer);
 	
 	for (int i = 0; i < cnt; ++i) {
 		const SDL_Rect wr = (SDL_Rect) {
@@ -244,6 +257,7 @@ void render_present(void)
 
 	text_pos.x = 0;
 	text_pos.y = 0;
+	layers_cleared = 0;
 }
 
 
