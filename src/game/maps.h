@@ -4,7 +4,7 @@
 
 extern void maps_init(void);
 extern void maps_term(void);
-extern void maps_update(const struct vec2i* campos,
+extern void maps_update(const struct vec2f* restrict cam,
                         timer_clk_t now,
                         float dt);
 extern void maps_send_render(void);

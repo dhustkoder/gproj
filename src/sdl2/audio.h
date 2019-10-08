@@ -5,6 +5,10 @@
 #include <SDL2/SDL.h>
 
 
+#define GPROJ_MAX_BGMS (1)
+#define GPROJ_MAX_SFXS (16)
+
+
 extern void audio_init();
 extern void audio_term();
 

@@ -3,6 +3,10 @@
 #include <limits.h>
 #include "timer.h"
 
+
+
+#define GPROJ_MAX_WORKMAN_QUEUE_SIZE (16)
+
 #ifndef GPROJ_MAX_WORKMAN_QUEUE_SIZE
 #error "NEED GPROJ_MAX_WORKMAN_QUEUE_SIZE DEFINITION"
 #endif

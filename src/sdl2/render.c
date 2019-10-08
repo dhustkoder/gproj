@@ -152,11 +152,15 @@ void render_load_ss(const char* const path)
 
 void render_ts(const int layer,
                const struct vec2i* restrict const tsmap,
-               const struct vec2i size)
+               const struct vec2i* restrict const size,
+               const struct vec2i* restrict const shift)
+
+
 {
 	
 	prepare_target_layer(layer);
-	const struct vec2i cnt = size;
+	const struct vec2i cnt = *size;
+	const struct vec2i shft = *shift;
 	for (int y = 0; y < cnt.y; ++y) {
 		for (int x = 0; x < cnt.x; ++x) {
 			const int offset = y * cnt.x + x;
@@ -165,14 +169,14 @@ void render_ts(const int layer,
 			const SDL_Rect ts_rect = {
 				.x = tspos.x,
 				.y = tspos.y,
-				.w = GPROJ_TILE_WIDTH,
-				.h = GPROJ_TILE_HEIGHT
+				.w = TILE_WIDTH,
+				.h = TILE_HEIGHT
 			};
 			const SDL_Rect scr_rect = {
-				.x = x * GPROJ_TILE_WIDTH,
-				.y = y * GPROJ_TILE_HEIGHT,
-				.w = GPROJ_TILE_WIDTH,
-				.h = GPROJ_TILE_HEIGHT
+				.x = (x * TILE_WIDTH) - shft.x,
+				.y = (y * TILE_HEIGHT) - shft.y,
+				.w = TILE_WIDTH,
+				.h = TILE_HEIGHT 
 			};
 			SDL_RenderCopy(rend, tex_ts, &ts_rect, &scr_rect);
 		}
