@@ -27,17 +27,17 @@ void game_init(int argc, char** argv)
 
 void game_step(timer_clk_t now, float dt)
 {
-	extern input_button_t input_buttons_states;
-	
-	if (input_buttons_states&INPUT_BUTTON_RIGHT)
-		game_camera.x += 8.f * dt;
-	else if (input_buttons_states&INPUT_BUTTON_LEFT)
-		game_camera.x -= 8.f * dt;
-	else if (input_buttons_states&INPUT_BUTTON_UP)
-		game_camera.y -= 8.f * dt;
-	else if (input_buttons_states&INPUT_BUTTON_DOWN)
-		game_camera.y += 8.f * dt;
+	extern struct events gproj_events;
 
+	const input_button_t buttons = gproj_events.input.buttons;
+	if (buttons&INPUT_BUTTON_RIGHT)
+		game_camera.x += 64.f * dt;
+	else if (buttons&INPUT_BUTTON_LEFT)
+		game_camera.x -= 64.f * dt;
+	else if (buttons&INPUT_BUTTON_UP)
+		game_camera.y -= 64.f * dt;
+	else if (buttons&INPUT_BUTTON_DOWN)
+		game_camera.y += 64.f * dt;
 	render_text("CAMPOS => (%.2f, %.2f)", game_camera.x, game_camera.y);
 	// update
 	//chars_update(now, dt);

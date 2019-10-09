@@ -42,7 +42,7 @@ extern void render_load_ss(const char* path);
 extern void render_ts(const int layer,
                       const struct vec2i* restrict ts_map,
 		      const struct vec2i* restrict size,
-		      const struct vec2i* restrict shift);
+		      const struct vec2i* restrict scrpos);
 
 extern void render_ss(int layer,
                       const struct vec2f* restrict wpos,

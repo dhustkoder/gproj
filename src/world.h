@@ -1,7 +1,5 @@
 #ifndef GPROJ_WORLD_H_
 #define GPROJ_WORLD_H_
-#include <stdlib.h>
-#include <assert.h>
 #include "render.h"
 #include "types.h"
 
@@ -22,7 +20,7 @@
 
 struct world_ts {
 	// tile IDS in the tilesheet
-	int16_t* tile_ids;
+	s16* tile_ids;
 	// world size in tiles
 	struct vec2i world_size;
 	// tilesheet image pixel size
@@ -41,8 +39,8 @@ struct world_map_view {
 	struct vec2i map[SCR_MAX_X_TILES * SCR_MAX_Y_TILES]; 
 	// size of the view area
 	struct vec2i size; 
-	// border tiles pixels to scroll	
-	struct vec2i shift;
+	// screen begin position
+	struct vec2i scrpos;
 };
 
 

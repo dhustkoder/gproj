@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <unistd.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -16,9 +15,6 @@
 #include "gproj.h"
 
 
-extern input_button_t input_buttons_states;
-
-
 static SDL_Scancode sdl_keys[] = {
 	SDL_SCANCODE_W,
 	SDL_SCANCODE_S,
@@ -28,7 +24,7 @@ static SDL_Scancode sdl_keys[] = {
 	SDL_SCANCODE_SPACE
 };
 
-static input_button_t game_buttons[] = {
+static input_button_t gproj_buttons[] = {
 	INPUT_BUTTON_UP,
 	INPUT_BUTTON_DOWN,
 	INPUT_BUTTON_LEFT,
@@ -72,34 +68,48 @@ static void platform_term(void)
 	SDL_Quit();
 }
 
+static inline void update_input_event(const SDL_Event* const ev,
+                                      struct input_event* const ie)
+{
+	input_button_t buttons = ie->buttons;
+	for (int idx = 0; idx < INPUT_BUTTON_NBUTTONS; ++idx) {
+		if (sdl_keys[idx] == ev->key.keysym.scancode) {
+			input_button_t bt = gproj_buttons[idx];
+			if (ev->type == SDL_KEYDOWN)
+				buttons |= bt;
+			else
+				buttons &= ~bt;
+			break;
+		}
+	}
+	if (buttons != ie->buttons) {
+		ie->buttons = buttons;
+		ie->new_state = true;
+	}
+}
 
-bool events_update(void)
+
+
+void events_update(struct events* const gproj_ev)
 {
 	SDL_Event ev;
+	
+	gproj_ev->input.new_state = false;
+	gproj_ev->quit = false;
 
 	while (SDL_PollEvent(&ev)) {
 		switch (ev.type) {
-		case SDL_QUIT: return false;
-		case SDL_KEYDOWN:
-		case SDL_KEYUP: {
-			for (int idx = 0; idx < INPUT_BUTTON_NBUTTONS; ++idx) {
-				if (sdl_keys[idx] == ev.key.keysym.scancode) {
-					input_button_t but = game_buttons[idx];
-					if (ev.type == SDL_KEYDOWN)
-						input_buttons_states |= but;
-					else
-						input_buttons_states &= ~but;
-					break;
-				}
-			}
-
-		}
-
+			case SDL_QUIT: 
+				gproj_ev->quit = true;
+				return;
+			case SDL_KEYDOWN:
+			case SDL_KEYUP: 
+				update_input_event(&ev, &gproj_ev->input);
+				break;
 		}
 	}
-
-	return true;
 }
+
 
 
 

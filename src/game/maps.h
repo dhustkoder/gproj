@@ -1,5 +1,6 @@
 #ifndef GPROJ_GAME_MAPS_H_
 #define GPROJ_GAME_MAPS_H_
+#include "timer.h"
 #include "world.h"
 
 extern void maps_init(void);

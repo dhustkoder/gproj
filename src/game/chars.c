@@ -5,10 +5,8 @@
 #include "logger.h"
 #include "actors.h"
 #include "timer.h"
+#include "utils.h"
 #include "chars.h"
-
-
-input_button_t input_buttons_states;
 
 
 /* PLAYER ANIMATIONS */
@@ -33,7 +31,11 @@ static const struct frame walking_frames[] = {
 
 
 static struct frame_timing timing = { .clk = 0, .ms = 0 };
-static struct animation animation = { .frames = idle_frames, .cnt = ARRSZ(idle_frames), .idx = 0 };
+static struct animation animation = { 
+	.frames = idle_frames, 
+	.cnt = STATIC_ARRAY_SIZE(idle_frames),
+	.idx = 0
+};
 
 static struct vec2f vel = { 0, 0 };
 static struct vec2f wpos = { .x = 0, .y = GPROJ_SCR_HEIGHT - 46 };
@@ -41,8 +43,6 @@ static struct vec2i wsize = { .x = 26, .y = 46 };
 static struct vec2i spos = {0, 0};
 static struct vec2i ssize = {0, 0};
 static render_flag_t flag = 0;
-
-static input_button_t prev_buttons_states;
 
 
 void chars_init(void)
@@ -59,14 +59,16 @@ void chars_update(const timer_clk_t now, const float dt)
 {
 	((void)dt);
 	((void)now);
+	extern struct events gproj_events;
 
-	if (prev_buttons_states != input_buttons_states) {
-		if (input_buttons_states&(INPUT_BUTTON_LEFT |
-		                          INPUT_BUTTON_RIGHT|
-		                          INPUT_BUTTON_UP   |
-		                          INPUT_BUTTON_DOWN)) {
+	if (gproj_events.input.new_state) {
+		const input_button_t buttons = gproj_events.input.buttons;
+		if (buttons&(INPUT_BUTTON_LEFT |
+		             INPUT_BUTTON_RIGHT|
+		             INPUT_BUTTON_UP   |
+		             INPUT_BUTTON_DOWN)) {
 
-			if (input_buttons_states&INPUT_BUTTON_RIGHT) {
+			if (buttons&INPUT_BUTTON_RIGHT) {
 				vel.x = +128;
 				flag &= ~RENDER_FLAG_FLIPH;
 			} else {
@@ -74,16 +76,14 @@ void chars_update(const timer_clk_t now, const float dt)
 				flag |= RENDER_FLAG_FLIPH;
 			};
 			animation.frames = walking_frames;
-			animation.cnt = ARRSZ(walking_frames);
+			animation.cnt = STATIC_ARRAY_SIZE(walking_frames);
 			animation.idx = 0;
 		} else {
 			vel.x = 0;
 			animation.frames = idle_frames;
-			animation.cnt = ARRSZ(idle_frames);
+			animation.cnt = STATIC_ARRAY_SIZE(idle_frames);
 			animation.idx = 0;
 		}
-
-		prev_buttons_states = input_buttons_states;
 	}
 
 	actors_move(dt, &vel, &wpos, 1);
