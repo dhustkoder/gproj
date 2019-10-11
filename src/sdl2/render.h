@@ -5,8 +5,7 @@
 #include <stdarg.h>
 #include <SDL2/SDL.h>
 #include "types.h"
-
-
+#include "world.h"
 
 #define GPROJ_SCR_WIDTH      (360)
 #define GPROJ_SCR_HEIGHT     (240)
@@ -41,10 +40,7 @@ extern void render_layers_setup(int w, int h);
 extern void render_load_ts(const char* path);
 extern void render_load_ss(const char* path);
 
-extern void render_ts(const int layer,
-                      const struct vec2i* restrict ts_map,
-		      const struct vec2i* restrict size,
-		      const struct vec2i* restrict scrpos);
+extern void render_world(const struct world_map_view* view);
 
 extern void render_ss(int layer,
                       const struct vec2f* restrict wpos,

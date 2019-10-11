@@ -5,9 +5,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL_FontCache.h>
-#include "events.h"
 #include "logger.h"
-#include "world.h"
 #include "render.h"
 
 static SDL_Window* win = NULL;
@@ -150,17 +148,20 @@ void render_load_ss(const char* const path)
 	assert(tex_ss != NULL);
 }
 
-void render_ts(const int layer,
-               const struct vec2i* restrict const tsmap,
-               const struct vec2i* restrict const size,
-               const struct vec2i* restrict const scrpos)
-
-
+void render_world(const struct world_map_view* const view)
 {
 	
-	prepare_target_layer(layer);
-	const struct vec2i cnt = *size;
-	const struct vec2i pos = *scrpos;
+	prepare_target_layer(0);
+	const struct vec2i cnt = view->size;
+	const struct vec2i pos = view->scrpos;
+	const struct vec2i* const tsmap = view->map;
+#ifdef GPROJ_DEBUG
+	const int tile_width = TILE_WIDTH * view->scale;
+	const int tile_height = TILE_HEIGHT * view->scale;
+#else
+	const int tile_width = TILE_WIDTH;
+	const int tile_height = TILE_HEIGHT;
+#endif
 	for (int y = 0; y < cnt.y; ++y) {
 		for (int x = 0; x < cnt.x; ++x) {
 			const int offset = y * cnt.x + x;
@@ -169,14 +170,14 @@ void render_ts(const int layer,
 			const SDL_Rect ts_rect = {
 				.x = tspos.x,
 				.y = tspos.y,
-				.w = TILE_WIDTH,
-				.h = TILE_HEIGHT
+				.w = tile_width,
+				.h = tile_height
 			};
 			const SDL_Rect scr_rect = {
-				.x = (x * TILE_WIDTH) + pos.x,
-				.y = (y * TILE_HEIGHT) + pos.y,
-				.w = TILE_WIDTH,
-				.h = TILE_HEIGHT 
+				.x = (x * tile_width) + pos.x,
+				.y = (y * tile_height) + pos.y,
+				.w = tile_width,
+				.h = tile_height 
 			};
 			SDL_RenderCopy(rend, tex_ts, &ts_rect, &scr_rect);
 		}

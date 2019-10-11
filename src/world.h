@@ -1,6 +1,5 @@
 #ifndef GPROJ_WORLD_H_
 #define GPROJ_WORLD_H_
-#include "render.h"
 #include "types.h"
 
 /*
@@ -26,6 +25,10 @@ struct world_ts {
 };
 
 struct world_map {
+#ifdef GPROJ_DEBUG
+	// world tile size scale factor
+	f32 scale;
+#endif
 	// size in tiles
 	struct vec2i size;	
 	// positions on tilesheet
@@ -33,12 +36,16 @@ struct world_map {
 };
 
 struct world_map_view {
-	// pointer to tsmap right position relative world camera
-	struct vec2i map[WORLD_MAX_X_TILES * WORLD_MAX_Y_TILES];
+#ifdef GPROJ_DEBUG
+	// world tile size scale factor
+	f32 scale;
+#endif
 	// size of the view area
 	struct vec2i size; 
 	// screen begin position
 	struct vec2i scrpos;
+	// pointer to tsmap right position relative world camera
+	struct vec2i map[WORLD_MAX_X_TILES * WORLD_MAX_Y_TILES];
 };
 
 

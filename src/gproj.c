@@ -1,8 +1,6 @@
 #include <SDL2/SDL.h>
-#include "logger.h"
 #include "timer.h"
 #include "events.h"
-#include "render.h"
 #include "gproj.h"
 #include "game.h"
 

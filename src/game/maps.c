@@ -112,15 +112,25 @@ void maps_update(const struct vec2f* restrict const cam,
 	((void)cam);
 	((void)now);
 	((void)dt);
-	extern struct events gproj_events;
 
+#ifdef GPROJ_DEBUG	
+	extern struct events gproj_events;
 	if (gproj_events.input.new_state) {
 		if (gproj_events.input.buttons&INPUT_BUTTON_ACTION) {
 			mapid = (mapid + 1) % STATIC_ARRAY_SIZE(maps);
 			maps_init();
 		}
+
+		if (gproj_events.input.buttons&INPUT_BUTTON_WORLD_SCALE_DOWN &&
+		    wm.scale >= 0.2)
+			wm.scale -= 0.1;
+		
+		if (gproj_events.input.buttons&INPUT_BUTTON_WORLD_SCALE_UP &&
+		    wm.scale <= 0.9)
+			wm.scale += 0.1;
 	}
-	
+#endif	
+
 	world_view_update(cam, &wm, &wmv);
 }
 
@@ -130,7 +140,7 @@ void maps_send_render(void)
 	            wmv.scrpos.x, wmv.scrpos.y);
 	render_text("WORLD VIEW SIZE => %.5d, %.5d",
 	            wmv.size.x, wmv.size.y);
-	render_ts(0, &wmv.map[0], &wmv.size, &wmv.scrpos);
+	render_world(&wmv);
 }
 
 
