@@ -4,33 +4,32 @@
 #include "world.h"
 
 
-void world_map_init(const struct world_ts* const tsmap,
-                    struct world_map* const wi)
+void world_map_init(const struct world_meta* const meta,
+                    struct world_map* const map)
 {
-	const struct vec2i wsize = tsmap->world_size;
-	const struct vec2i pixsz = tsmap->img_size;
-	const s16* const tsids = tsmap->tile_ids;
+	const struct vec2i wsize = meta->world_size;
+	const struct vec2i pixsz = meta->ts_img_size;
+	const s16* const tsids = meta->ts_ids;
 
 	for (int y = 0; y < wsize.y; ++y) {
 		for (int x = 0; x < wsize.x; ++x) {
 			const int offset = y * wsize.x + x;
 			const int id = tsids[offset];
 			if (id < 0) {
-				wi->map[offset].x = -1;
+				map->map[offset].x = -1;
 				continue;
 			}
-			wi->map[offset] = (struct vec2i) {
+			map->map[offset] = (struct vec2i) {
 				.x = (id * TILE_WIDTH) % pixsz.x,
-				.y = (((id * TILE_WIDTH) / pixsz.x) 
-				     * TILE_HEIGHT)
+				.y = (((id * TILE_WIDTH) / pixsz.x) * TILE_HEIGHT)
 			};
 		}
 	}
 
-	wi->size = wsize;
+	map->size = wsize;
 
 #ifdef GPROJ_DEBUG
-	wi->scale = 1.0;
+	map->scale = 1.0;
 #endif
 }
 

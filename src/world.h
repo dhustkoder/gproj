@@ -15,15 +15,15 @@
 #define WORLD_MAX_Y_TILES (512)
 
 
-struct world_ts {
+struct world_meta {
 	// ts file path
-	const char* path;
+	const char* ts_path;
 	// tile IDS in the tilesheet
-	s16* tile_ids;
+	s16* ts_ids;
 	// world size in tiles
 	struct vec2i world_size;
 	// tilesheet image pixel size
-	struct vec2i img_size;
+	struct vec2i ts_img_size;
 };
 
 struct world_map {
@@ -51,7 +51,7 @@ struct world_map_view {
 };
 
 
-extern void world_map_init(const struct world_ts* const tsmap,
+extern void world_map_init(const struct world_meta* const tsmap,
                            struct world_map* const wi);
 
 extern void world_view_update(const struct vec2f* cam,
