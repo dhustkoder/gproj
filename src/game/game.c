@@ -25,7 +25,7 @@ void game_init(int argc, char** argv)
 	LOG_DEBUG("GAME INITIALIZED");
 }
 
-void game_step(timer_clk_t now, float dt)
+void game_step(const timer_clk_t now, const float dt)
 {
 	extern struct events gproj_events;
 

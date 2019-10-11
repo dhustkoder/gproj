@@ -28,9 +28,7 @@ int gproj(int argc, char** argv)
 		lastclk = now;
 	} while (!gproj_events.quit);
 
-
 	game_term();
-
 	return 0;
 }
 

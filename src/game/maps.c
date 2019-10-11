@@ -126,9 +126,9 @@ void maps_update(const struct vec2f* restrict const cam,
 
 void maps_send_render(void)
 {
-	render_text("WORLD VIEW SCRPOS => %.3d, %.3d",
+	render_text("WORLD VIEW SCRPOS => %.5d, %.5d",
 	            wmv.scrpos.x, wmv.scrpos.y);
-	render_text("WORLD VIEW SIZE => %.3d, %.3d",
+	render_text("WORLD VIEW SIZE => %.5d, %.5d",
 	            wmv.size.x, wmv.size.y);
 	render_ts(0, &wmv.map[0], &wmv.size, &wmv.scrpos);
 }

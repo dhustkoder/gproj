@@ -8,9 +8,11 @@
 
 
 
-#define GPROJ_SCR_WIDTH (360)
-#define GPROJ_SCR_HEIGHT (240)
+#define GPROJ_SCR_WIDTH      (360)
+#define GPROJ_SCR_HEIGHT     (240)
 #define GPROJ_RENDER_NLAYERS (1)
+#define GPROJ_TS_MAX_WIDTH   (S16_MAX - 1)
+#define GPROJ_TS_MAX_HEIGHT  (S16_MAX - 1)
 
 
 #ifndef GPROJ_RENDER_NLAYERS

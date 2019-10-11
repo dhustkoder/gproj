@@ -19,14 +19,14 @@ void actors_move(const float dt,
 
 
 void actors_animate(const timer_clk_t now,
-                    struct frame_timing* restrict const timings,
-                    struct animation* restrict const animations,
+                    struct frame_timing* const timings,
+                    struct animation* const animations,
                     struct vec2i* const restrict spos,
                     struct vec2i* const restrict ssize,
                     const int cnt)
 {
 	for (int i = 0; i < cnt; ++i) {
-		if ((int)(now - timings[i].clk) > timings[i].ms) {
+		if ((now - timings[i].clk) > (timer_clk_t)timings[i].ms) {
 			timings[i].clk = now;
 			if ((animations[i].idx + 1) < animations[i].cnt) {
 				animations[i].idx += 1;

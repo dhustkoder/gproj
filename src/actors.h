@@ -11,31 +11,31 @@
 */
 
 struct frame {
-	const int16_t ms;
+	const s16 ms;
 	const struct recti ss;
 };
 
 struct animation {
 	const struct frame* frames;
-	int8_t cnt;
-	int8_t idx;
+	s8 cnt;
+	s8 idx;
 };
 
 struct frame_timing {
 	timer_clk_t clk;
-	int16_t ms;
+	s16 ms;
 };
 
  
 
-extern void actors_move(const float dt,
+extern void actors_move(float dt,
                         const struct vec2f* restrict const vels,
                         struct vec2f* restrict const wpos,
-                        const int cnt);
+                        int cnt);
 
 extern void actors_animate(const timer_clk_t now,
-                           struct frame_timing* restrict timings,
-                           struct animation* restrict animations,
+                           struct frame_timing* timings,
+                           struct animation* animations,
                            struct vec2i* restrict spos,
                            struct vec2i* restrict ssize,
                            int cnt);

@@ -1,18 +1,23 @@
 #ifndef GPROJ_TYPES_H_
 #define GPROJ_TYPES_H_
-#include <stdlib.h>
 #include <SDL2/SDL_stdinc.h>
 #include "utils.h"
 
-typedef Uint8 u8;
+typedef Uint8  u8;
 typedef Uint16 u16;
 typedef Uint32 u32;
+#define U8_MAX  (SDL_MAX_UINT8)
+#define U16_MAX (SDL_MAX_UINT16)
+#define U32_MAX (SDL_MAX_UINT32)
 
-typedef Sint8 s8;
+typedef Sint8  s8;
 typedef Sint16 s16;
 typedef Sint32 s32;
+#define S8_MAX  (SDL_MAX_SINT8)
+#define S16_MAX (SDL_MAX_SINT16)
+#define S32_MAX (SDL_MAX_SINT32)
 
-typedef u8 b8;
+typedef u8  b8;
 typedef u16 b16;
 typedef u32 b32;
 #define true  1
@@ -29,7 +34,7 @@ STATIC_ASSERT(b_type_sizes,
 STATIC_ASSERT(f_type_sizes, (sizeof(f32) == 4));
 
 struct vec2i {
-	s32 x, y;
+	s16 x, y;
 };
 
 struct vec2f {
