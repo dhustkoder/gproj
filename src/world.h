@@ -14,8 +14,6 @@
 #define TILE_HEIGHT (32)
 #define WORLD_MAX_X_TILES (512)
 #define WORLD_MAX_Y_TILES (512)
-#define SCR_MAX_X_TILES ((GPROJ_SCR_WIDTH / TILE_WIDTH) + 2)
-#define SCR_MAX_Y_TILES ((GPROJ_SCR_HEIGHT / TILE_HEIGHT) + 2)
 
 
 struct world_ts {
@@ -34,9 +32,9 @@ struct world_map {
 	struct vec2i map[WORLD_MAX_X_TILES * WORLD_MAX_Y_TILES]; 
 };
 
-struct world_map_view {	
+struct world_map_view {
 	// pointer to tsmap right position relative world camera
-	struct vec2i map[SCR_MAX_X_TILES * SCR_MAX_Y_TILES]; 
+	struct vec2i map[WORLD_MAX_X_TILES * WORLD_MAX_Y_TILES];
 	// size of the view area
 	struct vec2i size; 
 	// screen begin position
@@ -44,12 +42,13 @@ struct world_map_view {
 };
 
 
-extern void world_map_fill(const struct world_ts* restrict const tsmap,
-                           struct world_map* restrict const wi);
+extern void world_map_init(const struct world_ts* const tsmap,
+                           struct world_map* const wi);
 
-extern void world_view_fill(const struct vec2f* restrict cam,
-                            const struct world_map* restrict map,
-			    struct world_map_view* restrict view);
+extern void world_view_update(const struct vec2f* cam,
+                              const struct world_map* map,
+                              struct world_map_view* view);
+
 
 #endif
 

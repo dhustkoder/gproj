@@ -97,7 +97,7 @@ static struct world_map_view wmv;
 void maps_init(void)
 {
 	render_load_ts(maps[mapid].ts_img_path);
-	world_map_fill(&maps[mapid].ts_info, &wm);
+	world_map_init(&maps[mapid].ts_info, &wm);
 }
 
 void maps_term(void)
@@ -121,7 +121,7 @@ void maps_update(const struct vec2f* restrict const cam,
 		}
 	}
 	
-	world_view_fill(cam, &wm, &wmv);
+	world_view_update(cam, &wm, &wmv);
 }
 
 void maps_send_render(void)

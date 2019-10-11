@@ -3,8 +3,8 @@
 #include "world.h"
 
 
-void world_map_fill(const struct world_ts* restrict const tsmap,
-                    struct world_map* restrict const wi)
+void world_map_init(const struct world_ts* const tsmap,
+                    struct world_map* const wi)
 {
 	const struct vec2i wsize = tsmap->world_size;
 	const struct vec2i pixsz = tsmap->ts_img_size_in_pixels;
@@ -28,20 +28,19 @@ void world_map_fill(const struct world_ts* restrict const tsmap,
 
 	wi->size = wsize;
 }
-  
 
 
-void world_view_fill(const struct vec2f* restrict const cam,
-                     const struct world_map* restrict const map,
-                     struct world_map_view* restrict const view)
+void world_view_update(const struct vec2f* const cam,
+                       const struct world_map* const map,
+                       struct world_map_view* const view)
 {
 	const s32 camx = cam->x;
 	const s32 camy = cam->y;
 	const s32 scr_x_tiles = (GPROJ_SCR_WIDTH / TILE_WIDTH) + 2;
 	const s32 scr_y_tiles = (GPROJ_SCR_HEIGHT / TILE_HEIGHT) + 2;
 
-	if (camx <= -(GPROJ_SCR_WIDTH)  ||
-	    camy <= -(GPROJ_SCR_HEIGHT) ||
+	if (camx <= -(GPROJ_SCR_WIDTH)           ||
+	    camy <= -(GPROJ_SCR_HEIGHT)          ||
 	    camx >=  (map->size.x * TILE_WIDTH)  ||
 	    camy >=  (map->size.y * TILE_HEIGHT)) {
 		view->size = (struct vec2i) { 0, 0 };
@@ -55,18 +54,20 @@ void world_view_fill(const struct vec2f* restrict const cam,
 
 	s32 xtiles = scr_x_tiles;
 	s32 ytiles = scr_y_tiles;
-	s32 xfirst = xdiv > 0 ? xdiv : 0;
-	s32 yfirst = ydiv > 0 ? ydiv : 0;
+	const s32 xfirst = xdiv > 0 ? xdiv : 0;
+	const s32 yfirst = ydiv > 0 ? ydiv : 0;
 
 	if (xfirst + xtiles > map->size.x)
 		xtiles = map->size.x - xfirst;
 	if (yfirst + ytiles > map->size.y)
 		ytiles = map->size.y - yfirst;
 
-	const struct vec2i* const src = &map->map[yfirst * map->size.x + xfirst];
+	const struct vec2i* const src = 
+		&map->map[yfirst * map->size.x + xfirst];
 	for (s32 y = 0; y < ytiles; ++y) {
 		for (s32 x = 0; x < xtiles; ++x) {
-			view->map[y * xtiles + x] = src[y * map->size.x + x];
+			view->map[y * xtiles + x] =
+				src[y * map->size.x + x];
 		}
 	}
 
