@@ -1,10 +1,8 @@
 #ifndef GPROJ_EVENTS_H_
 #define GPROJ_EVENTS_H_
-#include <stdint.h>
-#include <stdbool.h>
+#include "types.h"
 
-
-extern bool events_update(void);
+extern void events_update(struct events* gproj_ev);
 
 
 #endif

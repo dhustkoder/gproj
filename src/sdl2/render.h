@@ -7,11 +7,17 @@
 #include "types.h"
 
 
+
+#define GPROJ_SCR_WIDTH (360)
+#define GPROJ_SCR_HEIGHT (240)
+#define GPROJ_RENDER_NLAYERS (1)
+
+
 #ifndef GPROJ_RENDER_NLAYERS
 #error "Need GPROJ_RENDER_NLAYERS definition"
 #endif
 
-#if GPROJ_RENDER_NLAYERS <= 0 || GPROJ_RENDER_NLAYERS >= 8
+#if GPROJ_RENDER_NLAYERS <= 0 || GPROJ_RENDER_NLAYERS > 8
 #error "GPROJ_RENDER_NLAYERS out of range"
 #endif 
 
@@ -34,8 +40,9 @@ extern void render_load_ts(const char* path);
 extern void render_load_ss(const char* path);
 
 extern void render_ts(const int layer,
-                      const struct vec2i* restrict tspos,
-		      struct vec2i size);
+                      const struct vec2i* restrict ts_map,
+		      const struct vec2i* restrict size,
+		      const struct vec2i* restrict scrpos);
 
 extern void render_ss(int layer,
                       const struct vec2f* restrict wpos,
