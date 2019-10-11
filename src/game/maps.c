@@ -89,7 +89,7 @@ static struct game_map maps[] = {
 	},
 };
 
-static int mapid = 0;
+static s8 mapid = 0;
 
 static struct world_map wm;
 static struct world_map_view wmv;
