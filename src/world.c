@@ -8,7 +8,7 @@ void world_map_init(const struct world_ts* const tsmap,
                     struct world_map* const wi)
 {
 	const struct vec2i wsize = tsmap->world_size;
-	const struct vec2i pixsz = tsmap->ts_img_size_in_pixels;
+	const struct vec2i pixsz = tsmap->img_size;
 	const s16* const tsids = tsmap->tile_ids;
 
 	for (int y = 0; y < wsize.y; ++y) {

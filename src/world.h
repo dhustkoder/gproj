@@ -5,23 +5,25 @@
 /*
 	A world is N matrixes of tiles,
 	N being the number of layers
-	world begins at pos 0,0 going to 512 * 32, 512 * 32
+	world begins at pos 0,0
 */
 
 
-#define TILE_WIDTH  (32)
-#define TILE_HEIGHT (32)
+#define TILE_WIDTH        (32)
+#define TILE_HEIGHT       (32)
 #define WORLD_MAX_X_TILES (512)
 #define WORLD_MAX_Y_TILES (512)
 
 
 struct world_ts {
+	// ts file path
+	const char* path;
 	// tile IDS in the tilesheet
 	s16* tile_ids;
 	// world size in tiles
 	struct vec2i world_size;
 	// tilesheet image pixel size
-	struct vec2i ts_img_size_in_pixels;
+	struct vec2i img_size;
 };
 
 struct world_map {
