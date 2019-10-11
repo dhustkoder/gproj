@@ -8,3 +8,4 @@ extern void chars_update(timer_clk_t now, float dt);
 extern void chars_send_render(void);
 
 #endif
+

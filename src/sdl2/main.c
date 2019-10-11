@@ -143,7 +143,7 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 
 	return gproj(argc, argv);
-	/*
+/*
 	workman_init();
 
 	workman_push_sleep(500);
@@ -171,10 +171,9 @@ int main(int argc, char** argv)
 	workman_push_sleep(500);
 	workman_push_sleep(500);
 
-	workman_work_until_empty();
-
+	workman_work_until_all_finished();
 	workman_term();
-	*/
+*/
 }
 
 

@@ -18,16 +18,16 @@
 
 
 union work_arg {
-	int8_t i8;
-	uint8_t u8;
-	int16_t i16;
-	uint16_t u16;
-	int32_t i32;
-	uint32_t u32;
-	int64_t i64;
-	uint64_t u64;
-	void* ptr;
+	s8 s8;
+	u8 u8;
+	s16 s16;
+	u16 u16;
+	s32 s32;
+	u32 u32;
+	uptr uptr;
+	sptr sptr;
 	timer_clk_t clk;
+	void* ptr;
 };
 
 typedef void(*work_ptr_t)(union work_arg arg);

@@ -3,6 +3,7 @@
 #include "maps.h"
 #include "timer.h"
 
+
 struct game_map {
 	const char* const ts_img_path;
 	struct world_ts ts_info;
@@ -86,7 +87,7 @@ static struct game_map maps[] = {
 			.world_size = { 24, 10 },
 			.tile_ids = level_5_mapping
 		}	
-	},
+	}
 };
 
 static s8 mapid = 0;
@@ -116,20 +117,20 @@ void maps_update(const struct vec2f* restrict const cam,
 #ifdef GPROJ_DEBUG	
 	extern struct events gproj_events;
 	if (gproj_events.input.new_state) {
-		if (gproj_events.input.buttons&INPUT_BUTTON_ACTION) {
+		const input_button_t buttons = gproj_events.input.buttons;
+
+		if (buttons&INPUT_BUTTON_ACTION) {
 			mapid = (mapid + 1) % STATIC_ARRAY_SIZE(maps);
 			maps_init();
 		}
 
-		if (gproj_events.input.buttons&INPUT_BUTTON_WORLD_SCALE_DOWN &&
-		    wm.scale >= 0.2)
+		if (buttons&INPUT_BUTTON_WORLD_SCALE_DOWN && wm.scale >= 0.2)
 			wm.scale -= 0.1;
 		
-		if (gproj_events.input.buttons&INPUT_BUTTON_WORLD_SCALE_UP &&
-		    wm.scale <= 0.9)
+		if (buttons&INPUT_BUTTON_WORLD_SCALE_UP && wm.scale <= 0.9)
 			wm.scale += 0.1;
 	}
-#endif	
+#endif
 
 	world_view_update(cam, &wm, &wmv);
 }

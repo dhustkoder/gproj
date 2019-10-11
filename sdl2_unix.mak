@@ -43,7 +43,7 @@ PLATFORM_ASM=$(patsubst $(PLATFORM_SRC_DIR)/%.c, $(PLATFORM_ASM_DIR)/%.asm, $(wi
 
 
 
-CFLAGS=-std=c99 -Wall -Wextra -Wshadow\
+CFLAGS=-std=c99 -Wpedantic -Wall -Wextra -Wshadow\
        -I $(SRC_DIR) -I $(PLATFORM_SRC_DIR) -I $(GAME_SRC_DIR)\
        $(PLATFORM_CFLAGS) -I$(LIBTMX_DIR)/src -I$(SDLFC_DIR)\
        $(GPROJ_DEFINES)

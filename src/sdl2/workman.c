@@ -77,8 +77,9 @@ static void debug_work_ownership_monitor_lock(const struct work_queue_entry* con
 	const int entry = (int)(entryp - (&queue[0]));
 	const SDL_threadID myid = SDL_ThreadID();
 	const char* my_name = debug_get_thread_name_by_id(myid);
-	LOG_DEBUG("THREAD %-16s STARTING WORK IDX => %4d => (%p) : WORK_CNT => %4d",
-	           my_name, entry, entryp->fn, work_cnt);
+	LOG_DEBUG("THREAD %-16s STARTING WORK IDX => %4d => (%"UPTR_FMT
+	          ") : WORK_CNT => %4d",
+	           my_name, entry, (uptr)entryp->fn, work_cnt);
 
 	for (int i = 0; i < thread_cnt; ++i) {
 		if (thread_ids[i] == myid) {
@@ -101,8 +102,9 @@ static void debug_work_ownership_monitor_unlock(const struct work_queue_entry* c
 	const SDL_threadID myid = SDL_ThreadID();
 	const char* my_name = debug_get_thread_name_by_id(myid);
 	const int entry = (int)(entryp - (&queue[0]));
-	LOG_DEBUG("THREAD %-16s FINISHED WORK IDX => %4d => (%p) : WORK_CNT => %4d",
-	          my_name, entry, entryp->fn, work_cnt);
+	LOG_DEBUG("THREAD %-16s FINISHED WORK IDX => %4d => (%"UPTR_FMT
+	          ") : WORK_CNT => %4d",
+	          my_name, entry, (uptr)entryp->fn, work_cnt);
 	if (myid == manager_thr_id) {
 		assert(entry == manager_thr_work);
 		manager_thr_work = QUEUE_NULL_INDEX;
@@ -257,7 +259,7 @@ void workman_push_sleep(timer_clk_t ms)
 	assert(SDL_ThreadID() == manager_thr_id);
 	((void)ms);
 	((void)sleeper);
-	//workman_push_work(sleeper, (union work_arg){.clk = ms});
+	workman_push_work(sleeper, (union work_arg){.clk = ms});
 }
 
 void workman_work_until_all_finished(void)
