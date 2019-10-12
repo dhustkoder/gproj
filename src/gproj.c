@@ -8,7 +8,8 @@
 struct events gproj_events;
 
 
-int gproj(int argc, char** argv)
+
+int gproj_main(int argc, char** argv)
 {
 	game_init(argc, argv);
 

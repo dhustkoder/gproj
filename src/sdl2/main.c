@@ -142,7 +142,7 @@ int main(int argc, char** argv)
 	if (!platform_init())
 		return EXIT_FAILURE;
 
-	return gproj(argc, argv);
+	return gproj_main(argc, argv);
 /*
 	workman_init();
 

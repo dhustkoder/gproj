@@ -1,13 +1,13 @@
 #include <assert.h>
 #include <string.h>
 #include "render.h"
-#include "world.h"
+#include "map.h"
 
 
-void world_map_init(const struct world_meta* const meta,
-                    struct world_map* const map)
+void map_init(const struct map_meta* const meta,
+              struct map* const map)
 {
-	const struct vec2i wsize = meta->world_size;
+	const struct vec2i wsize = meta->map_size;
 	const struct vec2i pixsz = meta->ts_img_size;
 	const s16* const tsids = meta->ts_ids;
 
@@ -16,10 +16,10 @@ void world_map_init(const struct world_meta* const meta,
 			const int offset = y * wsize.x + x;
 			const int id = tsids[offset];
 			if (id < 0) {
-				map->map[offset].x = -1;
+				map->data[offset].x = -1;
 				continue;
 			}
-			map->map[offset] = (struct vec2i) {
+			map->data[offset] = (struct vec2i) {
 				.x = (id * TILE_WIDTH) % pixsz.x,
 				.y = (((id * TILE_WIDTH) / pixsz.x) * TILE_HEIGHT)
 			};
@@ -34,9 +34,9 @@ void world_map_init(const struct world_meta* const meta,
 }
 
 
-void world_view_update(const struct vec2f* const cam,
-                       const struct world_map* const map,
-                       struct world_map_view* const view)
+void map_view_update(const struct vec2f* const cam,
+                     const struct map* const map,
+                     struct map_view* const view)
 {
 	const int camx = cam->x;
 	const int camy = cam->y;
@@ -79,10 +79,10 @@ void world_view_update(const struct vec2f* const cam,
 		ytiles = map->size.y - yfirst;
 
 	const struct vec2i* const src = 
-		&map->map[yfirst * mapsz.x + xfirst];
+		&map->data[yfirst * mapsz.x + xfirst];
 	for (int y = 0; y < ytiles; ++y) {
 		for (int x = 0; x < xtiles; ++x) {
-			view->map[y * xtiles + x] =
+			view->data[y * xtiles + x] =
 				src[y * mapsz.x + x];
 		}
 	}

@@ -148,13 +148,13 @@ void render_load_ss(const char* const path)
 	assert(tex_ss != NULL);
 }
 
-void render_world(const struct world_map_view* const view)
+void render_map(const struct map_view* const view)
 {
 	
 	prepare_target_layer(0);
 	const struct vec2i cnt = view->size;
 	const struct vec2i pos = view->scrpos;
-	const struct vec2i* const tsmap = view->map;
+	const struct vec2i* const tsmap = view->data;
 #ifdef GPROJ_DEBUG
 	const int tile_width = TILE_WIDTH * view->scale;
 	const int tile_height = TILE_HEIGHT * view->scale;
