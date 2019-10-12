@@ -66,7 +66,7 @@ struct world_meta levels[5] = {
 		}
 	},
 	{
-		.name = "Forth",
+		.name = "Fourth",
 		.map_meta = {
 			.ts_path = "world-ts.png",
 			.ts_img_size = { 512, 512 },
