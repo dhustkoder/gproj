@@ -1,8 +1,6 @@
 #ifndef GPROJ_AUDIO_H_
 #define GPROJ_AUDIO_H_
-#include <stdbool.h>
-#include <stdint.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 
 #define GPROJ_MAX_BGMS (1)

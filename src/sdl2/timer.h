@@ -1,7 +1,7 @@
 #ifndef GPROJ_TIMER_H_
 #define GPROJ_TIMER_H_
-#include <SDL2/SDL_stdinc.h>
-#include <SDL2/SDL_timer.h>
+#include <SDL_stdinc.h>
+#include <SDL_timer.h>
 #include "types.h"
 
 

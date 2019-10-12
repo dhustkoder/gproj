@@ -1,5 +1,5 @@
 #include <assert.h>
-#include <SDL2/SDL_mixer.h>
+#include <SDL_mixer.h>
 #include "logger.h"
 #include "audio.h"
 
@@ -11,7 +11,7 @@ static Mix_Music* bgms[GPROJ_MAX_BGMS];
 
 void audio_init()
 {
-	Mix_VolumeMusic((40.f / 100.f) * MIX_MAX_VOLUME);	
+	Mix_VolumeMusic((40.f / 100.f) * MIX_MAX_VOLUME);
 }
 
 void audio_term()
@@ -31,7 +31,7 @@ int audio_load_bgm(const char* const path)
 }
 
 int audio_load_sfx(const char* const path)
-{	
+{
 	assert(path != NULL);
 	sfxs[sfxs_cnt] = Mix_LoadWAV(path);
 	assert(sfxs[sfxs_cnt] != NULL);

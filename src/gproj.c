@@ -1,4 +1,3 @@
-#include <SDL2/SDL.h>
 #include "timer.h"
 #include "events.h"
 #include "gproj.h"

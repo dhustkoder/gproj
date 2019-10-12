@@ -1,9 +1,12 @@
 #ifndef GPROJ_TYPES_H_
 #define GPROJ_TYPES_H_
 #include <stdint.h>
-#include <SDL2/SDL_stdinc.h>
+#include <SDL_stdinc.h>
 #include "utils.h"
 
+#if _MSC_VER
+#define restrict __restrict
+#endif
 
 typedef Uint8  u8;
 typedef Uint16 u16;
@@ -41,8 +44,9 @@ typedef intptr_t  sptr;
 typedef u8  b8;
 typedef u16 b16;
 typedef u32 b32;
-#define true  1
-#define false 0
+typedef _Bool bool;
+#define true  ((bool)1)
+#define false ((bool)0)
 
 typedef float f32;
 

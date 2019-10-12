@@ -1,9 +1,8 @@
-#include <stdint.h>
 #include <string.h>
 #include <assert.h>
 #include <stdarg.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <SDL.h>
+#include <SDL_image.h>
 #include <SDL_FontCache.h>
 #include "logger.h"
 #include "render.h"
@@ -89,7 +88,7 @@ void render_term()
 		SDL_DestroyTexture(tex_ss);
 
 	fb_free();
-	
+
 	if (tex_txt != NULL)
 		SDL_DestroyTexture(tex_txt);
 	if (rend != NULL)
@@ -106,7 +105,7 @@ void render_layers_setup(int w, int h)
 
 	layers_size = (struct vec2i) {
 		.x = w,
-		.y = h 
+		.y = h
 	};
 	assert(layers != NULL);
 
@@ -150,7 +149,7 @@ void render_load_ss(const char* const path)
 
 void render_map(const struct map_view* const view)
 {
-	
+
 	prepare_target_layer(0);
 	const struct vec2i cnt = view->size;
 	const struct vec2i pos = view->scrpos;
@@ -177,7 +176,7 @@ void render_map(const struct map_view* const view)
 				.x = (x * tile_width) + pos.x,
 				.y = (y * tile_height) + pos.y,
 				.w = tile_width,
-				.h = tile_height 
+				.h = tile_height
 			};
 			SDL_RenderCopy(rend, tex_ts, &ts_rect, &scr_rect);
 		}
@@ -193,7 +192,7 @@ void render_ss(const int layer,
                const int cnt)
 {
 	prepare_target_layer(layer);
-	
+
 	for (int i = 0; i < cnt; ++i) {
 		const SDL_Rect wr = (SDL_Rect) {
 			.x = wpos[i].x,
@@ -211,7 +210,7 @@ void render_ss(const int layer,
 
 		SDL_RenderCopyEx(rend, tex_ss, &sr, &wr, 0, NULL, flags[i]);
 	}
-			
+
 }
 
 
@@ -222,17 +221,17 @@ void render_text(const char* const text, ...)
 	va_start(vargs, text);
 
 	vsnprintf(buffer, 256, text, vargs);
-	
+
 	SDL_SetRenderTarget(rend, tex_txt);
-	
+
 	if (text_pos.x == 0)
 		SDL_RenderClear(rend);
 
 	const SDL_Rect dirty = FC_Draw(font, rend, 0, text_pos.y, buffer);
-  
+
 	if (dirty.w > text_pos.x)
 		text_pos.x = dirty.w;
-	
+
 	text_pos.y += dirty.h;
 
 
@@ -251,7 +250,7 @@ void render_present(void)
 
 	SDL_SetRenderTarget(rend, NULL);
 	SDL_RenderClear(rend);
-	
+
 	for (int i = 0; i < GPROJ_RENDER_NLAYERS; ++i)
 		SDL_RenderCopy(rend, layers[i], NULL, NULL);
 

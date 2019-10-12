@@ -1,6 +1,6 @@
 #ifndef GPROJ_LOGGER_H_
 #define GPROJ_LOGGER_H_
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #define LOG(...) SDL_Log(__VA_ARGS__)
 

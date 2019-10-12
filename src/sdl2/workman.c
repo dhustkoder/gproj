@@ -1,6 +1,6 @@
 #include <assert.h>
-#include <stdbool.h>
-#include <SDL2/SDL.h>
+#include <stdlib.h>
+#include <SDL.h>
 #include "logger.h"
 #include "workman.h"
 
@@ -217,7 +217,7 @@ void workman_init(void)
 	if (thread_cnt > 0) {
 		threads = malloc(sizeof(SDL_Thread*) * thread_cnt);
 		for (int i = 0; i < thread_cnt; ++i) {
-			sprintf(namebuff, "WORKER_THREAD_%d", i);
+			snprintf(namebuff, sizeof(namebuff), "WORKER_THREAD_%d", i);
 			threads[i] = SDL_CreateThread(worker_thr_main, namebuff, NULL);
 			assert(threads[i] != NULL);
 			SDL_DetachThread(threads[i]);
