@@ -13,6 +13,6 @@ unix:
 	@$(MAKE) -f sdl2_unix.mak $(MAKECMDGOALS)
 
 windows: 
-	@$(MAKE) -f sdl2_win.mak $(MAKECMDGOALS)
+	@$(MAKE) -f sdl2_win_x64.mak $(MAKECMDGOALS)
 
 

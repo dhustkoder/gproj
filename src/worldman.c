@@ -64,11 +64,11 @@ void worldman_update_world(const timer_clk_t now, const float dt)
 			const int idx = (loaded_world_idx + 1) % nworlds;
 			worldman_load_world(metas[idx].name);
 		} else if (buttons&INPUT_BUTTON_WORLD_SCALE_DOWN &&
-		           world.map.scale >= 0.16) {
-			world.map.scale -= 0.05;
+		           world.map.scale >= 0.20) {
+			world.map.scale -= 0.1;
 		} else if (buttons&INPUT_BUTTON_WORLD_SCALE_UP &&
-		           world.map.scale < 1.0) {
-			world.map.scale += 0.05;
+		           world.map.scale < 10.0) {
+			world.map.scale += 0.1;
 		}
 	}
 #endif

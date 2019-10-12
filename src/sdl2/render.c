@@ -169,8 +169,8 @@ void render_map(const struct map_view* const view)
 			const SDL_Rect ts_rect = {
 				.x = tspos.x,
 				.y = tspos.y,
-				.w = tile_width,
-				.h = tile_height
+				.w = TILE_WIDTH,
+				.h = TILE_HEIGHT
 			};
 			const SDL_Rect scr_rect = {
 				.x = (x * tile_width) + pos.x,

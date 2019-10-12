@@ -44,11 +44,24 @@ CFLAGS+=$(CFLAGS_DEBUG)
 LDFLAGS+=$(LDFLAGS_DEBUG)
 
 
-all: compile clean
+all: gproj copy_dlls clean
 
-compile:
+gproj: SDL_FontCache
 	if not exist "build" mkdir build
 	$(CC) $(CFLAGS) $(SRC) $(LIBS) /Febuild\gproj.exe /link $(LDFLAGS)
 
+SDL_FontCache:
+	pushd .\\externals\\SDL_FontCache && make -f win.mak SDL2_ROOT=$(SDL2_ROOT) SDL2_TTF_ROOT=$(SDL2_TTF_ROOT) && popd
+
+copy_dlls:
+	copy $(SDL2_ROOT)\\lib\\x64\\*.dll build\\
+	copy $(SDL2_TTF_ROOT)\\lib\\x64\\*.dll build\\
+	copy $(SDL2_IMAGE_ROOT)\\lib\\x64\\*.dll build\\
+	copy $(SDL2_MIXER_ROOT)\\lib\\x64\\*.dll build\\
+	
+
+
 clean:
 	del *.obj
+
+

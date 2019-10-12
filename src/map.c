@@ -42,7 +42,7 @@ void map_view_update(const struct vec2f* const cam,
 	const int camy = cam->y;
 
 #ifdef GPROJ_DEBUG
-	assert(map->scale >= 0.1 && map->scale <= 1.1);
+	assert(map->scale >= 0.1);
 	const int tile_width = TILE_WIDTH * map->scale;
 	const int tile_height = TILE_WIDTH * map->scale;
 	view->scale = map->scale;
