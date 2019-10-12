@@ -5,19 +5,19 @@
 
 
 static const char* loaded_world_name = NULL;
-static int nworlds;
+static int loaded_world_idx = -1;
+static int nworlds = 0;
 static struct world_meta metas[GPROJ_MAX_WORLDS];
 static struct world world;
 
-
-static struct world_meta* search_meta(const char* const name)
+static int search_meta(const char* const name)
 {
-	for (int i = 0; i < nworlds; ++i) {
+	for (int i = 0; i < nworlds; ++i)
 		if (strcmp(metas[i].name, name) == 0)
-			return &metas[i];
-	}
-	assert(false);
-	return NULL;
+			return i;
+
+	assert(false && "INVALID CODE PATH");
+	return 0;
 }
 
 
@@ -32,10 +32,14 @@ void worldman_init(const struct world_meta* const _metas,
 void worldman_load_world(const char* const name)
 {
 	assert(name != loaded_world_name);
-	const struct world_meta* const meta = search_meta(name);
+	const int idx = search_meta(name);
+	const struct world_meta* const meta = &metas[idx];
+
 	map_init(&meta->map_meta, &world.map);
 	render_load_ts(meta->map_meta.ts_path);
+
 	loaded_world_name = name;
+	loaded_world_idx = idx;
 }
 
 void worldman_update_world(const timer_clk_t now, const float dt)
@@ -56,16 +60,19 @@ void worldman_update_world(const timer_clk_t now, const float dt)
 		world.cam.y += 64.f * dt;
 
 	if (gproj_events.input.new_state) {
-		if (buttons&INPUT_BUTTON_WORLD_SCALE_DOWN &&
-		    world.map.scale >= 0.16)
+		if (buttons&INPUT_BUTTON_WORLD_FWD) {
+			const int idx = (loaded_world_idx + 1) % nworlds;
+			worldman_load_world(metas[idx].name);
+		} else if (buttons&INPUT_BUTTON_WORLD_SCALE_DOWN &&
+		           world.map.scale >= 0.16) {
 			world.map.scale -= 0.05;
-		
-		if (buttons&INPUT_BUTTON_WORLD_SCALE_UP &&
-		    world.map.scale < 1.0)
+		} else if (buttons&INPUT_BUTTON_WORLD_SCALE_UP &&
+		           world.map.scale < 1.0) {
 			world.map.scale += 0.05;
+		}
 	}
 #endif
-	
+
 	map_view_update(&world.cam, &world.map, &world.map_view);
 
 #ifdef GPROJ_DEBUG

@@ -5,7 +5,7 @@ static s16 level_1_mapping[] = {
 	0,
 	1
 };
-/*
+
 static s16 level_2_mapping[] = {
 	0, 1
 };
@@ -35,12 +35,11 @@ static s16 level_5_mapping[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
-*/
 
 
-struct world_meta levels[1] = {
+struct world_meta levels[5] = {
 	{
-		.name = "first",
+		.name = "First",
 		.map_meta = {
 			.ts_path     = "world-ts.png",
 			.ts_img_size = { 512, 512 },
@@ -48,31 +47,41 @@ struct world_meta levels[1] = {
 			.ts_ids    = level_1_mapping
 		}
 	},
-	/*
 	{
-		.ts_path = "world-ts.png",
-		.ts_img_size = { 512, 512 },
-		.map_size = { 2, 1 },
-		.ts_ids = level_2_mapping
+		.name = "Second",
+		.map_meta = {
+			.ts_path = "world-ts.png",
+			.ts_img_size = { 512, 512 },
+			.map_size = { 2, 1 },
+			.ts_ids = level_2_mapping
+		}
 	},
 	{
-		.ts_path = "world-ts.png",
-		.ts_img_size = { 512, 512 },
-		.map_size = { 1, 3 },
-		.ts_ids = level_3_mapping
+		.name = "Third",
+		.map_meta = {
+			.ts_path = "world-ts.png",
+			.ts_img_size = { 512, 512 },
+			.map_size = { 1, 3 },
+			.ts_ids = level_3_mapping
+		}
 	},
 	{
-		.ts_path = "world-ts.png",
-		.ts_img_size = { 512, 512 },
-		.map_size = { 12, 3 },
-		.ts_ids = level_4_mapping
+		.name = "Forth",
+		.map_meta = {
+			.ts_path = "world-ts.png",
+			.ts_img_size = { 512, 512 },
+			.map_size = { 12, 3 },
+			.ts_ids = level_4_mapping
+		}
 	},
 	{
-		.ts_path = "world-ts.png",
-		.ts_img_size = { 512, 512 },
-		.map_size = { 24, 10 },
-		.ts_ids = level_5_mapping
+		.name = "Fifth",
+		.map_meta = { 
+			.ts_path = "world-ts.png",
+			.ts_img_size = { 512, 512 },
+			.map_size = { 24, 10 },
+			.ts_ids = level_5_mapping
+		}
 	}
-	*/
 };
 

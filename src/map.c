@@ -57,8 +57,8 @@ void map_view_update(const struct vec2f* const cam,
 
 	if (camx <= -(GPROJ_SCR_WIDTH)       ||
 	    camy <= -(GPROJ_SCR_HEIGHT)      ||
-	    camx >=  (mapsz.x * TILE_WIDTH)  ||
-	    camy >=  (mapsz.y * TILE_HEIGHT)) {
+	    camx >=  (mapsz.x * tile_width)  ||
+	    camy >=  (mapsz.y * tile_height)) {
 		view->size = (struct vec2i) { 0, 0 };
 		return;
 	}

@@ -6,7 +6,7 @@
 #include "worldman.h"
 #include "game.h"
 
-extern struct world_meta levels[1];
+extern struct world_meta levels[5];
 
 void game_init(int argc, char** argv)
 {
@@ -18,8 +18,8 @@ void game_init(int argc, char** argv)
 	render_layers_setup(GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	audio_init();
 
-	worldman_init(levels, 1);
-	worldman_load_world("first");
+	worldman_init(levels, STATIC_ARRAY_SIZE(levels));
+	worldman_load_world("First");
 
 	LOG_DEBUG("GAME INITIALIZED");
 }
