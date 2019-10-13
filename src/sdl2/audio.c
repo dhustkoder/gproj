@@ -11,11 +11,13 @@ static Mix_Music* bgms[GPROJ_MAX_BGMS];
 
 void audio_init()
 {
+	LOG_DEBUG("INITIALIZING AUDIO");
 	Mix_VolumeMusic((40.f / 100.f) * MIX_MAX_VOLUME);
 }
 
 void audio_term()
 {
+	LOG_DEBUG("TERMINATING AUDIO");
 	for (int i = 0; i < bgms_cnt; ++i)
 		Mix_FreeMusic(bgms[i]);
 	for (int i = 0; i < sfxs_cnt; ++i)

@@ -12,7 +12,7 @@ void game_init(int argc, char** argv)
 {
 	((void)argc);
 	((void)argv);
-	LOG_DEBUG("INITIALIZING GAME");
+	LOG_DEBUG("#####INITIALIZING GAME#####");
 	
 	render_init("GProj Testing");
 	render_layers_setup(GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
@@ -21,7 +21,7 @@ void game_init(int argc, char** argv)
 	worldman_init(levels, STATIC_ARRAY_SIZE(levels));
 	worldman_load_world("First");
 
-	LOG_DEBUG("GAME INITIALIZED");
+	LOG_DEBUG("#####GAME INITIALIZED#####");
 }
 
 void game_step(const timer_clk_t now, const float dt)
@@ -33,12 +33,13 @@ void game_step(const timer_clk_t now, const float dt)
 
 void game_term()
 {
-	LOG_DEBUG("TERMINATING GAME");
+	LOG_DEBUG("#####TERMINATING GAME#####");
 	
+	worldman_term();
 	audio_term();
 	render_term();
 
-	LOG_DEBUG("GAME TERMINATED");
+	LOG_DEBUG("#####GAME TERMINATED#####");
 }
 
 

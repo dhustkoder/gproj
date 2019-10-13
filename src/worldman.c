@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <string.h>
+#include "logger.h"
 #include "render.h"
 #include "worldman.h"
 
@@ -24,6 +25,7 @@ static int search_meta(const char* const name)
 void worldman_init(const struct world_meta* const _metas,
                    const int cnt)
 {
+	LOG_DEBUG("INITIALIZING WORLDMAN");
 	assert(cnt <= GPROJ_MAX_WORLDS && metas != NULL);
 	memcpy(metas, _metas, cnt * sizeof(struct world_meta)); 
 	nworlds = cnt;
@@ -96,7 +98,7 @@ void worldman_send_render(void)
 
 void worldman_term(void)
 {
-
+	LOG_DEBUG("TERMINATING WORLDMAN");
 }
 
 
