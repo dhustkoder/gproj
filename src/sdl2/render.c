@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 #include <assert.h>
 #include <stdarg.h>
 #include <SDL.h>

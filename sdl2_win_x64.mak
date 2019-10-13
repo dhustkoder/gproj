@@ -9,6 +9,7 @@ SDL2_INCLUDES= \
 	/I$(SDL2_TTF_ROOT)\\include \
 	/I$(SDL2_IMAGE_ROOT)\\include \
 	/I$(SDL2_MIXER_ROOT)\\include
+
 SDL2_LIBS= \
 	$(SDL2_ROOT)\\lib\\x64\\SDL2.lib \
 	$(SDL2_ROOT)\\lib\\x64\\SDL2main.lib \
@@ -29,6 +30,8 @@ CFLAGS=\
 	/D_CRT_SECURE_NO_WARNINGS \
 	/wd4028 \
 	/wd4214 \
+	/wd4204 \
+	/wd4244 \
 	/W4 \
 	$(INCLUDES) \
 	$(LIBS)
@@ -46,12 +49,17 @@ LDFLAGS+=$(LDFLAGS_DEBUG)
 
 all: gproj copy_dlls clean
 
+
 gproj: SDL_FontCache
 	if not exist "build" mkdir build
-	$(CC) $(CFLAGS) $(SRC) $(LIBS) /Febuild\gproj.exe /link $(LDFLAGS)
+	$(CC) $(CFLAGS) $(SRC) $(LIBS) /Febuild\\gproj.exe /link $(LDFLAGS)
+
 
 SDL_FontCache:
-	pushd .\\externals\\SDL_FontCache && make -f win.mak SDL2_ROOT=$(SDL2_ROOT) SDL2_TTF_ROOT=$(SDL2_TTF_ROOT) && popd
+	pushd .\\externals\\SDL_FontCache && \
+	make -f win.mak SDL2_ROOT=$(SDL2_ROOT) \
+	SDL2_TTF_ROOT=$(SDL2_TTF_ROOT) \
+	&& popd
 
 copy_dlls:
 	copy $(SDL2_ROOT)\\lib\\x64\\*.dll build\\

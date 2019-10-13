@@ -14,6 +14,12 @@
 #define MAP_MAX_X_TILES (512)
 #define MAP_MAX_Y_TILES (512)
 
+#ifdef GPROJ_DEBUG
+#define MAP_DEFAULT_SCALE (1.0f)
+#define MAP_MAX_SCALE     (5.0f)
+#define MAP_MIN_SCALE     (0.1f)
+#define MAP_SCALE_MOD     (0.1f)
+#endif
 
 struct map_meta {
 	// ts file path

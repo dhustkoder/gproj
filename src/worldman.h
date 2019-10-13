@@ -6,8 +6,11 @@
 #include "actors.h"
 
 
-#define GPROJ_MAX_WORLDS (16)
+#define GPROJ_MAX_WORLDS   (16)
 
+#ifdef GPROJ_DEBUG
+#define WORLD_DEBUG_CAM_VELOCITY (64.f)
+#endif
 
 struct world_meta {
 	const char* name;

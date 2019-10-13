@@ -11,6 +11,8 @@ void map_init(const struct map_meta* const meta,
 	const struct vec2i pixsz = meta->ts_img_size;
 	const s16* const tsids = meta->ts_ids;
 
+	assert(pixsz.x <= S16_MAX && pixsz.y <= S16_MAX);
+
 	for (int y = 0; y < wsize.y; ++y) {
 		for (int x = 0; x < wsize.x; ++x) {
 			const int offset = y * wsize.x + x;
@@ -29,7 +31,7 @@ void map_init(const struct map_meta* const meta,
 	map->size = wsize;
 
 #ifdef GPROJ_DEBUG
-	map->scale = 1.0;
+	map->scale = MAP_DEFAULT_SCALE;
 #endif
 }
 
@@ -42,7 +44,7 @@ void map_view_update(const struct vec2f* const cam,
 	const int camy = cam->y;
 
 #ifdef GPROJ_DEBUG
-	assert(map->scale >= 0.1);
+	assert(map->scale >= MAP_MIN_SCALE && map->scale <= MAP_MAX_SCALE);
 	const int tile_width = TILE_WIDTH * map->scale;
 	const int tile_height = TILE_WIDTH * map->scale;
 	view->scale = map->scale;

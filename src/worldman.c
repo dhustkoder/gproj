@@ -51,25 +51,29 @@ void worldman_update_world(const timer_clk_t now, const float dt)
 	const input_button_t buttons = gproj_events.input.buttons;
 
 	if (buttons&INPUT_BUTTON_CAM_RIGHT)
-		world.cam.x += 64.f * dt;
+		world.cam.x += WORLD_DEBUG_CAM_VELOCITY * dt;
 	else if (buttons&INPUT_BUTTON_CAM_LEFT)
-		world.cam.x -= 64.f * dt;
+		world.cam.x -= WORLD_DEBUG_CAM_VELOCITY * dt;
 	else if (buttons&INPUT_BUTTON_CAM_UP)
-		world.cam.y -= 64.f * dt;
+		world.cam.y -= WORLD_DEBUG_CAM_VELOCITY * dt;
 	else if (buttons&INPUT_BUTTON_CAM_DOWN)
-		world.cam.y += 64.f * dt;
+		world.cam.y += WORLD_DEBUG_CAM_VELOCITY * dt;
 
 	if (gproj_events.input.new_state) {
 		if (buttons&INPUT_BUTTON_WORLD_FWD) {
 			const int idx = (loaded_world_idx + 1) % nworlds;
 			worldman_load_world(metas[idx].name);
 		} else if (buttons&INPUT_BUTTON_WORLD_SCALE_DOWN &&
-		           world.map.scale >= 0.20) {
-			world.map.scale -= 0.1;
+		           world.map.scale > MAP_MIN_SCALE) {
+			world.map.scale -= MAP_SCALE_MOD;
 		} else if (buttons&INPUT_BUTTON_WORLD_SCALE_UP &&
-		           world.map.scale < 10.0) {
-			world.map.scale += 0.1;
+		           world.map.scale < MAP_MAX_SCALE) {
+			world.map.scale += MAP_SCALE_MOD;
 		}
+		if (world.map.scale < MAP_MIN_SCALE)
+			world.map.scale = MAP_MIN_SCALE;
+		else if (world.map.scale > MAP_MAX_SCALE)
+			world.map.scale = MAP_MAX_SCALE;
 	}
 #endif
 

@@ -7,5 +7,8 @@
 	u8 fake_array[(cond) ? 1 : -1]; \
 }
 
+
+
+
 #endif
 
