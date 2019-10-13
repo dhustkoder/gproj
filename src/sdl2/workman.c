@@ -207,7 +207,7 @@ static int worker_thr_main(void* dummy)
 
 void workman_init(void)
 {
-	LOG_DEBUG("STARTING WORKMAN");
+	LOG_DEBUG("INITIALIZING WORKMAN");
 	char namebuff[32];
 	work_cnt = 0;
 	work_next =  0;
