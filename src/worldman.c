@@ -31,6 +31,11 @@ void worldman_init(const struct world_meta* const _metas,
 	nworlds = cnt;
 }
 
+void worldman_term(void)
+{
+	LOG_DEBUG("TERMINATING WORLDMAN");
+}
+
 void worldman_load_world(const char* const name)
 {
 	assert(name != loaded_world_name);
@@ -95,11 +100,4 @@ void worldman_send_render(void)
 {
 	render_map(&world.map_view);
 }
-
-void worldman_term(void)
-{
-	LOG_DEBUG("TERMINATING WORLDMAN");
-}
-
-
 
