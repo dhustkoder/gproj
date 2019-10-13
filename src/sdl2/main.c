@@ -58,7 +58,7 @@ static input_button_t gproj_buttons[] = {
 
 static bool platform_init()
 {
-	LOG_DEBUG("Initializing Platfrom");
+	LOG_DEBUG("INITIALIZING PLATFORM SDL2");
 
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0)
 		goto Lfailure;
@@ -81,7 +81,7 @@ Lfailure:
 
 static void platform_term(void)
 {
-	LOG_DEBUG("Terminating Platform");
+	LOG_DEBUG("TERMINATING PLATFORM SDL2");
 
 	Mix_CloseAudio();
 	TTF_Quit();
