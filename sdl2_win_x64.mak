@@ -40,18 +40,17 @@ LDFLAGS=/SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup
 CFLAGS_RELEASE=/Ox
 LDFLAGS_RELEASE=
 
-CFLAGS_DEBUG=/DGPROJ_DEBUG /DDEBUG
+CFLAGS_DEBUG=/DEBUG:FULL /Od /Zi /DGPROJ_DEBUG /DDEBUG
 LDFLAGS_DEBUG=
 
 CFLAGS+=$(CFLAGS_DEBUG)
 LDFLAGS+=$(LDFLAGS_DEBUG)
 
 
-all: gproj copy_dlls clean
+all: create_build_folder gproj copy_files clean
 
 
 gproj: SDL_FontCache
-	if not exist "build" mkdir build
 	$(CC) $(CFLAGS) $(SRC) $(LIBS) /Febuild\\gproj.exe /link $(LDFLAGS)
 
 
@@ -61,15 +60,18 @@ SDL_FontCache:
 	SDL2_TTF_ROOT=$(SDL2_TTF_ROOT) \
 	&& popd
 
-copy_dlls:
+copy_files:
 	copy $(SDL2_ROOT)\\lib\\x64\\*.dll build\\
 	copy $(SDL2_TTF_ROOT)\\lib\\x64\\*.dll build\\
 	copy $(SDL2_IMAGE_ROOT)\\lib\\x64\\*.dll build\\
 	copy $(SDL2_MIXER_ROOT)\\lib\\x64\\*.dll build\\
+	copy *.pdb build\\
 	
-
+create_build_folder:
+	if not exist "build" mkdir build
 
 clean:
 	del *.obj
+	del *.pdb
 
 
