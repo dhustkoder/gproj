@@ -7,8 +7,8 @@
 #define GPROJ_MAX_SFXS (16)
 
 
-extern void audio_init();
-extern void audio_term();
+extern void audio_init(void);
+extern void audio_term(void);
 
 extern int audio_load_bgm(const char* path);
 extern int audio_load_sfx(const char* path);

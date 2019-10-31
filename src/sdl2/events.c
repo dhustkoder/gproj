@@ -43,11 +43,6 @@ static input_button_t gproj_buttons[] = {
 };
 
 
-
-
-
-
-
 static inline void update_input_event(const SDL_Event* const ev,
                                       struct input_event* const ie)
 {

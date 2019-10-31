@@ -3,9 +3,9 @@
 #include "types.h"
 
 
-extern void game_init();
+extern void game_init(int argc, char** argv);
 extern void game_step(timer_clk_t now, float dt);
-extern void game_term();
+extern void game_term(void);
 
 
 #endif

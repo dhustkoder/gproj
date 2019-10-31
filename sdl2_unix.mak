@@ -23,6 +23,10 @@ GAME_SRC_DIR=$(SRC_DIR)/game
 GAME_OBJS_DIR=$(OBJS_DIR)/game
 GAME_ASM_DIR=$(ASM_DIR)/game
 
+OGL_SRC_DIR=$(SRC_DIR)/ogl
+OGL_OBJS_DIR=$(OBJS_DIR)/ogl
+OGL_ASM_DIR=$(ASM_DIR)/ogl
+
 PLATFORM_OBJS_DIR=$(OBJS_DIR)/$(PLATFORM_LSTR)
 PLATFORM_SRC_DIR=$(SRC_DIR)/$(PLATFORM_LSTR)
 PLATFORM_ASM_DIR=$(ASM_DIR)/$(PLATFORM_LSTR)
@@ -38,33 +42,35 @@ ASM=$(patsubst $(SRC_DIR)/%.c, $(ASM_DIR)/%.asm, $(wildcard $(SRC_DIR)/*.c))
 GAME_OBJS=$(patsubst $(GAME_SRC_DIR)/%.c, $(GAME_OBJS_DIR)/%.o, $(wildcard $(GAME_SRC_DIR)/*.c))
 GAME_ASM=$(patsubst $(GAME_SRC_DIR)/%.c, $(GAME_ASM_DIR)/%.asm, $(wildcard $(GAME_SRC_DIR)/*.c))
 
+OGL_OBJS=$(patsubst $(OGL_SRC_DIR)/%.c, $(OGL_OBJS_DIR)/%.o, $(wildcard $(OGL_SRC_DIR)/*.c))
+OGL_ASM=$(patsubst $(OGL_SRC_DIR)/%.c, $(OGL_ASM_DIR)/%.asm, $(wildcard $(OGL_SRC_DIR)/*.c))
+
 PLATFORM_OBJS=$(patsubst $(PLATFORM_SRC_DIR)/%.c, $(PLATFORM_OBJS_DIR)/%.o, $(wildcard $(PLATFORM_SRC_DIR)/*.c))
 PLATFORM_ASM=$(patsubst $(PLATFORM_SRC_DIR)/%.c, $(PLATFORM_ASM_DIR)/%.asm, $(wildcard $(PLATFORM_SRC_DIR)/*.c))
 
-
-
 CFLAGS=-std=c99 -Wpedantic -Wall -Wextra -Wshadow\
        -I $(SRC_DIR) -I $(PLATFORM_SRC_DIR) -I $(GAME_SRC_DIR)\
+	   -I $(OGL_SRC_DIR) \
        $(PLATFORM_CFLAGS) -I$(LIBTMX_DIR)/src -I$(SDLFC_DIR)\
        $(GPROJ_DEFINES)
 
-CFLAGS_DEBUG=-g -O0 -fsanitize=address -DDEBUG -DGPROJ_DEBUG -DGPROJ_PROFILING
+PERFORMANCE_FLAGS=-O3 -march=native -ffast-math -ffunction-sections -fstrict-aliasing \
+				  -fdata-sections -fno-unwind-tables -fno-asynchronous-unwind-tables
 
-CFLAGS_RELEASE=-Werror -O3 -march=native -ffast-math -fstrict-aliasing \
-	       -ffunction-sections -fdata-sections -fno-unwind-tables  \
-	       -fno-asynchronous-unwind-tables -DNDEBUG
 
-CFLAGS_PROFILING=-O3 -DGPROJ_PROFILING -DNDEBUG
+CFLAGS_DEBUG=-ggdb -O0 -fsanitize=address -DDEBUG -DGPROJ_DEBUG -DGPROJ_PROFILING
+
+CFLAGS_RELEASE=-Werror $(PERFORMANCE_FLAGS) -DNDEBUG
+
+CFLAGS_PROFILING=$(PERFORMANCE_FLAGS) -DGPROJ_PROFILING -DNDEBUG
 
 EXTERNALS_LIBS=$(SDLFC_DIR)/libSDL_fontcache.a
 
 LD_INCLUDES=-L$(SDLFC_DIR)
-LDFLAGS=$(LD_INCLUDES) $(PLATFORM_LDFLAGS) -lSDL_fontcache 
+LDFLAGS=$(LD_INCLUDES) $(PLATFORM_LDFLAGS) -lSDL_fontcache
 LDFLAGS_DEBUG=-g
 LDFLAGS_RELEASE=
 LDFLAGS_PROFILING=
-
-
 
 
 
@@ -101,18 +107,20 @@ all: $(EXTERNALS_LIBS) $(BUILD_DIR)/gproj
 asm: $(ASM) $(PLATFORM_ASM) $(GAME_ASM)
 
 
-$(BUILD_DIR)/gproj: $(PLATFORM_OBJS) $(OBJS) $(GAME_OBJS)
+$(BUILD_DIR)/gproj: $(PLATFORM_OBJS) $(OGL_OBJS) $(OBJS) $(GAME_OBJS)
 	@mkdir -p $(BUILD_DIR)
 	$(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS)
 
 $(OBJS_DIR)/%.o: $(SRC)
 	@mkdir -p $(PLATFORM_OBJS_DIR)
 	@mkdir -p $(GAME_OBJS_DIR)
+	@mkdir -p $(OGL_OBJS_DIR)
 	$(CC) $(CFLAGS) -MP -MD -c $< -o $@
 
 $(ASM_DIR)/%.asm: $(SRC)
 	@mkdir -p $(PLATFORM_ASM_DIR)
 	@mkdir -p $(GAME_ASM_DIR)
+	@mkdir -p $(OGL_ASM_DIR)
 	$(CC) $(CFLAGS) -S $< -o $@
 
 

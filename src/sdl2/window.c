@@ -6,7 +6,7 @@
 SDL_Window* sdl_window = NULL;
 
 
-bool window_init(const char* const name)
+void window_init(const char* const name)
 {
 	LOG_DEBUG("INITIALIZING WINDOW");
 	int err;

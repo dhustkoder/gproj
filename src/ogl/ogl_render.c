@@ -1,15 +1,18 @@
+#include <stdarg.h>
 #include "logger.h"
-#include "render.h"
+#include "ogl_render.h"
+
 
 
 void ogl_render_init(void)
 {
+	LOG_DEBUG("INITIALIZING OPENGL RENDER");
 
 }
 
 void ogl_render_term(void)
 {
-
+	LOG_DEBUG("TERMINATING OPENGL RENDER");
 }
 
 void ogl_render_layers_setup(int w, int h)
@@ -39,12 +42,17 @@ void ogl_render_ss(const int layer,
                const render_flag_t* restrict const flags,
                const int cnt)
 {
+
 }
 
 
 void ogl_render_text(const char* const text, ...)
 {
-
+	va_list args;
+	va_start(args, text);
+	vprintf(text, args);
+	printf("\n");
+	va_end(args);
 }
 
 

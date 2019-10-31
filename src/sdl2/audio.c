@@ -9,13 +9,13 @@ static Mix_Chunk* sfxs[GPROJ_MAX_SFXS];
 static Mix_Music* bgms[GPROJ_MAX_BGMS];
 
 
-void audio_init()
+void audio_init(void)
 {
 	LOG_DEBUG("INITIALIZING AUDIO");
 	Mix_VolumeMusic((40.f / 100.f) * MIX_MAX_VOLUME);
 }
 
-void audio_term()
+void audio_term(void)
 {
 	LOG_DEBUG("TERMINATING AUDIO");
 	for (int i = 0; i < bgms_cnt; ++i)

@@ -3,7 +3,7 @@
 #include "types.h"
 
 
-extern bool window_init(const char* name);
+extern void window_init(const char* name);
 extern void window_term(void);
 
 

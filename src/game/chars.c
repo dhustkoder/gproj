@@ -70,10 +70,10 @@ void chars_update(const timer_clk_t now, const float dt)
 
 			if (buttons&INPUT_BUTTON_RIGHT) {
 				vel.x = +128;
-				flag &= ~RENDER_FLAG_FLIPH;
+				flag &= ~RENDER_FLAG_FLIP_H;
 			} else {
 				vel.x = -128;
-				flag |= RENDER_FLAG_FLIPH;
+				flag |= RENDER_FLAG_FLIP_H;
 			};
 			animation.frames = walking_frames;
 			animation.cnt = STATIC_ARRAY_SIZE(walking_frames);

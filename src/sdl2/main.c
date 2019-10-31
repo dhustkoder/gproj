@@ -11,10 +11,25 @@
 #include "render.h"
 #include "audio.h"
 #include "render.h"
+#include "sdl2_render.h"
+#include "ogl_render.h"
 #include "gproj.h"
 
 
-static bool platform_init()
+render_init_fn_t render_init = ogl_render_init;
+render_term_fn_t render_term = ogl_render_term;
+render_layers_setup_fn_t render_layers_setup = ogl_render_layers_setup;
+render_load_ts_fn_t render_load_ts = ogl_render_load_ts;
+render_load_ss_fn_t render_load_ss = ogl_render_load_ss;
+render_map_fn_t render_map = ogl_render_map;
+render_ss_fn_t render_ss = ogl_render_ss;
+render_text_fn_t render_text = ogl_render_text;
+render_present_fn_t render_present = ogl_render_present;
+
+
+
+
+static bool platform_init(void)
 {
 	LOG_DEBUG("INITIALIZING PLATFORM SDL2");
 
@@ -29,6 +44,8 @@ static bool platform_init()
 
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) != 0)
 		goto Lfailure;
+
+
 
 	return true;
 

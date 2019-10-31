@@ -10,14 +10,13 @@ timer_hp_clk_t timer_hp_frequency;
 
 #define GPROJ_MAX_PROFILING_IDS 512
 
-#define TIMER_HP_CLK_FMT "%.12lf"
+#define TIMER_HP_CLK_FMT ".12lf"
 
 #define timer_high_precision_counter()   ((timer_hp_clk_t)SDL_GetPerformanceCounter())
-#define timer_high_precision_frequency() (timer_hp_frequency)
 
 #define timer_profiler_start() timer_high_precision_counter()
 #define timer_profiler_end(start) \
-	((timer_high_precision_counter() - start) / timer_high_precision_frequency())
+	((timer_high_precision_counter() - start) / timer_hp_frequency)
 
 
 struct block {
@@ -35,13 +34,18 @@ static int stack_cnt;
 static struct block blocks[GPROJ_MAX_PROFILING_IDS];
 
 
-void timer_profiler_init()
+void timer_profiler_init(void)
 {
 	const int err = SDL_InitSubSystem(SDL_INIT_TIMER);
 	((void)err);
 	assert(err == 0);
 	timer_hp_frequency = SDL_GetPerformanceFrequency();
-	LOG_DEBUG("HP FREQUENCY: %.0lf", timer_hp_frequency);
+	LOG_DEBUG("HP FREQUENCY: %lf", timer_hp_frequency);
+}
+
+void timer_profiler_term(void)
+{
+
 }
 
 void timer_profiler_block_start(const char* const id,
@@ -55,7 +59,7 @@ void timer_profiler_block_start(const char* const id,
 		waste_start = timer_profiler_start();
 		prevblk = &blocks[stack[stack_cnt - 1]];
 	}
-	
+
 	int idx;
 	for (idx = 0; idx < ids_cnt; ++idx) {
 		if (ids[idx] == id) {
@@ -85,13 +89,13 @@ void timer_profiler_block_start(const char* const id,
 	blk->counter = timer_profiler_start();
 }
 
-void timer_profiler_block_end()
+void timer_profiler_block_end(void)
 {
 	assert(stack_cnt > 0);
 	timer_hp_clk_t waste_start;
 	struct block* prevblk = NULL;
 
-	
+
 	const int idx = stack[--stack_cnt];
 	struct block* const blk = &blocks[idx];
 	blk->adder += timer_profiler_end(blk->counter);
@@ -100,19 +104,18 @@ void timer_profiler_block_end()
 		waste_start = timer_profiler_start();
 		prevblk = &blocks[stack[stack_cnt - 1]];
 	}
-	
+
 	blk->hits++;
 
-	
 	if (blk->hits == blk->max_hits) {
-		blk->result = (blk->adder / blk->hits) * timer_hp_frequency;
+		blk->result = (blk->adder / blk->hits);
 		blk->adder = 0;
 		blk->hits = 0;
 	}
 
 	const char* const id = ids[idx];
-	render_text("[PROFILER] %s: %lld CYCLES", id, (Uint64)blk->result);
-	
+	render_text("[PROFILER] %s: %" TIMER_HP_CLK_FMT " SECONDS", id, blk->result);
+
 	if (prevblk != NULL) {
 		const timer_hp_clk_t wasted = timer_profiler_end(waste_start);
 		prevblk->adder -= wasted;
@@ -124,3 +127,4 @@ void timer_profiler_block_end()
 
 
 #endif
+

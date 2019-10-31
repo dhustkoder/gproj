@@ -14,15 +14,17 @@ typedef Uint32 timer_clk_t;
 
 #ifdef GPROJ_PROFILING
 
-extern void timer_profiler_init();
+extern void timer_profiler_init(void);
 extern void timer_profiler_block_start(const char* id, int max_hits);
-extern void timer_profiler_block_end();
+extern void timer_profiler_block_end(void);
+extern void timer_profiler_term(void);
 
 #else
 
-#define timer_profiler_init(...) 
+#define timer_profiler_init(...)
 #define timer_profiler_block_start(id, max_hits)
 #define timer_profiler_block_end(...)
+#define timer_profiler_term(...)
 
 #endif
 

@@ -8,6 +8,7 @@
 #include "logger.h"
 #include "render.h"
 
+
 extern SDL_Window* sdl_window;
 static SDL_Renderer* rend;
 static SDL_Texture* layers[GPROJ_RENDER_NLAYERS];
@@ -41,7 +42,7 @@ static void fb_free(void)
 
 
 
-void render_init(void)
+void sdl2_render_init(void)
 {
 	LOG_DEBUG("INITIALIZING RENDER");
 	int err;
@@ -72,7 +73,7 @@ void render_init(void)
 	SDL_RenderPresent(rend);
 }
 
-void render_term(void)
+void sdl2_render_term(void)
 {
 	LOG_DEBUG("TERMINATING RENDER");
 	FC_FreeFont(font);
@@ -90,7 +91,7 @@ void render_term(void)
 		SDL_DestroyRenderer(rend);
 }
 
-void render_layers_setup(int w, int h)
+void sdl2_render_layers_setup(int w, int h)
 {
 	LOG_DEBUG("RENDER LAYERS SETUP");
 
@@ -115,7 +116,7 @@ void render_layers_setup(int w, int h)
 	}
 }
 
-void render_load_ts(const char* const path)
+void sdl2_render_load_ts(const char* const path)
 {
 	LOG_DEBUG("LOADING TILESET: %s", path);
 	if (tex_ts)
@@ -128,7 +129,7 @@ void render_load_ts(const char* const path)
 }
 
 
-void render_load_ss(const char* const path)
+void sdl2_render_load_ss(const char* const path)
 {
 	LOG_DEBUG("LOADING SPRITESHEET: %s", path);
 	if (tex_ss)
@@ -140,7 +141,7 @@ void render_load_ss(const char* const path)
 	assert(tex_ss != NULL);
 }
 
-void render_map(const struct map_view* const view)
+void sdl2_render_map(const struct map_view* const view)
 {
 
 	prepare_target_layer(0);
@@ -176,7 +177,7 @@ void render_map(const struct map_view* const view)
 	}
 }
 
-void render_ss(const int layer,
+void sdl2_render_ss(const int layer,
                const struct vec2f* restrict const wpos,
                const struct vec2i* restrict const wsize,
                const struct vec2i* restrict const spos,
@@ -201,13 +202,13 @@ void render_ss(const int layer,
 			.h = ssize[i].y
 		};
 
-		SDL_RenderCopyEx(rend, tex_ss, &sr, &wr, 0, NULL, flags[i]);
+		SDL_RenderCopyEx(rend, tex_ss, &sr, &wr, 0, NULL, 0);
 	}
 
 }
 
 
-void render_text(const char* const text, ...)
+void sdl2_render_text(const char* const text, ...)
 {
 	static char buffer[256];
 	va_list vargs;
@@ -232,7 +233,7 @@ void render_text(const char* const text, ...)
 }
 
 
-void render_present(void)
+void sdl2_render_present(void)
 {
 	const SDL_Rect text_rect = {
 		.x = 0,
