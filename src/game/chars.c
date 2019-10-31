@@ -1,11 +1,11 @@
 #include "workman.h"
 #include "audio.h"
-#include "types.h"
 #include "render.h"
 #include "logger.h"
 #include "actors.h"
 #include "timer.h"
 #include "utils.h"
+#include "events.h"
 #include "chars.h"
 
 
@@ -31,8 +31,8 @@ static const struct frame walking_frames[] = {
 
 
 static struct frame_timing timing = { .clk = 0, .ms = 0 };
-static struct animation animation = { 
-	.frames = idle_frames, 
+static struct animation animation = {
+	.frames = idle_frames,
 	.cnt = STATIC_ARRAY_SIZE(idle_frames),
 	.idx = 0
 };

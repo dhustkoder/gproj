@@ -6,10 +6,10 @@
 #include <SDL_ttf.h>
 #include "SDL_FontCache.h"
 #include "workman.h"
+#include "events.h"
 #include "logger.h"
 #include "render.h"
 #include "audio.h"
-#include "types.h"
 #include "render.h"
 #include "gproj.h"
 
@@ -114,17 +114,17 @@ static inline void update_input_event(const SDL_Event* const ev,
 void events_update(struct events* const gproj_ev)
 {
 	SDL_Event ev;
-	
+
 	gproj_ev->input.new_state = false;
 	gproj_ev->quit = false;
 
 	while (SDL_PollEvent(&ev)) {
 		switch (ev.type) {
-			case SDL_QUIT: 
+			case SDL_QUIT:
 				gproj_ev->quit = true;
 				return;
 			case SDL_KEYDOWN:
-			case SDL_KEYUP: 
+			case SDL_KEYUP:
 				update_input_event(&ev, &gproj_ev->input);
 				break;
 		}

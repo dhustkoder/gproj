@@ -2,6 +2,7 @@
 #include <string.h>
 #include "logger.h"
 #include "render.h"
+#include "events.h"
 #include "worldman.h"
 
 

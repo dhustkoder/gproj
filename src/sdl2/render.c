@@ -60,7 +60,7 @@ void render_init(const char* const identifier)
 	                                   SDL_RENDERER_TARGETTEXTURE);
 	assert(rend != NULL);
 
-	tex_txt = SDL_CreateTexture(rend, SDL_PIXELFORMAT_RGB888,
+	tex_txt = SDL_CreateTexture(rend, SDL_PIXELFORMAT_RGBA8888,
 	                            SDL_TEXTUREACCESS_TARGET,
 	                            GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	assert(tex_txt != NULL);
@@ -73,12 +73,13 @@ void render_init(const char* const identifier)
 	                  FC_MakeColor(0xFF,0xFF,0xFF,0xFF), TTF_STYLE_NORMAL);
 	assert(err != 0);
 
+	SDL_SetTextureBlendMode(tex_txt, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderTarget(rend, NULL);
 	SDL_RenderClear(rend);
 	SDL_RenderPresent(rend);
 }
 
-void render_term()
+void render_term(void)
 {
 	LOG_DEBUG("TERMINATING RENDER");
 	FC_FreeFont(font);
@@ -248,6 +249,12 @@ void render_present(void)
 		.w = text_pos.x,
 		.h = text_pos.y
 	};
+	const SDL_Rect text_dst = {
+		.x = 0,
+		.y = 0,
+		.w = text_pos.x * 2,
+		.h = text_pos.y * 2
+	};
 
 	SDL_SetRenderTarget(rend, NULL);
 	SDL_RenderClear(rend);
@@ -255,7 +262,7 @@ void render_present(void)
 	for (int i = 0; i < GPROJ_RENDER_NLAYERS; ++i)
 		SDL_RenderCopy(rend, layers[i], NULL, NULL);
 
-	SDL_RenderCopy(rend, tex_txt, &text_rect, &text_rect);
+	SDL_RenderCopy(rend, tex_txt, &text_rect, &text_dst);
 	SDL_RenderPresent(rend);
 
 	text_pos.x = 0;

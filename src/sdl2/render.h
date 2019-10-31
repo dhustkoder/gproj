@@ -19,8 +19,7 @@
 #error "GPROJ_RENDER_NLAYERS out of range"
 #endif
 
-enum render_flag
-{
+enum render_flag {
 	RENDER_FLAG_FLIPH = SDL_FLIP_HORIZONTAL,
 	RENDER_FLAG_FLIPV = SDL_FLIP_VERTICAL
 };
@@ -28,7 +27,7 @@ enum render_flag
 typedef int render_flag_t;
 
 extern void render_init(const char *identifier);
-extern void render_term();
+extern void render_term(void);
 
 extern void render_layers_setup(int w, int h);
 
@@ -38,14 +37,15 @@ extern void render_load_ss(const char *path);
 extern void render_map(const struct map_view *view);
 
 extern void render_ss(int layer,
-					  const struct vec2f *restrict wpos,
-					  const struct vec2i *restrict wsize,
-					  const struct vec2i *restrict spos,
-					  const struct vec2i *restrict ssize,
-					  const render_flag_t *restrict flags,
-					  const int cnt);
+			  const struct vec2f *restrict wpos,
+			  const struct vec2i *restrict wsize,
+			  const struct vec2i *restrict spos,
+			  const struct vec2i *restrict ssize,
+			  const render_flag_t *restrict flags,
+			  const int cnt);
 
 extern void render_text(const char *text, ...);
 extern void render_present(void);
 
 #endif
+
