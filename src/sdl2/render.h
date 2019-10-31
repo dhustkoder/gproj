@@ -26,7 +26,7 @@ enum render_flag {
 
 typedef int render_flag_t;
 
-extern void render_init(const char *identifier);
+extern void render_init(void);
 extern void render_term(void);
 
 extern void render_layers_setup(int w, int h);

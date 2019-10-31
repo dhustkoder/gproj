@@ -8,7 +8,7 @@
 #include "logger.h"
 #include "render.h"
 
-static SDL_Window* win = NULL;
+extern SDL_Window* sdl_window;
 static SDL_Renderer* rend;
 static SDL_Texture* layers[GPROJ_RENDER_NLAYERS];
 static SDL_Texture* tex_txt;
@@ -41,22 +41,15 @@ static void fb_free(void)
 
 
 
-void render_init(const char* const identifier)
+void render_init(void)
 {
 	LOG_DEBUG("INITIALIZING RENDER");
 	int err;
 	((void)err);
 
-	const char* const winname = identifier;
-	assert(winname != NULL);
+	assert(sdl_window != NULL);
 
-	win = SDL_CreateWindow(winname,
-			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-			GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT,
-			SDL_WINDOW_RESIZABLE);
-	assert(win != NULL);
-
-	rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED|
+	rend = SDL_CreateRenderer(sdl_window, -1, SDL_RENDERER_ACCELERATED|
 	                                   SDL_RENDERER_TARGETTEXTURE);
 	assert(rend != NULL);
 
@@ -95,8 +88,6 @@ void render_term(void)
 		SDL_DestroyTexture(tex_txt);
 	if (rend != NULL)
 		SDL_DestroyRenderer(rend);
-	if (win != NULL)
-		SDL_DestroyWindow(win);
 }
 
 void render_layers_setup(int w, int h)

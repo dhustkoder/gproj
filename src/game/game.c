@@ -1,5 +1,6 @@
 #include "logger.h"
 #include "workman.h"
+#include "window.h"
 #include "render.h"
 #include "audio.h"
 #include "timer.h"
@@ -13,8 +14,9 @@ void game_init(int argc, char** argv)
 	((void)argc);
 	((void)argv);
 	LOG_DEBUG("#####INITIALIZING GAME#####");
-	
-	render_init("GProj Testing");
+
+	window_init("GProj Testing");
+	render_init();
 	render_layers_setup(GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	audio_init();
 
@@ -34,10 +36,11 @@ void game_step(const timer_clk_t now, const float dt)
 void game_term()
 {
 	LOG_DEBUG("#####TERMINATING GAME#####");
-	
+
 	worldman_term();
 	audio_term();
 	render_term();
+	window_term();
 
 	LOG_DEBUG("#####GAME TERMINATED#####");
 }
