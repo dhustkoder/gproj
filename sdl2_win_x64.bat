@@ -1,4 +1,5 @@
 @echo off
+
 set LIBS_ROOT=C:\LIBS
 set SDL2_ROOT=%LIBS_ROOT%\SDL2-2.0.10
 set SDL2_TTF_ROOT=%LIBS_ROOT%\SDL2_ttf-2.0.15
@@ -16,10 +17,12 @@ set SDL2_LIBS=%SDL2_ROOT%\lib\x64\SDL2.lib ^
 	%SDL2_IMAGE_ROOT%\lib\x64\SDL2_image.lib ^
 	%SDL2_MIXER_ROOT%\lib\x64\SDL2_mixer.lib
 
+set GPROJ_DEFINES=/DGPROJ_OS_WINDOWS
+
 set EXTERNAL_INCLUDE_FLAGS=/Iexternals\SDL_FontCache
 set EXTERNAL_LIBS=externals\SDL_FontCache\SDL_FontCache.lib
-
-set INCLUDE_FLAGS=/Isrc /Isrc\sdl2 /Isrc\game /Isrc\ogl %SDL2_INCLUDE_FLAGS% %EXTERNAL_INCLUDE_FLAGS%
+set INCLUDE_FLAGS=/Isrc /Isrc\sdl2 /Isrc\game /Isrc\ogl ^
+                  %SDL2_INCLUDE_FLAGS% %EXTERNAL_INCLUDE_FLAGS%
 
 set SRC=src\*.c src\sdl2\*.c src\game\*.c src\ogl\*.c
 set CC=cl
@@ -34,11 +37,12 @@ set CFLAGS=^
 	/wd4204 ^
 	/wd4244 ^
 	/W4 ^
-	%INCLUDE_FLAGS% 
+	%GPROJ_DEFINES% ^
+	%INCLUDE_FLAGS%
 
 
 set LDFLAGS=/link /SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup ^
-	%SDL2_LIBS% %EXTERNAL_LIBS% opengl32.lib 
+	%SDL2_LIBS% %EXTERNAL_LIBS% opengl32.lib
 
 set CFLAGS_RELEASE=/Ox
 set LDFLAGS_RELEASE=
@@ -51,7 +55,7 @@ set LDFLAGS=%LDFLAGS% %LDFLAGS_DEBUG%
 
 @echo on
 pushd .\externals\SDL_FontCache
-make -f win.mak SDL2_ROOT=%SDL2_ROOT% SDL2_TTF_ROOT=%SDL2_TTF_ROOT% 
+make -f win.mak SDL2_ROOT=%SDL2_ROOT% SDL2_TTF_ROOT=%SDL2_TTF_ROOT%
 popd
 @echo off
 
@@ -71,8 +75,8 @@ copy %SDL2_TTF_ROOT%\lib\x64\*.dll build\
 copy %SDL2_IMAGE_ROOT%\lib\x64\*.dll build\
 copy %SDL2_MIXER_ROOT%\lib\x64\*.dll build\
 copy *.pdb build\
-	
-	
+
+
 :CANCEL
 del *.obj
 del *.pdb
