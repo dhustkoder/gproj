@@ -15,16 +15,12 @@
 
 #define OGL_GET_PROC_ADDR(proc_name) SDL_GL_GetProcAddress(proc_name)
 
-
+#define OGLAPI APIENTRY
 
 #ifdef _MSC_VER
 #include <windows.h>
 // fucking MS please start supporting C99 properly!
 #define restrict __restrict
-#define OGLAPI APIENTRY
-typedef char GLchar;
-#else
-#define OGLAPI
 #endif
 
 typedef Uint8  u8;

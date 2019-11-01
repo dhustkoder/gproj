@@ -15,6 +15,7 @@ typedef void   (OGLAPI *gl_void_proc_fn_t)();
 #define GL_VERTEX_SHADER  ((GLenum)0x8B31)
 #define GL_COMPILE_STATUS ((GLenum)0x8B81)
 
+typedef char GLchar;
 
 typedef GLuint (OGLAPI *glCreateShader_fn_t)(GLenum shaderType);
 typedef void   (OGLAPI *glShaderSource_fn_t)(GLuint shader, GLsizei count,
