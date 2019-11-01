@@ -70,10 +70,11 @@ if NOT %ERROR% == 0 (
 	GOTO CANCEL
 )
 
-copy %SDL2_ROOT%\lib\x64\*.dll build\
-copy %SDL2_TTF_ROOT%\lib\x64\*.dll build\
-copy %SDL2_IMAGE_ROOT%\lib\x64\*.dll build\
-copy %SDL2_MIXER_ROOT%\lib\x64\*.dll build\
+copy %SDL2_ROOT%\lib\x64\SDL2.dll build\
+copy %SDL2_TTF_ROOT%\lib\x64\libfreetype-6.dll build\
+copy %SDL2_IMAGE_ROOT%\lib\x64\SDL2_image.dll build\
+copy %SDL2_IMAGE_ROOT%\lib\x64\libpng16-16.dll build\
+copy %SDL2_MIXER_ROOT%\lib\x64\SDL2_mixer.dll build\
 copy *.pdb build\
 
 
