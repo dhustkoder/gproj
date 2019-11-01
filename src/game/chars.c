@@ -4,7 +4,6 @@
 #include "logger.h"
 #include "actors.h"
 #include "timer.h"
-#include "utils.h"
 #include "events.h"
 #include "chars.h"
 

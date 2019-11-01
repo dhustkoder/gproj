@@ -1,5 +1,5 @@
 #include <stdarg.h>
-#include <GL/gl.h>
+#include <stdio.h>
 #include "logger.h"
 #include "ogl_render.h"
 
@@ -7,7 +7,7 @@
 glCreateShader_fn_t glCreateShader;
 glShaderSource_fn_t glShaderSource;
 glCompileShader_fn_t glCompileShader;
-glShaderiv_fn_t glShaderiv;
+glGetShaderiv_fn_t glGetShaderiv;
 glGetShaderInfoLog_fn_t glGetShaderInfoLog;
 
 
@@ -16,7 +16,7 @@ static GLchar* gl_proc_names[] = {
 	"glCreateShader",
 	"glShaderSource",
 	"glCompileShader",
-	"glShaderiv",
+	"glGetShaderiv",
 	"glGetShaderInfoLog"
 };
 
@@ -24,7 +24,7 @@ static gl_void_proc_fn_t* gl_proc_ptrs[] = {
 	&glCreateShader,
 	&glShaderSource,
 	&glCompileShader,
-	&glShaderiv,
+	&glGetShaderiv,
 	&glGetShaderInfoLog
 };
 
@@ -90,7 +90,7 @@ void ogl_render_init(void)
 		*gl_proc_ptrs[i] = proc;
 	}
 
-	ogl_shaders_set_vs(vs_source);
+	//ogl_shaders_set_vs(vs_source);
 }
 
 void ogl_render_term(void)

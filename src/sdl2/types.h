@@ -21,6 +21,7 @@
 // fucking MS please start supporting C99 properly!
 #define restrict __restrict
 #define OGLAPI APIENTRY
+typedef char GLchar;
 #else
 #define OGLAPI
 #endif
