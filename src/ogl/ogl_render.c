@@ -3,29 +3,33 @@
 #include "logger.h"
 #include "ogl_render.h"
 
-
+#ifndef GL_VERSION_2_0
 glCreateShader_fn_t glCreateShader;
 glShaderSource_fn_t glShaderSource;
 glCompileShader_fn_t glCompileShader;
 glGetShaderiv_fn_t glGetShaderiv;
 glGetShaderInfoLog_fn_t glGetShaderInfoLog;
-
+#endif
 
 
 static GLchar* gl_proc_names[] = {
+#ifndef GL_VERSION_2_0
 	"glCreateShader",
 	"glShaderSource",
 	"glCompileShader",
 	"glGetShaderiv",
 	"glGetShaderInfoLog"
+#endif
 };
 
 static gl_void_proc_fn_t* gl_proc_ptrs[] = {
+#ifndef GL_VERSION_2_0
 	&glCreateShader,
 	&glShaderSource,
 	&glCompileShader,
 	&glGetShaderiv,
 	&glGetShaderInfoLog
+#endif
 };
 
 STATIC_ASSERT(
@@ -90,7 +94,7 @@ void ogl_render_init(void)
 		*gl_proc_ptrs[i] = proc;
 	}
 
-	//ogl_shaders_set_vs(vs_source);
+	ogl_shaders_set_vs(vs_source);
 }
 
 void ogl_render_term(void)
