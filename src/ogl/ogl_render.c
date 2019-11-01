@@ -4,6 +4,8 @@
 #include "ogl_render.h"
 
 #ifndef GL_VERSION_2_0
+GLenum GL_VERTEX_SHADER;
+GLenum GL_COMPILE_STATUS;
 glCreateShader_fn_t glCreateShader;
 glShaderSource_fn_t glShaderSource;
 glCompileShader_fn_t glCompileShader;
@@ -12,30 +14,29 @@ glGetShaderInfoLog_fn_t glGetShaderInfoLog;
 #endif
 
 
-static GLchar* gl_proc_names[] = {
 #ifndef GL_VERSION_2_0
+static GLchar* gl_proc_names[] = {
 	"glCreateShader",
 	"glShaderSource",
 	"glCompileShader",
 	"glGetShaderiv",
 	"glGetShaderInfoLog"
-#endif
 };
 
 static gl_void_proc_fn_t* gl_proc_ptrs[] = {
-#ifndef GL_VERSION_2_0
 	&glCreateShader,
 	&glShaderSource,
 	&glCompileShader,
 	&glGetShaderiv,
 	&glGetShaderInfoLog
-#endif
 };
 
 STATIC_ASSERT(
 	GL_PROCS_ARRAYS,
 	STATIC_ARRAY_SIZE(gl_proc_names) == STATIC_ARRAY_SIZE(gl_proc_ptrs)
 );
+
+#endif
 
 static GLuint vs_id;
 static GLuint fs_id;
@@ -88,12 +89,13 @@ static void ogl_shaders_set_fs(const char* source)
 void ogl_render_init(void)
 {
 	LOG_DEBUG("INITIALIZING OPENGL RENDER");
+	#ifndef GL_VERSION_2_0
 	for (int i = 0; i < STATIC_ARRAY_SIZE(gl_proc_names); ++i) {
 		gl_void_proc_fn_t proc = OGL_GET_PROC_ADDR(gl_proc_names[i]);
 		assert(proc != NULL);
 		*gl_proc_ptrs[i] = proc;
 	}
-
+	#endif
 	ogl_shaders_set_vs(vs_source);
 }
 

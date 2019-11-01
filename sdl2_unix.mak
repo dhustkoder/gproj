@@ -1,11 +1,12 @@
 SHELL := /bin/bash
+UNAME_S=$(shell uname -s)
 
 #
 #
 #
 
 GPROJ_DEFINES=
-ifeq ($(OS),Linux)
+ifeq ($(UNAME_S),Linux)
 	GPROJ_DEFINES+=-DGPROJ_OS_LINUX
 else
 	GPROJ_DEFINES+=-DGPROJ_OS_OSX
@@ -73,10 +74,10 @@ EXTERNALS_LIBS=$(SDLFC_DIR)/libSDL_fontcache.a
 
 LD_INCLUDES=-L$(SDLFC_DIR)
 LDFLAGS=$(LD_INCLUDES) $(PLATFORM_LDFLAGS) -lSDL_fontcache
-ifeq ($(OS),Linux)
+ifeq ($(UNAME_S),Linux)
 	LDFLAGS+=-lGL
 else
-	LDFLAGS+=-framework OpenGL 
+	LDFLAGS+=-framework OpenGL
 endif
 
 
