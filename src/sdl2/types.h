@@ -1,14 +1,28 @@
 #ifndef GPROJ_TYPES_H_
 #define GPROJ_TYPES_H_
 #include <stdint.h>
+#include <assert.h>
 #include <limits.h>
+#include <SDL.h>
 #include <SDL_stdinc.h>
-#include "utils.h"
+
+#define STATIC_ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
+#define STATIC_ASSERT(ident, cond) \
+	struct static_assert_##ident {\
+	u8 fake_array[(cond) ? 1 : -1]; \
+}
+
+#define OGL_GET_PROC_ADDR(proc_name) SDL_GL_GetProcAddress(proc_name)
+
 
 
 #ifdef _MSC_VER
+#include <windows.h>
 // fucking MS please start supporting C99 properly!
 #define restrict __restrict
+#define OGLAPI APIENTRY
+#else
+#define OGLAPI
 #endif
 
 typedef Uint8  u8;
@@ -53,9 +67,9 @@ typedef intptr_t  sptr;
 #define UPTR_MIN (UINTPTR_MIN)
 #define SPTR_MIN (INTPTR_MIN)
 
-#if UPTR_MAX > 0xFFFFFFFFu 
-#define UPTR_FMT "lX" 
-#define SPTR_FMT "lX" 
+#if UPTR_MAX > 0xFFFFFFFFu
+#define UPTR_FMT "lX"
+#define SPTR_FMT "lX"
 #else
 #define UPTR_FMT "X"
 #define SPTR_FMT "X"

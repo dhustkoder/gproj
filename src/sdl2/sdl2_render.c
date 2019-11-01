@@ -44,7 +44,7 @@ static void fb_free(void)
 
 void sdl2_render_init(void)
 {
-	LOG_DEBUG("INITIALIZING RENDER");
+	LOG_DEBUG("INITIALIZING SDL2 RENDER");
 	int err;
 	((void)err);
 
@@ -75,7 +75,7 @@ void sdl2_render_init(void)
 
 void sdl2_render_term(void)
 {
-	LOG_DEBUG("TERMINATING RENDER");
+	LOG_DEBUG("TERMINATING SDL2 RENDER");
 	FC_FreeFont(font);
 
 	if (tex_ts != NULL)
@@ -232,8 +232,7 @@ void sdl2_render_text(const char* const text, ...)
 	va_end(vargs);
 }
 
-
-void sdl2_render_present(void)
+void sdl2_render_finish_frame(void)
 {
 	const SDL_Rect text_rect = {
 		.x = 0,

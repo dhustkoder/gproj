@@ -1,6 +1,5 @@
 #include "logger.h"
 #include "workman.h"
-#include "window.h"
 #include "render.h"
 #include "audio.h"
 #include "timer.h"
@@ -16,8 +15,7 @@ void game_init(int argc, char** argv)
 	LOG_DEBUG("#####INITIALIZING GAME#####");
 
 	timer_profiler_init();
-	window_init("GProj Testing");
-	render_init();
+	render_init("GProj Testing", RENDER_MODE_OPENGL);
 	render_layers_setup(GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	audio_init();
 
@@ -32,7 +30,7 @@ void game_step(const timer_clk_t now, const float dt)
 	timer_profiler_block_start("frame time", 1);
 	worldman_update_world(now, dt);
 	worldman_send_render();
-	render_present();
+	render_finish_frame();
 	timer_profiler_block_end();
 }
 
@@ -43,7 +41,6 @@ void game_term()
 	worldman_term();
 	audio_term();
 	render_term();
-	window_term();
 	timer_profiler_term();
 
 	LOG_DEBUG("#####GAME TERMINATED#####");

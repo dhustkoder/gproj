@@ -1,6 +1,7 @@
 #ifndef GPROJ_RENDER_H_
 #define GPROJ_RENDER_H_
 #include <stdarg.h>
+#include <SDL.h>
 #include "types.h"
 #include "map.h"
 
@@ -19,15 +20,20 @@
 #error "GPROJ_RENDER_NLAYERS out of range"
 #endif
 
+
 enum render_flag {
 	RENDER_FLAG_FLIP_H,
 	RENDER_FLAG_FLIP_V
 };
 
-typedef int render_flag_t;
+enum render_mode {
+	RENDER_MODE_DEFAULT,
+	RENDER_MODE_OPENGL
+};
 
-typedef void(*render_init_fn_t)(void);
-typedef void(*render_term_fn_t)(void);
+typedef int render_flag_t;
+typedef int render_mode_t;
+
 typedef void(*render_layers_setup_fn_t)(int w, int h);
 typedef void(*render_load_ts_fn_t)(const char *path);
 typedef void(*render_load_ss_fn_t)(const char *path);
@@ -40,18 +46,20 @@ typedef void(*render_ss_fn_t)(int layer,
 			  const render_flag_t *restrict flags,
 			  const int cnt);
 typedef void(*render_text_fn_t)(const char *text, ...);
-typedef void(*render_present_fn_t)(void);
+//typedef void(*render_start_frame_fn_t)(void);
+typedef void(*render_finish_frame_fn_t)(void);
 
+extern void render_init(const char* name, render_mode_t mode);
+extern void render_term(void);
 
-extern render_init_fn_t render_init;
-extern render_term_fn_t render_term;
 extern render_layers_setup_fn_t render_layers_setup;
 extern render_load_ts_fn_t render_load_ts;
 extern render_load_ss_fn_t render_load_ss;
 extern render_map_fn_t render_map;
 extern render_ss_fn_t render_ss;
 extern render_text_fn_t render_text;
-extern render_present_fn_t render_present;
+//extern render_start_frame_fn_t render_start_frame;
+extern render_finish_frame_fn_t render_finish_frame;
 
 
 

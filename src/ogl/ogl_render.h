@@ -1,5 +1,6 @@
 #ifndef GPROJ_OGL_RENDER_H_
 #define GPROJ_OGL_RENDER_H_
+#include "ogl_defs.h"
 #include "render.h"
 
 
@@ -22,6 +23,6 @@ extern void ogl_render_ss(int layer,
 					  const int cnt);
 
 extern void ogl_render_text(const char *text, ...);
-extern void ogl_render_present(void);
+extern void ogl_render_finish_frame(void);
 
 #endif

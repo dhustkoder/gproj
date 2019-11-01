@@ -23,6 +23,6 @@ extern void sdl2_render_ss(int layer,
 					  const int cnt);
 
 extern void sdl2_render_text(const char *text, ...);
-extern void sdl2_render_present(void);
+extern void sdl2_render_finish_frame(void);
 
 #endif
