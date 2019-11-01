@@ -4,8 +4,6 @@
 #include "ogl_render.h"
 
 #ifndef GL_VERSION_2_0
-GLenum GL_VERTEX_SHADER;
-GLenum GL_COMPILE_STATUS;
 glCreateShader_fn_t glCreateShader;
 glShaderSource_fn_t glShaderSource;
 glCompileShader_fn_t glCompileShader;
@@ -35,7 +33,6 @@ STATIC_ASSERT(
 	GL_PROCS_ARRAYS,
 	STATIC_ARRAY_SIZE(gl_proc_names) == STATIC_ARRAY_SIZE(gl_proc_ptrs)
 );
-
 #endif
 
 static GLuint vs_id;

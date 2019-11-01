@@ -24,7 +24,10 @@ set INCLUDE_FLAGS=/Isrc /Isrc\sdl2 /Isrc\game /Isrc\ogl %SDL2_INCLUDE_FLAGS% %EX
 set SRC=src\*.c src\sdl2\*.c src\game\*.c src\ogl\*.c
 set CC=cl
 
-set CFLAGS=/D_CRT_SECURE_NO_WARNINGS ^
+set CFLAGS=^
+	/TC ^
+	/cgthreads8 ^
+	/D_CRT_SECURE_NO_WARNINGS ^
 	/DPLATFORM_SDL2 ^
 	/wd4028 ^
 	/wd4214 ^
@@ -34,7 +37,8 @@ set CFLAGS=/D_CRT_SECURE_NO_WARNINGS ^
 	%INCLUDE_FLAGS% 
 
 
-set LDFLAGS=/link /SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup	%SDL2_LIBS% %EXTERNAL_LIBS% opengl32.lib glu32.lib 
+set LDFLAGS=/link /SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup ^
+	%SDL2_LIBS% %EXTERNAL_LIBS% opengl32.lib 
 
 set CFLAGS_RELEASE=/Ox
 set LDFLAGS_RELEASE=
@@ -55,6 +59,11 @@ if not exist "build" mkdir build
 @echo on
 %CC% %SRC% %CFLAGS% /Febuild\gproj.exe %LDFLAGS%
 @echo off
+set ERROR=%errorLevel%
+if NOT %ERROR% == 0 (
+	echo "BUILD FAILED"
+	GOTO CANCEL
+)
 
 copy %SDL2_ROOT%\lib\x64\*.dll build\
 copy %SDL2_TTF_ROOT%\lib\x64\*.dll build\
@@ -63,7 +72,7 @@ copy %SDL2_MIXER_ROOT%\lib\x64\*.dll build\
 copy *.pdb build\
 	
 	
-
+:CANCEL
 del *.obj
 del *.pdb
 
