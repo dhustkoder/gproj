@@ -15,9 +15,12 @@ typedef void  (OGLAPI *glCompileShader_fn_t)(GLuint shader);
 typedef void  (OGLAPI *glGetShaderiv_fn_t)(GLuint shader, GLenum pname, GLint *params);
 typedef void  (OGLAPI *glGetShaderInfoLog_fn_t)(GLuint shader, GLsizei maxLength,
                                          GLsizei* length, GLchar* infoLog);
-
+#ifndef GL_VERTEX_SHADER
 extern GLenum GL_VERTEX_SHADER;
+#endif
+#ifndef GL_COMPILE_STATUS
 extern GLenum GL_COMPILE_STATUS;
+#endif
 extern glCreateShader_fn_t glCreateShader;
 extern glShaderSource_fn_t glShaderSource;
 extern glCompileShader_fn_t glCompileShader;
