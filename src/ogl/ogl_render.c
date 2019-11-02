@@ -147,6 +147,17 @@ void ogl_render_init(void)
 
 	//glViewport(0, 0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	//create_shader_program(vs_source, fs_source);	
+	
+	glShadeModel(GL_SMOOTH);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
+	glClearColor(0, 0, 1, 0);
+	glViewport(0, 0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT, 0, 0, 1);
+
 
 }
 
@@ -198,14 +209,23 @@ void ogl_render_text(const char* const text, ...)
 
 void ogl_render_finish_frame(void)
 {
+
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	glBegin(GL_TRIANGLES);
-	glVertex3f(-0.5f, -0.5f, 0.0f);
-	glVertex3f(0.5f, -0.5f, 0.0f);
-	glVertex3f(0.0f, 0.5f, 0.0f);
+
+	glColor3f(1, 0, 0);
+	glVertex3f(10, 10, 0.0);
+
+	glColor3f(1, 0, 0);
+	glVertex3f(25, 10, 0.0);
+
+	glColor3f(1, 0, 0);
+	glVertex3f(0.0, 25, 0.0);
 	glEnd();
 
-	//glClearColor(0, 0, 1, 1);
-	//glClear(GL_COLOR_BUFFER_BIT);
+
 
 
 	#ifdef PLATFORM_SDL2
@@ -215,6 +235,7 @@ void ogl_render_finish_frame(void)
 	#else
 	#error "NEED IMPLEMENTATION"
 	#endif
+
 }
 
 
