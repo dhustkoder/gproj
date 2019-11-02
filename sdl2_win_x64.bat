@@ -17,7 +17,7 @@ set SDL2_LIBS=%SDL2_ROOT%\lib\x64\SDL2.lib ^
 	%SDL2_IMAGE_ROOT%\lib\x64\SDL2_image.lib ^
 	%SDL2_MIXER_ROOT%\lib\x64\SDL2_mixer.lib
 
-set GPROJ_DEFINES=/DGPROJ_OS_WINDOWS
+set GPROJ_DEFINES=/DGPROJ_OS_WINDOWS /DGPROJ_PLATFORM_SDL2
 
 set EXTERNAL_INCLUDE_FLAGS=/Iexternals\SDL_FontCache
 set EXTERNAL_LIBS=externals\SDL_FontCache\SDL_FontCache.lib
@@ -31,7 +31,6 @@ set CFLAGS=^
 	/TC ^
 	/cgthreads8 ^
 	/D_CRT_SECURE_NO_WARNINGS ^
-	/DPLATFORM_SDL2 ^
 	/wd4028 ^
 	/wd4214 ^
 	/wd4204 ^

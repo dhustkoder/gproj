@@ -5,7 +5,7 @@ UNAME_S=$(shell uname -s)
 #
 #
 
-GPROJ_DEFINES=
+GPROJ_DEFINES=-DGPROJ_PLATFORM_SDL2
 ifeq ($(UNAME_S),Linux)
 	GPROJ_DEFINES+=-DGPROJ_OS_LINUX
 else
@@ -14,7 +14,7 @@ endif
 PLATFORM_LSTR=sdl2
 PLATFORM_USTR=SDL2
 
-PLATFORM_CFLAGS=$(shell sdl2-config --cflags) -DPLATFORM_SDL2
+PLATFORM_CFLAGS=$(shell sdl2-config --cflags) 
 PLATFORM_LDFLAGS=$(shell sdl2-config --libs) -lSDL2_image -lSDL2_mixer -lSDL2_ttf
 
 EXTERNALS_DIR=./externals

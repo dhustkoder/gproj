@@ -31,10 +31,6 @@ static void init_sdl2_window(const char* name, const Uint32 flags)
 
 static void init_opengl_mode(const char* name)
 {
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
 	target_render_init = ogl_render_init;
 	target_render_term = ogl_render_term;
@@ -47,6 +43,10 @@ static void init_opengl_mode(const char* name)
 	//render_start_frame = ogl_render_start_frame;
 	render_finish_frame = ogl_render_finish_frame;
 
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
 	init_sdl2_window(name, SDL_WINDOW_RESIZABLE|SDL_WINDOW_OPENGL);
 	sdl_gl_context = SDL_GL_CreateContext(sdl_window);
