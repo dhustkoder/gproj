@@ -9,6 +9,12 @@ glShaderSource_fn_t glShaderSource;
 glCompileShader_fn_t glCompileShader;
 glGetShaderiv_fn_t glGetShaderiv;
 glGetShaderInfoLog_fn_t glGetShaderInfoLog;
+glCreateProgram_fn_t glCreateProgram;
+glAttachShader_fn_t glAttachShader;
+glLinkProgram_fn_t glLinkProgram;
+glGetProgramiv_fn_t glGetProgramiv;
+glGetProgramInfoLog_fn_t glGetProgramInfoLog;
+
 #endif
 
 
@@ -18,7 +24,12 @@ static GLchar* gl_proc_names[] = {
 	"glShaderSource",
 	"glCompileShader",
 	"glGetShaderiv",
-	"glGetShaderInfoLog"
+	"glGetShaderInfoLog",
+	"glCreateProgram",
+	"glAttachShader",
+	"glLinkProgram",
+	"glGetProgramiv",
+	"glGetProgramInfoLog"
 };
 
 static gl_void_proc_fn_t* gl_proc_ptrs[] = {
@@ -26,7 +37,12 @@ static gl_void_proc_fn_t* gl_proc_ptrs[] = {
 	&glShaderSource,
 	&glCompileShader,
 	&glGetShaderiv,
-	&glGetShaderInfoLog
+	&glGetShaderInfoLog,
+	&glCreateProgram,
+	&glAttachShader,
+	&glLinkProgram,
+	&glGetProgramiv,
+	&glGetProgramInfoLog
 };
 
 STATIC_ASSERT(
@@ -37,13 +53,14 @@ STATIC_ASSERT(
 
 static GLuint vs_id;
 static GLuint fs_id;
+static GLuint shader_program_id;
 
 #ifdef GPROJ_DEBUG
 #define SHADER_COMPILATION_INFO_BUFFER_SIZE (512)
 static GLchar shader_compilation_info_buffer[SHADER_COMPILATION_INFO_BUFFER_SIZE];
 #endif
 
-const GLchar* vs_source =
+static const GLchar* vs_source =
 "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
 "void main()\n"
@@ -51,23 +68,34 @@ const GLchar* vs_source =
 "	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
 "}\n";
 
+static const GLchar* fs_source =
+"#version 330 core\n"
+"out vec4 FragColor;\n"
+"void main()\n"
+"{\n"
+"	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+"}\n";
 
 
-static void ogl_shaders_set_vs(const GLchar* source)
+
+static void compile_shader(GLuint* const id, GLenum type, const GLchar* source)
+
 {
-	vs_id = glCreateShader(GL_VERTEX_SHADER);
-	assert(vs_id != 0);
+	*id = glCreateShader(type);
+
+	assert(*id != 0);
 
 	const GLchar* src[] = { source };
 	const GLint length[] = { strlen(source) };
-	glShaderSource(vs_id, 1, src, length);
-	glCompileShader(vs_id);
+
+	glShaderSource(*id, 1, src, length);
+	glCompileShader(*id);
 
 #ifdef GPROJ_DEBUG
 	GLint status;
-	glGetShaderiv(vs_id, GL_COMPILE_STATUS, &status);
+	glGetShaderiv(*id, GL_COMPILE_STATUS, &status);
 	if (status != GL_TRUE) {
-		glGetShaderInfoLog(vs_id, SHADER_COMPILATION_INFO_BUFFER_SIZE,
+		glGetShaderInfoLog(*id, SHADER_COMPILATION_INFO_BUFFER_SIZE,
 		                   NULL, shader_compilation_info_buffer);
 		LOG_DEBUG("FAILED TO COMPILE SHADER: %s", shader_compilation_info_buffer);
 		assert(false && "FAILED SHADER COMPILATION");
@@ -76,8 +104,31 @@ static void ogl_shaders_set_vs(const GLchar* source)
 
 }
 
-static void ogl_shaders_set_fs(const char* source)
+static void create_shader_program(const char* vs_src,
+                                  const char* fs_src)
 {
+	compile_shader(&vs_id, GL_VERTEX_SHADER, vs_src);
+	compile_shader(&fs_id, GL_FRAGMENT_SHADER, fs_src);
+	
+	shader_program_id = glCreateProgram();
+	assert(shader_program_id != 0);
+
+	glAttachShader(shader_program_id, vs_id);
+	glAttachShader(shader_program_id, fs_id);
+	glLinkProgram(shader_program_id);	
+
+#ifdef GPROJ_DEBUG
+	GLint status;
+	glGetProgramiv(shader_program_id, GL_LINK_STATUS, &status);
+	if (status != GL_TRUE) {
+		glGetProgramInfoLog(shader_program_id,
+		                    SHADER_COMPILATION_INFO_BUFFER_SIZE,
+		                    NULL,
+		                    shader_compilation_info_buffer);
+		LOG_DEBUG("FAILED TO LINK PROGRAM: %s", shader_compilation_info_buffer);
+		assert(false && "FAILED PROGRAM LINK");
+	}
+#endif
 
 }
 
@@ -93,7 +144,10 @@ void ogl_render_init(void)
 		*gl_proc_ptrs[i] = proc;
 	}
 	#endif
-	ogl_shaders_set_vs(vs_source);
+
+	//glViewport(0, 0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
+	//create_shader_program(vs_source, fs_source);	
+
 }
 
 void ogl_render_term(void)
@@ -144,8 +198,14 @@ void ogl_render_text(const char* const text, ...)
 
 void ogl_render_finish_frame(void)
 {
-	glClearColor(0, 0, 1, 1);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glBegin(GL_TRIANGLES);
+	glVertex3f(-0.5f, -0.5f, 0.0f);
+	glVertex3f(0.5f, -0.5f, 0.0f);
+	glVertex3f(0.0f, 0.5f, 0.0f);
+	glEnd();
+
+	//glClearColor(0, 0, 1, 1);
+	//glClear(GL_COLOR_BUFFER_BIT);
 
 
 	#ifdef PLATFORM_SDL2

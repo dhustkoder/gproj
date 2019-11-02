@@ -55,7 +55,7 @@ set LDFLAGS=%LDFLAGS% %LDFLAGS_DEBUG%
 
 @echo on
 pushd .\externals\SDL_FontCache
-make -f win.mak SDL2_ROOT=%SDL2_ROOT% SDL2_TTF_ROOT=%SDL2_TTF_ROOT%
+call win_x64.bat
 popd
 @echo off
 
