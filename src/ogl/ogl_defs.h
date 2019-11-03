@@ -49,6 +49,7 @@ typedef void  (OGLAPI *glBufferData_fn_t)(GLenum target,
                                           GLsizeiptr size,
 					  const void* data,
 					  GLenum usage);
+typedef GLuint (OGLAPI *glGetAttribLocation_fn_t)(GLuint programId, const GLchar* attribName);
 typedef void (OGLAPI *glVertexAttribPointer_fn_t)(GLuint index,
                                                   GLint size,
 						  GLenum type,
@@ -84,6 +85,7 @@ extern glDeleteBuffers_fn_t glDeleteBuffers;
 extern glGenBuffers_fn_t glGenBuffers;
 extern glBindBuffer_fn_t glBindBuffer;
 extern glBufferData_fn_t glBufferData;
+extern glGetAttribLocation_fn_t glGetAttribLocation;
 extern glVertexAttribPointer_fn_t glVertexAttribPointer;
 extern glEnableVertexAttribArray_fn_t glEnableVertexAttribArray;
 

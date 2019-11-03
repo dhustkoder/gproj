@@ -21,6 +21,7 @@ glDeleteBuffers_fn_t glDeleteBuffers;
 glGenBuffers_fn_t glGenBuffers;
 glBindBuffer_fn_t glBindBuffer;
 glBufferData_fn_t glBufferData;
+glGetAttribLocation_fn_t glGetAttribLocation;
 glVertexAttribPointer_fn_t glVertexAttribPointer;
 glEnableVertexAttribArray_fn_t glEnableVertexAttribArray;
 
@@ -48,6 +49,7 @@ static GLchar* gl_proc_names[] = {
 	"glGenBuffers",
 	"glBindBuffer",
 	"glBufferData",
+	"glGetAttribLocation",
 	"glVertexAttribPointer",
 	"glEnableVertexAttribArray"
 	#ifdef GPROJ_DEBUG
@@ -74,6 +76,7 @@ static gl_void_proc_fn_t* gl_proc_ptrs[] = {
 	&glGenBuffers,
 	&glBindBuffer,
 	&glBufferData,
+	&glGetAttribLocation,
 	&glVertexAttribPointer,
 	&glEnableVertexAttribArray
 
@@ -108,7 +111,7 @@ static const GLchar* const vs_source = GLSL(
 	void main()
 	{
 		gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix *
-		              vec4(position, 0.0, 1.0);
+		              vec4(dep_position, 0.0, 1.0);
 	}
 );
 
@@ -197,8 +200,9 @@ static void init_buffers(void)
 				 NULL,
 				 GL_DYNAMIC_DRAW);
 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(f32), NULL);
-	glEnableVertexAttribArray(0);
+	GLint pos_loc = glGetAttribLocation(shader_program_id, "dep_position");
+	glVertexAttribPointer(pos_loc, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(f32), NULL);
+	glEnableVertexAttribArray(pos_loc);
 }
 
 static void term_buffers(void)
