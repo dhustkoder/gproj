@@ -21,7 +21,7 @@ static bool platform_init(void)
 {
 	LOG_DEBUG("INITIALIZING PLATFORM SDL2");
 
-	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0)
+	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 		goto Lfailure;
 
 	if (IMG_Init(IMG_INIT_PNG) == 0)

@@ -28,13 +28,14 @@ enum render_flag {
 
 enum render_mode {
 	RENDER_MODE_DEFAULT,
+	RENDER_MODE_SDL2 = RENDER_MODE_DEFAULT,
 	RENDER_MODE_OPENGL
 };
 
 typedef int render_flag_t;
 typedef int render_mode_t;
 
-typedef void(*render_layers_setup_fn_t)(int w, int h);
+
 typedef void(*render_load_ts_fn_t)(const char *path);
 typedef void(*render_load_ss_fn_t)(const char *path);
 typedef void(*render_map_fn_t)(const struct map_view *view);
@@ -49,10 +50,12 @@ typedef void(*render_text_fn_t)(const char *text, ...);
 //typedef void(*render_start_frame_fn_t)(void);
 typedef void(*render_finish_frame_fn_t)(void);
 
+
 extern void render_init(const char* name, render_mode_t mode);
 extern void render_term(void);
 
-extern render_layers_setup_fn_t render_layers_setup;
+
+
 extern render_load_ts_fn_t render_load_ts;
 extern render_load_ss_fn_t render_load_ss;
 extern render_map_fn_t render_map;

@@ -56,6 +56,7 @@ void worldman_update_world(const timer_clk_t now, const float dt)
 
 #ifdef GPROJ_DEBUG
 	extern struct events gproj_events;
+
 	const input_button_t buttons = gproj_events.input.buttons;
 
 	if (buttons&INPUT_BUTTON_CAM_RIGHT)
@@ -67,7 +68,9 @@ void worldman_update_world(const timer_clk_t now, const float dt)
 	else if (buttons&INPUT_BUTTON_CAM_DOWN)
 		world.cam.y += WORLD_DEBUG_CAM_VELOCITY * dt;
 
-	if (gproj_events.input.new_state) {
+	if (gproj_events.flags&EVENT_FLAG_NEW_INPUT) {
+
+
 		if (buttons&INPUT_BUTTON_WORLD_FWD) {
 			const int idx = (loaded_world_idx + 1) % nworlds;
 			worldman_load_world(metas[idx].name);

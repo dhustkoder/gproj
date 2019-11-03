@@ -1,10 +1,10 @@
 #include "logger.h"
 #include "render.h"
+#include "events.h"
 #include "sdl2_render.h"
 #include "ogl_render.h"
 
 
-render_layers_setup_fn_t render_layers_setup;
 render_load_ts_fn_t render_load_ts;
 render_load_ss_fn_t render_load_ss;
 render_map_fn_t render_map;
@@ -34,7 +34,6 @@ static void init_opengl_mode(const char* name)
 
 	target_render_init = ogl_render_init;
 	target_render_term = ogl_render_term;
-	render_layers_setup = ogl_render_layers_setup;
 	render_load_ts = ogl_render_load_ts;
 	render_load_ss = ogl_render_load_ss;
 	render_map = ogl_render_map;
@@ -47,6 +46,7 @@ static void init_opengl_mode(const char* name)
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+	events_set_window_resize_clbk(ogl_window_resize);
 
 	init_sdl2_window(name, SDL_WINDOW_RESIZABLE|SDL_WINDOW_OPENGL);
 	sdl_gl_context = SDL_GL_CreateContext(sdl_window);
@@ -58,7 +58,6 @@ static void init_sdl2_mode(const char* name)
 {
 	target_render_init = sdl2_render_init;
 	target_render_term = sdl2_render_term;
-	render_layers_setup = sdl2_render_layers_setup;
 	render_load_ts = sdl2_render_load_ts;
 	render_load_ss = sdl2_render_load_ss;
 	render_map = sdl2_render_map;

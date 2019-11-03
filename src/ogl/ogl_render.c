@@ -3,18 +3,22 @@
 #include "logger.h"
 #include "ogl_render.h"
 
+
+#define GLSL(...) "#version 330 core\n" #__VA_ARGS__
+
 #ifndef GL_VERSION_2_0
 glCreateShader_fn_t glCreateShader;
 glShaderSource_fn_t glShaderSource;
 glCompileShader_fn_t glCompileShader;
-glGetShaderiv_fn_t glGetShaderiv;
-glGetShaderInfoLog_fn_t glGetShaderInfoLog;
 glCreateProgram_fn_t glCreateProgram;
 glAttachShader_fn_t glAttachShader;
 glLinkProgram_fn_t glLinkProgram;
+glUseProgram_fn_t glUseProgram;
+
+glGetShaderiv_fn_t glGetShaderiv;
+glGetShaderInfoLog_fn_t glGetShaderInfoLog;
 glGetProgramiv_fn_t glGetProgramiv;
 glGetProgramInfoLog_fn_t glGetProgramInfoLog;
-
 #endif
 
 
@@ -23,26 +27,34 @@ static GLchar* gl_proc_names[] = {
 	"glCreateShader",
 	"glShaderSource",
 	"glCompileShader",
-	"glGetShaderiv",
-	"glGetShaderInfoLog",
 	"glCreateProgram",
 	"glAttachShader",
 	"glLinkProgram",
+	"glUseProgram"
+	#ifdef GPROJ_DEBUG
+	,"glGetShaderiv",
+	"glGetShaderInfoLog",
 	"glGetProgramiv",
 	"glGetProgramInfoLog"
+	#endif
 };
 
 static gl_void_proc_fn_t* gl_proc_ptrs[] = {
 	&glCreateShader,
 	&glShaderSource,
 	&glCompileShader,
-	&glGetShaderiv,
-	&glGetShaderInfoLog,
 	&glCreateProgram,
 	&glAttachShader,
 	&glLinkProgram,
+	&glUseProgram
+
+	#ifdef GPROJ_DEBUG
+	,&glGetShaderiv,
+	&glGetShaderInfoLog,
 	&glGetProgramiv,
-	&glGetProgramInfoLog
+	&glGetProgramInfoLog,
+	#endif
+
 };
 
 STATIC_ASSERT(
@@ -60,21 +72,24 @@ static GLuint shader_program_id;
 static GLchar shader_compilation_info_buffer[SHADER_COMPILATION_INFO_BUFFER_SIZE];
 #endif
 
-static const GLchar* vs_source =
-"#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\n";
+static const GLchar* vs_source = GLSL(
+	layout (location = 0) in vec3 aPos;
 
-static const GLchar* fs_source =
-"#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-"}\n";
+	void main()
+	{
+		gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0) * vec4(0.2, 0.2, 0.2, 1.0);
+	}
+);
+
+
+static const GLchar* fs_source = GLSL(
+	out vec4 FragColor;
+	void main()
+	{
+		FragColor = vec4(0.0f, 1.0f, 0.7f, 1.0f);
+	}
+);
+
 
 
 
@@ -130,6 +145,8 @@ static void create_shader_program(const char* vs_src,
 	}
 #endif
 
+	glUseProgram(shader_program_id);
+
 }
 
 
@@ -145,19 +162,20 @@ void ogl_render_init(void)
 	}
 	#endif
 
+	create_shader_program(vs_source, fs_source);
 	glViewport(0, 0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	glClearColor(0, 0, 1, 1);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
 
 }
 
 void ogl_render_term(void)
 {
 	LOG_DEBUG("TERMINATING OPENGL RENDER");
-}
-
-void ogl_render_layers_setup(int w, int h)
-{
-
 }
 
 void ogl_render_load_ts(const char* const path)
@@ -199,11 +217,6 @@ void ogl_render_text(const char* const text, ...)
 void ogl_render_finish_frame(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);	
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 
 	glBegin(GL_TRIANGLES);
 
@@ -225,3 +238,9 @@ void ogl_render_finish_frame(void)
 }
 
 
+#ifdef GPROJ_PLATFORM_SDL2
+void ogl_window_resize(int w, int h)
+{
+	glViewport(0, 0, w, h);
+}
+#endif

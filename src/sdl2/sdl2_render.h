@@ -7,8 +7,6 @@
 extern void sdl2_render_init(void);
 extern void sdl2_render_term(void);
 
-extern void sdl2_render_layers_setup(int w, int h);
-
 extern void sdl2_render_load_ts(const char *path);
 extern void sdl2_render_load_ss(const char *path);
 

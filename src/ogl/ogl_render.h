@@ -7,8 +7,6 @@
 extern void ogl_render_init(void);
 extern void ogl_render_term(void);
 
-extern void ogl_render_layers_setup(int w, int h);
-
 extern void ogl_render_load_ts(const char *path);
 extern void ogl_render_load_ss(const char *path);
 
@@ -24,5 +22,9 @@ extern void ogl_render_ss(int layer,
 
 extern void ogl_render_text(const char *text, ...);
 extern void ogl_render_finish_frame(void);
+
+#ifdef GPROJ_PLATFORM_SDL2
+extern void ogl_window_resize(int w, int h);
+#endif
 
 #endif

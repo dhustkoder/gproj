@@ -42,11 +42,13 @@ static input_button_t gproj_buttons[] = {
 #endif
 };
 
+static window_resize_callback_fn_t win_resz_clbk = NULL;
+
 
 static inline void update_input_event(const SDL_Event* const ev,
-                                      struct input_event* const ie)
+                                      struct events* const ge)
 {
-	input_button_t buttons = ie->buttons;
+	input_button_t buttons = ge->input.buttons;
 	for (int idx = 0; idx < INPUT_BUTTON_NBUTTONS; ++idx) {
 		if (sdl_keys[idx] == ev->key.keysym.scancode) {
 			input_button_t bt = gproj_buttons[idx];
@@ -57,9 +59,21 @@ static inline void update_input_event(const SDL_Event* const ev,
 			break;
 		}
 	}
-	if (buttons != ie->buttons) {
-		ie->buttons = buttons;
-		ie->new_state = true;
+	if (buttons != ge->input.buttons) {
+		ge->input.buttons = buttons;
+		ge->flags |= EVENT_FLAG_NEW_INPUT;
+	}
+}
+
+static inline void update_window_event(const SDL_Event* const ev,
+                                       struct events* const ge)
+{
+	if (ev->window.event == SDL_WINDOWEVENT_RESIZED) {
+		ge->flags |= EVENT_FLAG_WINDOW_RESIZED;
+		ge->window.w = ev->window.data1;
+		ge->window.h = ev->window.data2;
+		if (win_resz_clbk)
+			win_resz_clbk(ge->window.w, ge->window.h);
 	}
 }
 
@@ -69,20 +83,27 @@ void events_update(struct events* const gproj_ev)
 {
 	SDL_Event ev;
 
-	gproj_ev->input.new_state = false;
-	gproj_ev->quit = false;
+	gproj_ev->flags = 0x00;
 
 	while (SDL_PollEvent(&ev)) {
 		switch (ev.type) {
 			case SDL_QUIT:
-				gproj_ev->quit = true;
+				gproj_ev->flags |= EVENT_FLAG_QUIT;
 				return;
 			case SDL_KEYDOWN:
 			case SDL_KEYUP:
-				update_input_event(&ev, &gproj_ev->input);
+				update_input_event(&ev, gproj_ev);
+				break;
+			case SDL_WINDOWEVENT:
+				update_window_event(&ev, gproj_ev);
 				break;
 		}
 	}
+}
+
+void events_set_window_resize_clbk(window_resize_callback_fn_t clbk)
+{
+	win_resz_clbk = clbk;
 }
 
 

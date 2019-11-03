@@ -16,7 +16,6 @@ void game_init(int argc, char** argv)
 
 	timer_profiler_init();
 	render_init("GProj Testing", RENDER_MODE_OPENGL);
-	render_layers_setup(GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	audio_init();
 
 	worldman_init(levels, STATIC_ARRAY_SIZE(levels));
@@ -28,9 +27,14 @@ void game_init(int argc, char** argv)
 void game_step(const timer_clk_t now, const float dt)
 {
 	timer_profiler_block_start("frame time", 1);
+
+
 	worldman_update_world(now, dt);
 	worldman_send_render();
 	render_finish_frame();
+	
+
+
 	timer_profiler_block_end();
 }
 

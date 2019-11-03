@@ -30,6 +30,7 @@ set CC=cl
 set CFLAGS=^
 	/TC ^
 	/cgthreads8 ^
+	/MP8^
 	/D_CRT_SECURE_NO_WARNINGS ^
 	/wd4028 ^
 	/wd4214 ^
@@ -60,7 +61,6 @@ popd
 
 if not exist "build" mkdir build
 @echo on
-del build\gproj.exe
 %CC% %SRC% %CFLAGS% /Febuild\gproj.exe %LDFLAGS%
 @echo off
 set ERROR=%errorLevel%

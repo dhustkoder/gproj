@@ -25,19 +25,33 @@ enum input_button {
 #endif
 };
 
+enum event_flag {
+	EVENT_FLAG_NEW_INPUT      = 0x01,
+	EVENT_FLAG_WINDOW_RESIZED = 0x02,
+	EVENT_FLAG_QUIT           = 0x04
+};
+
 typedef u16 input_button_t;
 
 struct input_event {
-	b8 new_state;
 	input_button_t buttons;
+};
+
+struct window_event {
+	s16 w;
+	s16 h;
 };
 
 struct events {
 	struct input_event input;
-	b32 quit;
+	struct window_event window;
+	u8 flags;
 };
 
+typedef void (*window_resize_callback_fn_t)(int w, int h);
+
 extern void events_update(struct events* gproj_ev);
+extern void events_set_window_resize_clbk(window_resize_callback_fn_t clbk);
 
 
 #endif

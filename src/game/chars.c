@@ -60,7 +60,7 @@ void chars_update(const timer_clk_t now, const float dt)
 	((void)now);
 	extern struct events gproj_events;
 
-	if (gproj_events.input.new_state) {
+	if (gproj_events.flags&EVENT_FLAG_NEW_INPUT) {
 		const input_button_t buttons = gproj_events.input.buttons;
 		if (buttons&(INPUT_BUTTON_LEFT |
 		             INPUT_BUTTON_RIGHT|

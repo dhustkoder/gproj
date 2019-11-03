@@ -34,13 +34,6 @@ static void prepare_target_layer(const int layer)
 }
 
 
-static void fb_free(void)
-{
-	for (int i = 0; i < GPROJ_RENDER_NLAYERS; ++i)
-		SDL_DestroyTexture(layers[i]);
-}
-
-
 
 void sdl2_render_init(void)
 {
@@ -67,6 +60,16 @@ void sdl2_render_init(void)
 	                  FC_MakeColor(0xFF,0xFF,0xFF,0xFF), TTF_STYLE_NORMAL);
 	assert(err != 0);
 
+	for (int i = 0; i < GPROJ_RENDER_NLAYERS; ++i) {
+		layers[i] = SDL_CreateTexture(rend,
+		                              SDL_PIXELFORMAT_RGBA8888,
+		                              SDL_TEXTUREACCESS_TARGET,
+		                              GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
+		assert(layers[i] != NULL);
+		err = SDL_SetTextureBlendMode(layers[i], SDL_BLENDMODE_BLEND);
+		assert(err == 0);
+	}
+
 	SDL_SetTextureBlendMode(tex_txt, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderTarget(rend, NULL);
 	SDL_RenderClear(rend);
@@ -83,37 +86,13 @@ void sdl2_render_term(void)
 	if (tex_ss != NULL)
 		SDL_DestroyTexture(tex_ss);
 
-	fb_free();
+	for (int i = 0; i < GPROJ_RENDER_NLAYERS; ++i)
+		SDL_DestroyTexture(layers[i]);
 
 	if (tex_txt != NULL)
 		SDL_DestroyTexture(tex_txt);
 	if (rend != NULL)
 		SDL_DestroyRenderer(rend);
-}
-
-void sdl2_render_layers_setup(int w, int h)
-{
-	LOG_DEBUG("RENDER LAYERS SETUP");
-
-	fb_free();
-
-	layers_size = (struct vec2i) {
-		.x = w,
-		.y = h
-	};
-	assert(layers != NULL);
-
-	int err;
-	((void)err);
-	for (int i = 0; i < GPROJ_RENDER_NLAYERS; ++i) {
-		layers[i] = SDL_CreateTexture(rend,
-		                              SDL_PIXELFORMAT_RGBA8888,
-		                              SDL_TEXTUREACCESS_TARGET,
-		                              layers_size.x, layers_size.y);
-		assert(layers[i] != NULL);
-		err = SDL_SetTextureBlendMode(layers[i], SDL_BLENDMODE_BLEND);
-		assert(err == 0);
-	}
 }
 
 void sdl2_render_load_ts(const char* const path)
