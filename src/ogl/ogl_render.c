@@ -90,7 +90,6 @@ static const GLchar* const fs_source = GLSL(
 );
 
 
-static GLuint vao_id;
 static GLuint vbo_id;
 
 
@@ -161,8 +160,6 @@ static void term_shader_program(void)
 
 static void init_buffers(void)
 {
-	glGenVertexArrays(1, &vao_id);
-	glBindVertexArray(vao_id);
 	glGenBuffers(1, &vbo_id);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
 	glBufferData(GL_ARRAY_BUFFER,
@@ -176,9 +173,7 @@ static void init_buffers(void)
 static void term_buffers(void)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 	glDeleteBuffers(1, &vbo_id);
-	glDeleteVertexArrays(1, &vao_id);
 }
 
 
@@ -240,9 +235,9 @@ void ogl_render_map(const struct map_view* const view)
 	for (int h = 0; h < size.y; ++h) {
 		for (int w = 0; w < size.x; ++w) {
 			const GLfloat tsx = src->x;
-			const GLfloat tsy = src->y;
 			++src;
-			if (tsx < 0) continue;
+			if (tsx < 0)
+				continue;
 
 			const GLfloat x = (w * TILE_WIDTH) + pos.x;
 			const GLfloat y = (h * TILE_HEIGHT) + pos.y;
