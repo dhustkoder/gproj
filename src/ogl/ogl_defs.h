@@ -1,6 +1,6 @@
 #ifndef GPROJ_OGL_DEFS_H_
 #define GPROJ_OGL_DEFS_H_
-#include "types.h"
+#include "platform_defs.h"
 
 
 #ifdef __APPLE__
@@ -15,6 +15,7 @@
 #else
 #define OGLAPI 
 #endif
+
 
 typedef void   (OGLAPI *gl_void_proc_fn_t)(void);
 

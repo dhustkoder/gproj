@@ -1,6 +1,6 @@
 #ifndef GPROJ_MAP_H_
 #define GPROJ_MAP_H_
-#include "types.h"
+#include "platform_defs.h"
 
 /*
 	A map is N matrixes of tiles,

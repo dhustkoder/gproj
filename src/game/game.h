@@ -1,6 +1,6 @@
 #ifndef GPROJ_GAME_H_
 #define GPROJ_GAME_H_
-#include "types.h"
+#include "platform_defs.h"
 
 
 extern void game_init(int argc, char** argv);

@@ -1,6 +1,5 @@
 #ifndef GPROJ_WORLD_H_
 #define GPROJ_WORLD_H_
-#include "types.h"
 #include "timer.h"
 #include "map.h"
 #include "actors.h"

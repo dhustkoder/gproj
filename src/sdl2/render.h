@@ -2,7 +2,7 @@
 #define GPROJ_RENDER_H_
 #include <stdarg.h>
 #include <SDL.h>
-#include "types.h"
+#include "platform_defs.h"
 #include "map.h"
 
 

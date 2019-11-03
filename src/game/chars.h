@@ -1,6 +1,6 @@
 #ifndef GPROJ_CHARS_H_
 #define GPROJ_CHARS_H_
-#include "types.h"
+#include "platform_defs.h"
 
 extern void chars_init(void);
 extern void chars_term(void);

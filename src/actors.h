@@ -1,7 +1,6 @@
 #ifndef GPROJ_ACTORS_H_
 #define GPROJ_ACTORS_H_
-#include <limits.h>
-#include "types.h"
+#include "platform_defs.h"
 
 /*
 	An actor is an object that appears in the game world with position and size.
@@ -26,7 +25,7 @@ struct frame_timing {
 	s16 ms;
 };
 
- 
+
 
 extern void actors_move(float dt,
                         const struct vec2f* restrict const vels,

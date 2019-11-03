@@ -2,7 +2,7 @@
 #define GPROJ_TIMER_H_
 #include <SDL_stdinc.h>
 #include <SDL_timer.h>
-#include "types.h"
+#include "platform_defs.h"
 
 
 typedef Uint32 timer_clk_t;

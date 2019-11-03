@@ -1,6 +1,6 @@
 #ifndef GPROJ_EVENTS_H_
 #define GPROJ_EVENTS_H_
-#include "types.h"
+#include "platform_defs.h"
 
 
 enum input_button {
