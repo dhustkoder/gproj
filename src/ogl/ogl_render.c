@@ -176,7 +176,10 @@ static void init_buffers(void)
 
 static void term_buffers(void)
 {
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 	glDeleteBuffers(1, &vbo_id);
+	glDeleteVertexArrays(1, &vao_id);
 }
 
 
