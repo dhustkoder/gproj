@@ -14,6 +14,16 @@ glCreateProgram_fn_t glCreateProgram;
 glAttachShader_fn_t glAttachShader;
 glLinkProgram_fn_t glLinkProgram;
 glUseProgram_fn_t glUseProgram;
+glDetachShader_fn_t glDetachShader;
+glDeleteShader_fn_t glDeleteShader;
+glDeleteProgram_fn_t glDeleteProgram;
+glDeleteBuffers_fn_t glDeleteBuffers;
+glGenBuffers_fn_t glGenBuffers;
+glBindBuffer_fn_t glBindBuffer;
+glBufferData_fn_t glBufferData;
+glVertexAttribPointer_fn_t glVertexAttribPointer;
+glEnableVertexAttribArray_fn_t glEnableVertexAttribArray;
+
 
 glGetShaderiv_fn_t glGetShaderiv;
 glGetShaderInfoLog_fn_t glGetShaderInfoLog;
@@ -30,13 +40,23 @@ static GLchar* gl_proc_names[] = {
 	"glCreateProgram",
 	"glAttachShader",
 	"glLinkProgram",
-	"glUseProgram"
+	"glUseProgram",
+	"glDetachShader",
+	"glDeleteShader",
+	"glDeleteProgram",
+	"glDeleteBuffers",
+	"glGenBuffers",
+	"glBindBuffer",
+	"glBufferData",
+	"glVertexAttribPointer",
+	"glEnableVertexAttribArray"
 	#ifdef GPROJ_DEBUG
 	,"glGetShaderiv",
 	"glGetShaderInfoLog",
 	"glGetProgramiv",
 	"glGetProgramInfoLog"
 	#endif
+
 };
 
 static gl_void_proc_fn_t* gl_proc_ptrs[] = {
@@ -46,7 +66,16 @@ static gl_void_proc_fn_t* gl_proc_ptrs[] = {
 	&glCreateProgram,
 	&glAttachShader,
 	&glLinkProgram,
-	&glUseProgram
+	&glUseProgram,
+	&glDetachShader,
+	&glDeleteShader,
+	&glDeleteProgram,
+	&glDeleteBuffers,
+	&glGenBuffers,
+	&glBindBuffer,
+	&glBufferData,
+	&glVertexAttribPointer,
+	&glEnableVertexAttribArray
 
 	#ifdef GPROJ_DEBUG
 	,&glGetShaderiv,
@@ -73,6 +102,7 @@ static GLchar shader_compilation_info_buffer[SHADER_COMPILATION_INFO_BUFFER_SIZE
 #endif
 
 static const GLchar* const vs_source = GLSL(
+	attribute vec2 dep_position;
 	attribute vec2 position;
 
 	void main()
@@ -166,6 +196,7 @@ static void init_buffers(void)
 	             sizeof(struct vec2f) * (MAP_MAX_X_TILES * 2 * MAP_MAX_Y_TILES),
 				 NULL,
 				 GL_DYNAMIC_DRAW);
+
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(f32), NULL);
 	glEnableVertexAttribArray(0);
 }

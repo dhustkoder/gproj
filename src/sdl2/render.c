@@ -43,14 +43,13 @@ static void init_opengl_mode(const char* name)
 	render_finish_frame = ogl_render_finish_frame;
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 	events_set_window_resize_clbk(ogl_window_resize);
 
 	init_sdl2_window(name, SDL_WINDOW_RESIZABLE|SDL_WINDOW_OPENGL);
 	sdl_gl_context = SDL_GL_CreateContext(sdl_window);
-	LOG_DEBUG("Failed creating GL CONTEXT: %s", SDL_GetError());
 	assert(sdl_gl_context != NULL);
 	SDL_GL_SetSwapInterval(0);
 }

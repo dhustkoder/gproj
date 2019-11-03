@@ -17,15 +17,18 @@
 #endif
 
 
-typedef void   (OGLAPI *gl_void_proc_fn_t)(void);
+typedef void (OGLAPI *gl_void_proc_fn_t)();
 
 #ifndef GL_VERSION_2_0
 #define GL_FRAGMENT_SHADER ((GLenum)0x8B30)
 #define GL_VERTEX_SHADER   ((GLenum)0x8B31)
 #define GL_COMPILE_STATUS  ((GLenum)0x8B81)
 #define GL_LINK_STATUS     ((GLenum)0x8B82)
+#define GL_ARRAY_BUFFER    ((GLenum)0x8892)
+#define GL_DYNAMIC_DRAW    ((GLenum)0x88E8)
 
 typedef char GLchar;
+typedef sptr GLsizeiptr;
 
 typedef GLuint (OGLAPI *glCreateShader_fn_t)(GLenum shaderType);
 typedef void   (OGLAPI *glShaderSource_fn_t)(GLuint shader, GLsizei count,
@@ -36,6 +39,23 @@ typedef GLuint  (OGLAPI *glCreateProgram_fn_t)(void);
 typedef void  (OGLAPI *glAttachShader_fn_t)(GLuint programId, GLuint shaderId);
 typedef void  (OGLAPI *glLinkProgram_fn_t)(GLuint programId);
 typedef void  (OGLAPI *glUseProgram_fn_t)(GLuint programId);
+typedef void  (OGLAPI *glDetachShader_fn_t)(GLuint programId, GLuint shaderId);
+typedef void  (OGLAPI *glDeleteShader_fn_t)(GLuint shaderId);
+typedef void  (OGLAPI *glDeleteProgram_fn_t)(GLuint programId);
+typedef void  (OGLAPI *glDeleteBuffers_fn_t)(GLsizei n, const GLuint* buffers);
+typedef void  (OGLAPI *glGenBuffers_fn_t)(GLsizei n, GLuint* buffers);
+typedef void  (OGLAPI *glBindBuffer_fn_t)(GLenum target, GLuint bufferId);
+typedef void  (OGLAPI *glBufferData_fn_t)(GLenum target,
+                                          GLsizeiptr size,
+					  const void* data,
+					  GLenum usage);
+typedef void (OGLAPI *glVertexAttribPointer_fn_t)(GLuint index,
+                                                  GLint size,
+						  GLenum type,
+						  GLboolean normalized,
+						  GLsizei stride,
+						  const void * pointer);
+typedef void (OGLAPI *glEnableVertexAttribArray_fn_t)(GLuint index);
 
 #ifdef GPROJ_DEBUG
 typedef void  (OGLAPI *glGetShaderiv_fn_t)(GLuint shader, GLenum pname, GLint *params);
@@ -57,6 +77,16 @@ extern glCreateProgram_fn_t glCreateProgram;
 extern glAttachShader_fn_t glAttachShader;
 extern glLinkProgram_fn_t glLinkProgram;
 extern glUseProgram_fn_t glUseProgram;
+extern glDetachShader_fn_t glDetachShader;
+extern glDeleteShader_fn_t glDeleteShader;
+extern glDeleteProgram_fn_t glDeleteProgram;
+extern glDeleteBuffers_fn_t glDeleteBuffers;
+extern glGenBuffers_fn_t glGenBuffers;
+extern glBindBuffer_fn_t glBindBuffer;
+extern glBufferData_fn_t glBufferData;
+extern glVertexAttribPointer_fn_t glVertexAttribPointer;
+extern glEnableVertexAttribArray_fn_t glEnableVertexAttribArray;
+
 
 #ifdef GPROJ_DEBUG
 extern glGetShaderiv_fn_t glGetShaderiv;
