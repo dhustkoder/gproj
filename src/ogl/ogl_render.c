@@ -232,17 +232,21 @@ static GLsizei map_verts_size = 0;
 void ogl_render_map(const struct map_view* const view)
 {
 	const struct vec2i size = view->size;
+	const struct vec2i pos = view->scrpos;
 	const struct vec2i* src = view->data;
 	struct vec2f* dst = map_verts;
 
-	map_verts_size = size.x * size.y * 4;
+	map_verts_size = 0;
 
 	for (int h = 0; h < size.y; ++h) {
 		for (int w = 0; w < size.x; ++w) {
-			const GLfloat x = src->x;
-			const GLfloat y = src->y;
+			const GLfloat tsx = src->x;
+			const GLfloat tsy = src->y;
 			++src;
+			if (tsx < 0) continue;
 
+			const GLfloat x = (w * TILE_WIDTH) + pos.x;
+			const GLfloat y = (h * TILE_HEIGHT) + pos.y;
 			dst->x = x;
 			dst->y = y;
 			++dst;
@@ -258,6 +262,8 @@ void ogl_render_map(const struct map_view* const view)
 			dst->x = x;
 			dst->y = y + TILE_HEIGHT;
 			++dst;
+
+			map_verts_size += 4;
 		}
 	}
 
