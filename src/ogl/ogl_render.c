@@ -4,7 +4,7 @@
 #include "ogl_render.h"
 
 
-#define GLSL(...) "#version 130\n" #__VA_ARGS__
+#define GLSL(...) "#version 120\n" #__VA_ARGS__
 
 #ifndef GL_VERSION_2_0
 glCreateShader_fn_t glCreateShader;
@@ -73,7 +73,7 @@ static GLchar shader_compilation_info_buffer[SHADER_COMPILATION_INFO_BUFFER_SIZE
 #endif
 
 static const GLchar* const vs_source = GLSL(
-	in vec2 position;
+	attribute vec2 position;
 
 	void main()
 	{
@@ -83,10 +83,9 @@ static const GLchar* const vs_source = GLSL(
 );
 
 static const GLchar* const fs_source = GLSL(
-	out vec4 FragColor;
 	void main()
 	{
-		FragColor = vec4(0.0f, 1.0f, 0.0f, 0.5f);
+		gl_FragColor = vec4(0.0f, 1.0f, 0.0f, 0.5f);
 	}
 );
 
@@ -153,8 +152,8 @@ static void init_shader_program(void)
 
 static void term_shader_program(void)
 {
-	glDetachShader(vs_id);
-	glDetachShader(fs_id);
+	glDetachShader(shader_program_id, vs_id);
+	glDetachShader(shader_program_id, fs_id);
 	glDeleteShader(vs_id);
 	glDeleteShader(fs_id);
 	glDeleteProgram(shader_program_id);

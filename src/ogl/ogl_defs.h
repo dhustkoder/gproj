@@ -9,7 +9,14 @@
 #include <GL/gl.h>
 #endif
 
-typedef void   (OGLAPI *gl_void_proc_fn_t)();
+
+#ifdef _MSC_VER
+#define OGLAPI APIENTRY
+#else
+#define OGLAPI 
+#endif
+
+typedef void   (OGLAPI *gl_void_proc_fn_t)(void);
 
 #ifndef GL_VERSION_2_0
 #define GL_FRAGMENT_SHADER ((GLenum)0x8B30)

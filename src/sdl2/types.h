@@ -13,9 +13,9 @@
 	u8 fake_array[(cond) ? 1 : -1]; \
 }
 
+
 #define OGL_GET_PROC_ADDR(proc_name) SDL_GL_GetProcAddress(proc_name)
 
-#define OGLAPI APIENTRY
 
 #ifdef _MSC_VER
 #include <windows.h>
