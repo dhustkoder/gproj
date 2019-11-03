@@ -38,9 +38,9 @@ struct map {
 	f32 scale;
 #endif
 	// size in tiles
-	struct vec2i size;	
+	struct vec2i size;
 	// positions on tilesheet
-	struct vec2i data[MAP_MAX_X_TILES * MAP_MAX_Y_TILES]; 
+	struct vec2i data[MAP_MAX_X_TILES * MAP_MAX_Y_TILES];
 };
 
 struct map_view {
@@ -49,10 +49,10 @@ struct map_view {
 	f32 scale;
 #endif
 	// size of the view area
-	struct vec2i size; 
+	struct vec2i size;
 	// screen begin position
 	struct vec2i scrpos;
-	// pointer to tsmap right position relative map camera
+	// tiles to draw
 	struct vec2i data[MAP_MAX_X_TILES * MAP_MAX_Y_TILES];
 };
 

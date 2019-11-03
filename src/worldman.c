@@ -28,7 +28,7 @@ void worldman_init(const struct world_meta* const _metas,
 {
 	LOG_DEBUG("INITIALIZING WORLDMAN");
 	assert(cnt <= GPROJ_MAX_WORLDS && metas != NULL);
-	memcpy(metas, _metas, cnt * sizeof(struct world_meta)); 
+	memcpy(metas, _metas, cnt * sizeof(struct world_meta));
 	nworlds = cnt;
 }
 

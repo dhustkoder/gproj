@@ -51,7 +51,7 @@ static void init_opengl_mode(const char* name)
 	init_sdl2_window(name, SDL_WINDOW_RESIZABLE|SDL_WINDOW_OPENGL);
 	sdl_gl_context = SDL_GL_CreateContext(sdl_window);
 	assert(sdl_gl_context != NULL);
-	SDL_GL_SetSwapInterval(1);
+	SDL_GL_SetSwapInterval(0);
 }
 
 static void init_sdl2_mode(const char* name)

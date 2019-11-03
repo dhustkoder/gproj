@@ -73,14 +73,14 @@ static GLchar shader_compilation_info_buffer[SHADER_COMPILATION_INFO_BUFFER_SIZE
 #endif
 
 static const GLchar* const vs_source = GLSL(
-	in vec3 position;
+	in vec2 position;
 
 	void main()
 	{
-		gl_Position = vec4(position, 1.0) * vec4(0.2, 0.2, 0.2, 1.0);
+		gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix *
+		              vec4(position, 0.0, 1.0);
 	}
 );
-
 
 static const GLchar* const fs_source = GLSL(
 	out vec4 FragColor;
@@ -90,6 +90,9 @@ static const GLchar* const fs_source = GLSL(
 	}
 );
 
+
+static GLuint vao_id;
+static GLuint vbo_id;
 
 
 
@@ -148,6 +151,33 @@ static void init_shader_program(void)
 
 }
 
+static void term_shader_program(void)
+{
+	glDetachShader(vs_id);
+	glDetachShader(fs_id);
+	glDeleteShader(vs_id);
+	glDeleteShader(fs_id);
+	glDeleteProgram(shader_program_id);
+}
+
+static void init_buffers(void)
+{
+	glGenVertexArrays(1, &vao_id);
+	glBindVertexArray(vao_id);
+	glGenBuffers(1, &vbo_id);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
+	glBufferData(GL_ARRAY_BUFFER,
+	             sizeof(struct vec2f) * (MAP_MAX_X_TILES * 2 * MAP_MAX_Y_TILES),
+				 NULL,
+				 GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(f32), NULL);
+	glEnableVertexAttribArray(0);
+}
+
+static void term_buffers(void)
+{
+	glDeleteBuffers(1, &vbo_id);
+}
 
 
 void ogl_render_init(void)
@@ -160,14 +190,17 @@ void ogl_render_init(void)
 		*gl_proc_ptrs[i] = proc;
 	}
 	#endif
-
 	init_shader_program();
+	init_buffers();
+
 	glViewport(0, 0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	glClearColor(0, 0, 1, 1);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 
 	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT, 0, -1.0f, 1.0f);
+
+	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
 }
@@ -175,11 +208,13 @@ void ogl_render_init(void)
 void ogl_render_term(void)
 {
 	LOG_DEBUG("TERMINATING OPENGL RENDER");
+
+	term_shader_program();
+	term_buffers();
 }
 
 void ogl_render_load_ts(const char* const path)
 {
-
 }
 
 void ogl_render_load_ss(const char* const path)
@@ -187,8 +222,41 @@ void ogl_render_load_ss(const char* const path)
 
 }
 
+static struct vec2f map_verts[MAP_MAX_X_TILES * MAP_MAX_Y_TILES * 4];
+static GLsizei map_verts_size = 0;
+
+
 void ogl_render_map(const struct map_view* const view)
 {
+	const struct vec2i size = view->size;
+	const struct vec2i* src = view->data;
+	struct vec2f* dst = map_verts;
+
+	map_verts_size = size.x * size.y * 4;
+
+	for (int h = 0; h < size.y; ++h) {
+		for (int w = 0; w < size.x; ++w) {
+			const GLfloat x = src->x;
+			const GLfloat y = src->y;
+			++src;
+
+			dst->x = x;
+			dst->y = y;
+			++dst;
+
+			dst->x = x + TILE_WIDTH;
+			dst->y = y;
+			++dst;
+
+			dst->x = x + TILE_WIDTH;
+			dst->y = y + TILE_HEIGHT;
+			++dst;
+
+			dst->x = x;
+			dst->y = y + TILE_HEIGHT;
+			++dst;
+		}
+	}
 
 }
 
@@ -217,6 +285,7 @@ void ogl_render_finish_frame(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
+	/*
 	glBegin(GL_TRIANGLES);
 
 	glColor4f(1, 0, 0, 1);
@@ -225,9 +294,31 @@ void ogl_render_finish_frame(void)
 	glVertex3f(1,  1, 0);
 
 	glEnd();
+	*/
+/*
+	struct vec2f test_verts[] = {
+		{  0, 0   },
+		{  32, 0  },
+		{  32, 32 },
+		{  0, 32  }
+	};
+
+	glBufferData(GL_ARRAY_BUFFER,
+	             sizeof(test_verts[0]) * 4,
+                 test_verts,
+	             GL_DYNAMIC_DRAW);
+
+	glDrawArrays(GL_QUADS, 0, 4);
+*/
+
+	glBufferData(GL_ARRAY_BUFFER,
+	             sizeof(map_verts[0]) * map_verts_size,
+                 map_verts,
+	             GL_DYNAMIC_DRAW);
+
+	glDrawArrays(GL_QUADS, 0, map_verts_size);
 
 	#ifdef GPROJ_PLATFORM_SDL2
-	extern SDL_GLContext* sdl_gl_context;
 	extern SDL_Window* sdl_window;
 
 	SDL_GL_SwapWindow(sdl_window);
