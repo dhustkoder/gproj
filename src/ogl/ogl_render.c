@@ -4,7 +4,7 @@
 #include "ogl_render.h"
 
 
-#define GLSL(...) "#version 330 core\n" #__VA_ARGS__
+#define GLSL(...) "#version 130\n" #__VA_ARGS__
 
 #ifndef GL_VERSION_2_0
 glCreateShader_fn_t glCreateShader;
@@ -72,21 +72,21 @@ static GLuint shader_program_id;
 static GLchar shader_compilation_info_buffer[SHADER_COMPILATION_INFO_BUFFER_SIZE];
 #endif
 
-static const GLchar* vs_source = GLSL(
-	layout (location = 0) in vec3 aPos;
+static const GLchar* const vs_source = GLSL(
+	in vec3 position;
 
 	void main()
 	{
-		gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0) * vec4(0.2, 0.2, 0.2, 1.0);
+		gl_Position = vec4(position, 1.0) * vec4(0.2, 0.2, 0.2, 1.0);
 	}
 );
 
 
-static const GLchar* fs_source = GLSL(
+static const GLchar* const fs_source = GLSL(
 	out vec4 FragColor;
 	void main()
 	{
-		FragColor = vec4(0.0f, 1.0f, 0.7f, 1.0f);
+		FragColor = vec4(0.0f, 1.0f, 0.0f, 0.5f);
 	}
 );
 
@@ -119,18 +119,17 @@ static void compile_shader(GLuint* const id, GLenum type, const GLchar* source)
 
 }
 
-static void create_shader_program(const char* vs_src,
-                                  const char* fs_src)
+static void init_shader_program(void)
 {
-	compile_shader(&vs_id, GL_VERTEX_SHADER, vs_src);
-	compile_shader(&fs_id, GL_FRAGMENT_SHADER, fs_src);
-	
+	compile_shader(&vs_id, GL_VERTEX_SHADER, vs_source);
+	compile_shader(&fs_id, GL_FRAGMENT_SHADER, fs_source);
+
 	shader_program_id = glCreateProgram();
 	assert(shader_program_id != 0);
 
 	glAttachShader(shader_program_id, vs_id);
 	glAttachShader(shader_program_id, fs_id);
-	glLinkProgram(shader_program_id);	
+	glLinkProgram(shader_program_id);
 
 #ifdef GPROJ_DEBUG
 	GLint status;
@@ -162,7 +161,7 @@ void ogl_render_init(void)
 	}
 	#endif
 
-	create_shader_program(vs_source, fs_source);
+	init_shader_program();
 	glViewport(0, 0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	glClearColor(0, 0, 1, 1);
 	glMatrixMode(GL_MODELVIEW);
@@ -216,7 +215,7 @@ void ogl_render_text(const char* const text, ...)
 
 void ogl_render_finish_frame(void)
 {
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);	
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
 	glBegin(GL_TRIANGLES);
 
