@@ -25,11 +25,13 @@ glGetAttribLocation_fn_t glGetAttribLocation;
 glVertexAttribPointer_fn_t glVertexAttribPointer;
 glEnableVertexAttribArray_fn_t glEnableVertexAttribArray;
 
-
+#ifdef GPROJ_DEBUG
 glGetShaderiv_fn_t glGetShaderiv;
 glGetShaderInfoLog_fn_t glGetShaderInfoLog;
 glGetProgramiv_fn_t glGetProgramiv;
 glGetProgramInfoLog_fn_t glGetProgramInfoLog;
+#endif
+
 #endif
 
 
@@ -127,6 +129,18 @@ static GLuint vbo_id;
 
 
 
+static void load_gl_procs(void)
+{
+	#ifndef GL_VERSION_2_0
+	for (int i = 0; i < STATIC_ARRAY_SIZE(gl_proc_names); ++i) {
+		gl_void_proc_fn_t proc = (gl_void_proc_fn_t) OGL_GET_PROC_ADDR(gl_proc_names[i]);
+		assert(proc != NULL);
+		*gl_proc_ptrs[i] = proc;
+	}
+	#endif
+}
+
+
 static void compile_shader(GLuint* const id, GLenum type, const GLchar* source)
 {
 	*id = glCreateShader(type);
@@ -214,13 +228,8 @@ static void term_buffers(void)
 void ogl_render_init(void)
 {
 	LOG_DEBUG("INITIALIZING OPENGL RENDER");
-	#ifndef GL_VERSION_2_0
-	for (int i = 0; i < STATIC_ARRAY_SIZE(gl_proc_names); ++i) {
-		gl_void_proc_fn_t proc = (gl_void_proc_fn_t) OGL_GET_PROC_ADDR(gl_proc_names[i]);
-		assert(proc != NULL);
-		*gl_proc_ptrs[i] = proc;
-	}
-	#endif
+
+	load_gl_procs();
 	init_shader_program();
 	init_buffers();
 
