@@ -30,6 +30,7 @@ typedef void (OGLAPI *gl_void_proc_fn_t)();
 typedef char GLchar;
 typedef sptr GLsizeiptr;
 
+/* shaders */
 typedef GLuint (OGLAPI *glCreateShader_fn_t)(GLenum shaderType);
 typedef void   (OGLAPI *glShaderSource_fn_t)(GLuint shader, GLsizei count,
                                              const GLchar **string,
@@ -42,8 +43,10 @@ typedef void  (OGLAPI *glUseProgram_fn_t)(GLuint programId);
 typedef void  (OGLAPI *glDetachShader_fn_t)(GLuint programId, GLuint shaderId);
 typedef void  (OGLAPI *glDeleteShader_fn_t)(GLuint shaderId);
 typedef void  (OGLAPI *glDeleteProgram_fn_t)(GLuint programId);
-typedef void  (OGLAPI *glDeleteBuffers_fn_t)(GLsizei n, const GLuint* buffers);
+
+/* buffers */
 typedef void  (OGLAPI *glGenBuffers_fn_t)(GLsizei n, GLuint* buffers);
+typedef void  (OGLAPI *glDeleteBuffers_fn_t)(GLsizei n, const GLuint* buffers);
 typedef void  (OGLAPI *glBindBuffer_fn_t)(GLenum target, GLuint bufferId);
 typedef void  (OGLAPI *glBufferData_fn_t)(GLenum target,
                                           GLsizeiptr size,
@@ -59,7 +62,19 @@ typedef void (OGLAPI *glVertexAttribPointer_fn_t)(GLuint index,
 typedef void (OGLAPI *glEnableVertexAttribArray_fn_t)(GLuint index);
 
 
+/* 
+typedef void (OGLAPI *glGenTextures_fn_t)(GLsizei n, GLuint *textures);
+typedef void (OGLAPI *glDeleteTextures_fn_t)(GLsizei n, const GLuint* textures);
+typedef void (OGLAPI *glBindTexture_fn_t)(GLenum target, GLuint textureId);
+typedef void (OGLAPI *glTexParameterf_fn_t)(GLenum target, GLenum pname, GLfloat param);
+typedef void (OGLAPI *glTexParameterfv_fn_t)(GLenum target, GLenum pname, const GLfloat *params);
+typedef void (OGLAPI *glTexParameteri_fn_t)(GLenum target, GLenum pname, GLint param);
+typedef void (OGLAPI *glTexParameteriv_fn_t)(GLenum target, GLenum pname, const GLint *params);
+*/
+
+
 #ifdef GPROJ_DEBUG
+/* shaders error check */
 typedef void  (OGLAPI *glGetShaderiv_fn_t)(GLuint shader, GLenum pname, GLint *params);
 typedef void  (OGLAPI *glGetShaderInfoLog_fn_t)(GLuint shader, GLsizei maxLength,
                                                 GLsizei* length, GLchar* infoLog);
@@ -82,14 +97,24 @@ extern glUseProgram_fn_t glUseProgram;
 extern glDetachShader_fn_t glDetachShader;
 extern glDeleteShader_fn_t glDeleteShader;
 extern glDeleteProgram_fn_t glDeleteProgram;
-extern glDeleteBuffers_fn_t glDeleteBuffers;
+
 extern glGenBuffers_fn_t glGenBuffers;
+extern glDeleteBuffers_fn_t glDeleteBuffers;
 extern glBindBuffer_fn_t glBindBuffer;
 extern glBufferData_fn_t glBufferData;
 extern glGetAttribLocation_fn_t glGetAttribLocation;
 extern glVertexAttribPointer_fn_t glVertexAttribPointer;
 extern glEnableVertexAttribArray_fn_t glEnableVertexAttribArray;
 
+/*
+extern glGenTextures_fn_t glGenTextures;
+extern glDeleteTextures_fn_t glDeleteTextures;
+extern glBindTexture_fn_t glBindTexture;
+extern glTexParameterf_fn_t glTexParameterf;
+extern glTexParameterfv_fn_t glTexParameterfv;
+extern glTexParameteri_fn_t glTexParameteri;
+extern glTexParameteriv_fn_t glTexParameteriv;
+*/
 
 #ifdef GPROJ_DEBUG
 extern glGetShaderiv_fn_t glGetShaderiv;

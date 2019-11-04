@@ -7,6 +7,7 @@
 #define GLSL(...) "#version 120\n" #__VA_ARGS__
 
 #ifndef GL_VERSION_2_0
+
 glCreateShader_fn_t glCreateShader;
 glShaderSource_fn_t glShaderSource;
 glCompileShader_fn_t glCompileShader;
@@ -17,13 +18,24 @@ glUseProgram_fn_t glUseProgram;
 glDetachShader_fn_t glDetachShader;
 glDeleteShader_fn_t glDeleteShader;
 glDeleteProgram_fn_t glDeleteProgram;
-glDeleteBuffers_fn_t glDeleteBuffers;
+
 glGenBuffers_fn_t glGenBuffers;
+glDeleteBuffers_fn_t glDeleteBuffers;
 glBindBuffer_fn_t glBindBuffer;
 glBufferData_fn_t glBufferData;
 glGetAttribLocation_fn_t glGetAttribLocation;
 glVertexAttribPointer_fn_t glVertexAttribPointer;
 glEnableVertexAttribArray_fn_t glEnableVertexAttribArray;
+
+/*
+glGenTextures_fn_t glGenTextures;
+glDeleteTextures_fn_t glDeleteTextures;
+glBindTexture_fn_t glBindTexture;
+glTexParameterf_fn_t glTexParameterf;
+glTexParameterfv_fn_t glTexParameterfv;
+glTexParameteri_fn_t glTexParameteri;
+glTexParameteriv_fn_t glTexParameteriv;
+*/
 
 #ifdef GPROJ_DEBUG
 glGetShaderiv_fn_t glGetShaderiv;
@@ -31,6 +43,7 @@ glGetShaderInfoLog_fn_t glGetShaderInfoLog;
 glGetProgramiv_fn_t glGetProgramiv;
 glGetProgramInfoLog_fn_t glGetProgramInfoLog;
 #endif
+
 
 #endif
 
@@ -47,13 +60,23 @@ static GLchar* gl_proc_names[] = {
 	"glDetachShader",
 	"glDeleteShader",
 	"glDeleteProgram",
-	"glDeleteBuffers",
+	
 	"glGenBuffers",
+	"glDeleteBuffers",
 	"glBindBuffer",
 	"glBufferData",
 	"glGetAttribLocation",
 	"glVertexAttribPointer",
 	"glEnableVertexAttribArray"
+/*
+	,"glGenTextures",
+	"glDeleteTextures",
+	"glBindTexture",
+	"glTexParameterf",
+	"glTexParameterfv",
+	"glTexParameteri",
+	"glTexParameteriv"
+*/
 	#ifdef GPROJ_DEBUG
 	,"glGetShaderiv",
 	"glGetShaderInfoLog",
@@ -74,13 +97,24 @@ static gl_void_proc_fn_t* gl_proc_ptrs[] = {
 	&glDetachShader,
 	&glDeleteShader,
 	&glDeleteProgram,
-	&glDeleteBuffers,
+	
 	&glGenBuffers,
+	&glDeleteBuffers,
 	&glBindBuffer,
 	&glBufferData,
 	&glGetAttribLocation,
 	&glVertexAttribPointer,
 	&glEnableVertexAttribArray
+	
+/*
+	,&glGenTextures,
+	&glDeleteTextures,
+	&glBindTexture,
+	&glTexParameterf,
+	&glTexParameterfv,
+	&glTexParameteri,
+	&glTexParameteriv
+*/
 
 	#ifdef GPROJ_DEBUG
 	,&glGetShaderiv,
@@ -126,6 +160,7 @@ static const GLchar* const fs_source = GLSL(
 
 
 static GLuint vbo_id;
+static GLuint ts_tex_id;
 
 
 
@@ -225,6 +260,16 @@ static void term_buffers(void)
 }
 
 
+static void init_textures(void)
+{
+	glGenTextures(1, &ts_tex_id);
+}
+
+static void term_textures(void)
+{
+	glDeleteTextures(1, &ts_tex_id);
+}
+
 void ogl_render_init(void)
 {
 	LOG_DEBUG("INITIALIZING OPENGL RENDER");
@@ -259,7 +304,6 @@ void ogl_render_load_ts(const char* const path)
 
 void ogl_render_load_ss(const char* const path)
 {
-
 }
 
 static struct vec2f map_verts[MAP_MAX_X_TILES * MAP_MAX_Y_TILES * 4];
