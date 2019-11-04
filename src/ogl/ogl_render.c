@@ -128,7 +128,6 @@ static GLuint vbo_id;
 
 
 static void compile_shader(GLuint* const id, GLenum type, const GLchar* source)
-
 {
 	*id = glCreateShader(type);
 
@@ -217,7 +216,7 @@ void ogl_render_init(void)
 	LOG_DEBUG("INITIALIZING OPENGL RENDER");
 	#ifndef GL_VERSION_2_0
 	for (int i = 0; i < STATIC_ARRAY_SIZE(gl_proc_names); ++i) {
-		gl_void_proc_fn_t proc = OGL_GET_PROC_ADDR(gl_proc_names[i]);
+		gl_void_proc_fn_t proc = (gl_void_proc_fn_t) OGL_GET_PROC_ADDR(gl_proc_names[i]);
 		assert(proc != NULL);
 		*gl_proc_ptrs[i] = proc;
 	}

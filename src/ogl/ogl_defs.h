@@ -47,16 +47,17 @@ typedef void  (OGLAPI *glGenBuffers_fn_t)(GLsizei n, GLuint* buffers);
 typedef void  (OGLAPI *glBindBuffer_fn_t)(GLenum target, GLuint bufferId);
 typedef void  (OGLAPI *glBufferData_fn_t)(GLenum target,
                                           GLsizeiptr size,
-					  const void* data,
-					  GLenum usage);
-typedef GLuint (OGLAPI *glGetAttribLocation_fn_t)(GLuint programId, const GLchar* attribName);
+                                          const void* data,
+                                          GLenum usage);
+typedef GLint (OGLAPI *glGetAttribLocation_fn_t)(GLuint programId, const GLchar* attribName);
 typedef void (OGLAPI *glVertexAttribPointer_fn_t)(GLuint index,
                                                   GLint size,
-						  GLenum type,
-						  GLboolean normalized,
-						  GLsizei stride,
-						  const void * pointer);
+                                                  GLenum type,
+                                                  GLboolean normalized,
+                                                  GLsizei stride,
+                                                  const void * pointer);
 typedef void (OGLAPI *glEnableVertexAttribArray_fn_t)(GLuint index);
+
 
 #ifdef GPROJ_DEBUG
 typedef void  (OGLAPI *glGetShaderiv_fn_t)(GLuint shader, GLenum pname, GLint *params);
