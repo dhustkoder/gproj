@@ -120,7 +120,6 @@ void timer_profiler_block_end(void)
 		const timer_hp_clk_t wasted = timer_profiler_end(waste_start);
 		prevblk->adder -= wasted;
 	}
-
 }
 
 

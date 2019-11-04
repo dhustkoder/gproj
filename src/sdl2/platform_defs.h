@@ -5,23 +5,7 @@
 #include <limits.h>
 #include <SDL.h>
 #include <SDL_stdinc.h>
-
-
-#define STATIC_ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
-#define STATIC_ASSERT(ident, cond)  \
-	struct static_assert_##ident {  \
-	u8 fake_array[(cond) ? 1 : -1]; \
-}
-
-
-#define OGL_GET_PROC_ADDR(proc_name) SDL_GL_GetProcAddress(proc_name)
-
-
-#ifdef _MSC_VER
-#include <windows.h>
-// fucking MS please start supporting C99 properly!
-#define restrict __restrict
-#endif
+#include "utils.h"
 
 typedef Uint8  u8;
 typedef Uint16 u16;
@@ -91,6 +75,7 @@ STATIC_ASSERT(s_type_sizes,
 STATIC_ASSERT(b_type_sizes,
 	(sizeof(b8) == 1 && sizeof(b16) == 2 && sizeof(b32) == 4));
 STATIC_ASSERT(f_type_sizes, (sizeof(f32) == 4));
+
 
 struct vec2i {
 	s16 x, y;

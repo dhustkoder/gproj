@@ -4,7 +4,6 @@
 #include "ogl_render.h"
 
 
-#define GLSL(...) "#version 120\n" #__VA_ARGS__
 
 #ifndef GL_VERSION_2_0
 
@@ -140,7 +139,7 @@ static GLuint shader_program_id;
 static GLchar shader_compilation_info_buffer[SHADER_COMPILATION_INFO_BUFFER_SIZE];
 #endif
 
-static const GLchar* const vs_source = GLSL(
+static const GLchar* const vs_source = OGL_SL(
 	attribute vec2 dep_position;
 	attribute vec2 position;
 
@@ -151,7 +150,7 @@ static const GLchar* const vs_source = GLSL(
 	}
 );
 
-static const GLchar* const fs_source = GLSL(
+static const GLchar* const fs_source = OGL_SL(
 	void main()
 	{
 		gl_FragColor = vec4(0.0f, 1.0f, 0.0f, 0.5f);
@@ -227,7 +226,7 @@ static void init_shader_program(void)
 #endif
 
 	glUseProgram(shader_program_id);
-
+	OGL_ASSERT_NO_ERROR();
 }
 
 static void term_shader_program(void)
@@ -247,10 +246,12 @@ static void init_buffers(void)
 	             sizeof(struct vec2f) * (MAP_MAX_X_TILES * 2 * MAP_MAX_Y_TILES),
 				 NULL,
 				 GL_DYNAMIC_DRAW);
+	OGL_ASSERT_NO_ERROR();
 
 	GLint pos_loc = glGetAttribLocation(shader_program_id, "dep_position");
 	glVertexAttribPointer(pos_loc, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(f32), NULL);
 	glEnableVertexAttribArray(pos_loc);
+	OGL_ASSERT_NO_ERROR();
 }
 
 static void term_buffers(void)
@@ -263,6 +264,8 @@ static void term_buffers(void)
 static void init_textures(void)
 {
 	glGenTextures(1, &ts_tex_id);
+	glBindTexture(GL_TEXTURE_2D, ts_tex_id);
+	OGL_ASSERT_NO_ERROR();
 }
 
 static void term_textures(void)
@@ -294,8 +297,9 @@ void ogl_render_term(void)
 {
 	LOG_DEBUG("TERMINATING OPENGL RENDER");
 
-	term_shader_program();
+	term_textures();
 	term_buffers();
+	term_shader_program();
 }
 
 void ogl_render_load_ts(const char* const path)
@@ -405,8 +409,10 @@ void ogl_render_finish_frame(void)
 	             sizeof(map_verts[0]) * map_verts_size,
                  map_verts,
 	             GL_DYNAMIC_DRAW);
+	OGL_ASSERT_NO_ERROR();
 
 	glDrawArrays(GL_QUADS, 0, map_verts_size);
+	OGL_ASSERT_NO_ERROR();
 
 	#ifdef GPROJ_PLATFORM_SDL2
 	extern SDL_Window* sdl_window;
@@ -422,5 +428,7 @@ void ogl_render_finish_frame(void)
 void ogl_window_resize(int w, int h)
 {
 	glViewport(0, 0, w, h);
+	OGL_ASSERT_NO_ERROR();
+
 }
 #endif

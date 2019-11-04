@@ -17,6 +17,7 @@
 
 
 
+
 static bool platform_init(void)
 {
 	LOG_DEBUG("INITIALIZING PLATFORM SDL2");

@@ -2,7 +2,6 @@
 #define GPROJ_OGL_DEFS_H_
 #include "platform_defs.h"
 
-
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
@@ -16,6 +15,28 @@
 #define OGLAPI 
 #endif
 
+
+#ifdef GPROJ_PLATFORM_SDL2
+#define OGL_GET_PROC_ADDR(proc_name) SDL_GL_GetProcAddress(proc_name)
+#else 
+#error "Unknown Platform"
+#endif
+
+
+#define OGL_SL(...) "#version 120\n" #__VA_ARGS__
+
+
+#ifdef GPROJ_DEBUG
+#define OGL_ASSERT_NO_ERROR() do { \
+	GLenum gl_error_code = glGetError(); \
+	if (gl_error_code != GL_NO_ERROR) { \
+		LOG_DEBUG("GL ERROR: %d", gl_error_code); \
+		assert(false && "OGL ERROR"); \
+	} \
+} while (0)
+#else
+#define OGL_ASSERT_NO_ERROR() ((void)0)
+#endif
 
 typedef void (OGLAPI *gl_void_proc_fn_t)();
 
