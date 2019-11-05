@@ -1,6 +1,6 @@
 #include "logger.h"
 #include "render.h"
-#include "gproj_prof.h"
+#include "profiler.h"
 
 
 #ifdef GPROJ_PROFILING
@@ -9,7 +9,6 @@
 #define GPROJ_MAX_PROFILING_IDS 512
 #define profiler_start() timer_high_precision_counter()
 #define profiler_end(start) ((timer_high_precision_counter() - start) / timer_hp_frequency)
-
 
 struct block {
 	int max_hits;
@@ -29,7 +28,10 @@ static struct block blocks[GPROJ_MAX_PROFILING_IDS];
 
 void profiler_init(void)
 {
-	const int err = SDL_InitSubSystem(SDL_INIT_TIMER);
+	int err;
+	LOG_DEBUG("INITIALIZING PROFILER");
+
+	err = SDL_InitSubSystem(SDL_INIT_TIMER);
 	((void)err);
 	assert(err == 0);
 	timer_hp_frequency = timer_high_precision_counter_frequency();
@@ -38,15 +40,15 @@ void profiler_init(void)
 
 void profiler_term(void)
 {
-
+	LOG_DEBUG("TERMINATING PROFILER");
 }
 
 void profiler_block_start(const char* const id,
-                                const int max_hits)
+                          const int max_hits)
 {
 	struct block* blk = NULL;
 	struct block* prevblk = NULL;
-	timer_hp_clk_t waste_start;
+	timer_hp_clk_t waste_start = 0;
 
 	if (stack_cnt > 0) {
 		waste_start = profiler_start();
@@ -85,7 +87,7 @@ void profiler_block_start(const char* const id,
 void profiler_block_end(void)
 {
 	assert(stack_cnt > 0);
-	timer_hp_clk_t waste_start;
+	timer_hp_clk_t waste_start = 0;
 	struct block* prevblk = NULL;
 
 

@@ -1,5 +1,5 @@
-#ifndef GPROJ_TIMER_H_
-#define GPROJ_TIMER_H_
+#ifndef GPROJ_PROFILER_H_
+#define GPROJ_PROFILER_H_
 #include "platform_defs.h"
 #include "timer.h"
 
