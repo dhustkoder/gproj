@@ -1,16 +1,17 @@
 #include "timer.h"
 #include "events.h"
 #include "gproj.h"
+#include "gproj_prof.h"
 #include "game.h"
 
 
 struct events gproj_events;
 
 
-
 int gproj_main(int argc, char** argv)
 {
 	game_init(argc, argv);
+	profiler_init();
 
 	timer_clk_t clk = timer_now();
 	timer_clk_t lastclk = clk;

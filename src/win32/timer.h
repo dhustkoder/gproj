@@ -9,21 +9,16 @@ typedef DWORD timer_clk_t;
 #define timer_now()       GetTickCount()
 
 
+typedef double timer_hp_clk_t;
+timer_hp_clk_t timer_hp_frequency;
+#define TIMER_HP_CLK_FMT ".12lf"
 
-#ifdef GPROJ_PROFILING
 
-extern void timer_profiler_init(void);
-extern void timer_profiler_block_start(const char* id, int max_hits);
-extern void timer_profiler_block_end(void);
-extern void timer_profiler_term(void);
+#define timer_high_precision_counter()   ((timer_hp_clk_t)0)
 
-#else
 
-#define timer_profiler_init(...)
-#define timer_profiler_block_start(id, max_hits)
-#define timer_profiler_block_end(...)
-#define timer_profiler_term(...)
 
-#endif
+
+
 
 #endif

@@ -18,6 +18,7 @@ static void dummy()
 
 }
 
+
 void render_init(const char* const name,
                  const render_mode_t mode)
 {
