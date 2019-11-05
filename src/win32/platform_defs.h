@@ -1,10 +1,13 @@
-#ifndef GPROJ_TYPES_H_
-#define GPROJ_TYPES_H_
+#ifndef GPROJ_PLATFORM_H_
+#define GPROJ_PLATFORM_H_
+#include <windows.h>
 #include <stdint.h>
 #include <assert.h>
 #include <limits.h>
-#include <SDL.h>
-#include <SDL_stdinc.h>
+#include <inttypes.h>
+#include <stddef.h>
+#include <stdarg.h>
+
 
 #define STATIC_ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
 #define STATIC_ASSERT(ident, cond)  \
@@ -19,37 +22,37 @@
 #define restrict __restrict
 #endif
 
-typedef Uint8  u8;
-typedef Uint16 u16;
-typedef Uint32 u32;
+typedef uint8_t  u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
 
-#define U8_MAX  (SDL_MAX_UINT8)
-#define U16_MAX (SDL_MAX_UINT16)
-#define U32_MAX (SDL_MAX_UINT32)
+#define U8_MAX  (UINT8_MAX)
+#define U16_MAX (UINT16_MAX)
+#define U32_MAX (UINT32_MAX)
 
-#define U8_MIN  (SDL_MIN_UINT8)
-#define U16_MIN (SDL_MIN_UINT16)
-#define U32_MIN (SDL_MIN_UINT32)
+#define U8_MIN  (UINT8_MAX)
+#define U16_MIN (UINT16_MAX)
+#define U32_MIN (UINT32_MAX)
 
-#define U8_FMT  SDL_PRIu8
-#define U16_FMT SDL_PRIu16
-#define U32_FMT SDL_PRIu32
+#define U8_FMT  PRIu8
+#define U16_FMT PRIu16
+#define U32_FMT PRIu32
 
 
-typedef Sint8  s8;
-typedef Sint16 s16;
-typedef Sint32 s32;
-#define S8_MAX  (SDL_MAX_SINT8)
-#define S16_MAX (SDL_MAX_SINT16)
-#define S32_MAX (SDL_MAX_SINT32)
+typedef int8_t  s8;
+typedef int16_t s16;
+typedef int32_t s32;
+#define S8_MAX  (INT8_MAX)
+#define S16_MAX (INT16_MAX)
+#define S32_MAX (INT32_MAX)
 
-#define S8_MIN  (SDL_MIN_SINT8)
-#define S16_MIN (SDL_MIN_SINT16)
-#define S32_MIN (SDL_MIN_SINT32)
+#define S8_MIN  (INT8_MAX)
+#define S16_MIN (INT16_MAX)
+#define S32_MIN (INT32_MAX)
 
-#define S8_FMT  SDL_PRIs8
-#define S16_FMT SDL_PRIs16
-#define S32_FMT SDL_PRIs32
+#define S8_FMT  PRId8
+#define S16_FMT PRId16
+#define S32_FMT PRId32
 
 
 

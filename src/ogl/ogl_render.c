@@ -418,8 +418,10 @@ void ogl_render_finish_frame(void)
 	extern SDL_Window* sdl_window;
 
 	SDL_GL_SwapWindow(sdl_window);
+	#elif defined(GPROJ_PLATFORM_WIN32)
+	// ...
 	#else
-	#error "NEED IMPLEMENTATION"
+	#error "Unknown Platform"
 	#endif
 }
 

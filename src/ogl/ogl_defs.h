@@ -18,7 +18,9 @@
 
 #ifdef GPROJ_PLATFORM_SDL2
 #define OGL_GET_PROC_ADDR(proc_name) SDL_GL_GetProcAddress(proc_name)
-#else 
+#elif defined(GPROJ_PLATFORM_WIN32)
+#define OGL_GET_PROC_ADDR(proc_name) (NULL)
+#else
 #error "Unknown Platform"
 #endif
 
