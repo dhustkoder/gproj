@@ -11,8 +11,7 @@ set GPROJ_RELEASE_DEFINES=/DGPROJ_RELEASE
 
 set EXTERNAL_INCLUDE_FLAGS=
 set EXTERNAL_LIBS=
-set INCLUDE_FLAGS=/Isrc /Isrc\win32 /Isrc\game /Isrc\ogl ^
-                  %SDL2_INCLUDE_FLAGS% %EXTERNAL_INCLUDE_FLAGS%
+set INCLUDE_FLAGS=/Isrc /Isrc\win32 /Isrc\game /Isrc\ogl %EXTERNAL_INCLUDE_FLAGS%
 
 set SRC=src\*.c src\win32\*.c src\game\*.c src\ogl\*.c
 set CC=cl
@@ -31,7 +30,7 @@ set CFLAGS=^
 	%INCLUDE_FLAGS%
 
 set LDFLAGS=/link /SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup ^
-	%SDL2_LIBS% %EXTERNAL_LIBS% opengl32.lib
+	%EXTERNAL_LIBS% opengl32.lib
 	
 set PERFORMANCE_FLAGS=/Ox
 
@@ -64,12 +63,6 @@ GOTO BUILD
 
 
 :BUILD
-@echo on
-pushd .\externals\SDL_FontCache
-call win_x64.bat
-popd
-@echo off
-
 if not exist "build" mkdir build
 @echo on
 %CC% %SRC% %CFLAGS% /Febuild\gproj.exe %LDFLAGS%

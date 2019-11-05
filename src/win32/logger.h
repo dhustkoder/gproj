@@ -5,7 +5,7 @@
 
 #define LOG(...) fprintf(stdout, __VA_ARGS__)
 
-#define LOG_ERR(...) fprintf(stderr, SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__)
+#define LOG_ERR(...) fprintf(stderr, __VA_ARGS__)
 
 #if defined(GPROJ_DEBUG)
 #define LOG_DEBUG(...) fprintf(stdout, __VA_ARGS__)

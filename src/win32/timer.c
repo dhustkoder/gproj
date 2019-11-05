@@ -11,7 +11,7 @@ timer_hp_clk_t timer_hp_frequency;
 
 #define TIMER_HP_CLK_FMT ".12lf"
 
-#define timer_high_precision_counter()   ((timer_hp_clk_t)SDL_GetPerformanceCounter())
+#define timer_high_precision_counter()   ((timer_hp_clk_t)0)
 
 #define timer_profiler_start() timer_high_precision_counter()
 #define timer_profiler_end(start) \
@@ -35,10 +35,6 @@ static struct block blocks[GPROJ_MAX_PROFILING_IDS];
 
 void timer_profiler_init(void)
 {
-	const int err = SDL_InitSubSystem(SDL_INIT_TIMER);
-	((void)err);
-	assert(err == 0);
-	timer_hp_frequency = SDL_GetPerformanceFrequency();
 	LOG_DEBUG("HP FREQUENCY: %lf", timer_hp_frequency);
 }
 

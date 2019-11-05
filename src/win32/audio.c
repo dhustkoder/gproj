@@ -1,6 +1,3 @@
-#include <assert.h>
-#include <SDL_mixer.h>
-#include "logger.h"
 #include "audio.h"
 
 

@@ -4,9 +4,9 @@
 
 
 typedef DWORD timer_clk_t;
-#define TIMER_CLK_FMT   U32_FMT
-#define timer_sleep(ms) Sleep(ms)
-#define timer_now()     ((timer_clk_t)GetTickCount())
+#define TIMER_CLK_FMT     U32_FMT
+#define timer_sleep(ms)   Sleep(ms)
+#define timer_now()       GetTickCount()
 
 
 
