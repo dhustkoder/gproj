@@ -9,12 +9,14 @@ set GPROJ_DEBUG_DEFINES=/DDEBUG /DGPROJ_DEBUG
 set GPROJ_PROFILING_DEFINES=/DNDEBUG /DGPROJ_PROFILING
 set GPROJ_RELEASE_DEFINES=/DGPROJ_RELEASE
 
-set EXTERNAL_INCLUDE_FLAGS=
-set EXTERNAL_LIBS=
-set INCLUDE_FLAGS=/Isrc /Isrc\win32 /Isrc\game /Isrc\ogl %EXTERNAL_INCLUDE_FLAGS%
 
 set SRC=src\*.c src\win32\*.c src\game\*.c src\ogl\*.c
 set CC=cl
+
+set LIBS=opengl32.lib
+
+set INCLUDE_FLAGS=/Isrc /Isrc\win32 /Isrc\game /Isrc\ogl
+
 
 set CFLAGS=^
 	/TC ^
@@ -29,8 +31,7 @@ set CFLAGS=^
 	%GPROJ_DEFINES% ^
 	%INCLUDE_FLAGS%
 
-set LDFLAGS=/link /SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup ^
-	%EXTERNAL_LIBS% opengl32.lib
+set LDFLAGS=/link /SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup %LIBS%
 	
 set PERFORMANCE_FLAGS=/Ox
 

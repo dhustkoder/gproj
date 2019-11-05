@@ -2,6 +2,7 @@
 #include "render.h"
 #include "timer.h"
 
+
 #ifdef GPROJ_PROFILING
 
 typedef double timer_hp_clk_t;
