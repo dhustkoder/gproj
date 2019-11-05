@@ -2,17 +2,17 @@
 #define GPROJ_OGL_DEFS_H_
 #include "platform_defs.h"
 
+#ifdef _MSC_VER
+#include <windows.h>
+#define OGLAPI APIENTRY
+#else
+#define OGLAPI
+#endif
+
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
-#endif
-
-
-#ifdef _MSC_VER
-#define OGLAPI APIENTRY
-#else
-#define OGLAPI 
 #endif
 
 

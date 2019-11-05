@@ -5,7 +5,19 @@
 #include <limits.h>
 #include <SDL.h>
 #include <SDL_stdinc.h>
-#include "utils.h"
+
+#define STATIC_ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
+#define STATIC_ASSERT(ident, cond)  \
+	struct static_assert_##ident {  \
+	u8 fake_array[(cond) ? 1 : -1]; \
+}
+
+
+
+#ifdef _MSC_VER
+// fucking MS please start supporting C99 properly!
+#define restrict __restrict
+#endif
 
 typedef Uint8  u8;
 typedef Uint16 u16;
