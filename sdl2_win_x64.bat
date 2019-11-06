@@ -68,16 +68,19 @@ if "%BUILD_TYPE%"=="Release" GOTO RELEASE_SETUP
 if "%BUILD_TYPE%"=="Profiling" ( GOTO PROFILING_SETUP ) else GOTO DEBUG_SETUP
 
 :RELEASE_SETUP
+set BUILD_TYPE="Release"
 set CFLAGS=%CFLAGS% %CFLAGS_RELEASE%
 set LDFLAGS=%LDFLAGS% %LDFLAGS_RELEASE%
 GOTO BUILD
 
 :PROFILING_SETUP
+set BUILD_TYPE="Profiling"
 set CFLAGS=%CFLAGS% %CFLAGS_PROFILING%
 set LDFLAGS=%LDFLAGS% %LDFLAGS_PROFILING%
 GOTO BUILD
 
 :DEBUG_SETUP
+set BUILD_TYPE="Debug"
 set CFLAGS=%CFLAGS% %CFLAGS_DEBUG%
 set LDFLAGS=%LDFLAGS% %LDFLAGS_DEBUG%
 GOTO BUILD
@@ -94,6 +97,7 @@ if not exist "build" mkdir build
 @echo on
 %CC% %SRC% %CFLAGS% /Febuild\gproj.exe %LDFLAGS%
 @echo off
+
 set ERROR=%errorLevel%
 if NOT %ERROR% == 0 (
 	echo "BUILD FAILED"
@@ -107,12 +111,13 @@ copy %SDL2_TTF_ROOT%\lib\x64\libfreetype-6.dll build\
 copy %SDL2_IMAGE_ROOT%\lib\x64\SDL2_image.dll build\
 copy %SDL2_IMAGE_ROOT%\lib\x64\libpng16-16.dll build\
 copy %SDL2_MIXER_ROOT%\lib\x64\SDL2_mixer.dll build\
-copy *.pdb build\
+if "%BUILD_TYPE%"=="Debug" (
+	move *.pdb build\
+)
 
 
 :CLEAN
 del *.obj
-del *.pdb
 if NOT %ERROR% == 0 (
 	GOTO EOF
 )
