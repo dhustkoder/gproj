@@ -1,6 +1,7 @@
 #ifndef GPROJ_RENDER_H_
 #define GPROJ_RENDER_H_
-#include "platform_defs.h"
+#include <stdarg.h>
+#include "gmath.h"
 #include "map.h"
 
 
@@ -23,14 +24,12 @@ enum render_flag {
 	RENDER_FLAG_FLIP_H,
 	RENDER_FLAG_FLIP_V
 };
-
-enum render_mode {
-	RENDER_MODE_OPENGL,
-	RENDER_MODE_DEFAULT = RENDER_MODE_OPENGL
-};
-
 typedef int render_flag_t;
-typedef int render_mode_t;
+
+
+struct render_mode {
+	const char* name;
+};
 
 
 typedef void(*render_load_ts_fn_t)(const char *path);
@@ -44,12 +43,13 @@ typedef void(*render_ss_fn_t)(int layer,
 			  const render_flag_t *restrict flags,
 			  const int cnt);
 typedef void(*render_text_fn_t)(const char *text, ...);
-//typedef void(*render_start_frame_fn_t)(void);
 typedef void(*render_finish_frame_fn_t)(void);
 
 
-extern void render_init(const char* name, render_mode_t mode);
+extern void render_get_available_modes(struct render_mode** modes, int* nmodes);
+extern void render_init(const char* name, const struct render_mode* mode);
 extern void render_term(void);
+
 
 
 

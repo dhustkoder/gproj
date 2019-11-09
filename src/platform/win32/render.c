@@ -19,8 +19,16 @@ static void dummy()
 }
 
 
+void render_get_available_modes(struct render_mode** modes, int* nmodes)
+{
+	static struct render_mode rmodes = { .name = "OpenGL" };
+	*modes = &rmodes;
+	*nmodes = 1;
+}
+
+
 void render_init(const char* const name,
-                 const render_mode_t mode)
+                 const struct render_mode* mode)
 {
 	LOG_DEBUG("INITIALIZING WINDOW");
 	render_load_ts = dummy;

@@ -31,10 +31,10 @@ set GPROJ_RELEASE_DEFINES=/DGPROJ_RELEASE
 set EXTERNAL_INCLUDE_FLAGS=/Iexternals\SDL_FontCache
 set EXTERNAL_LIBS=externals\SDL_FontCache\SDL_FontCache.lib
 
-set INCLUDE_FLAGS=/Isrc /Isrc\sdl2 /Isrc\game /Isrc\ogl ^
+set INCLUDE_FLAGS=/Isrc /Isrc\platform /Isrc\platform\sdl2 /Isrc\game /Isrc\ogl ^
                   %SDL2_INCLUDE_FLAGS% %EXTERNAL_INCLUDE_FLAGS%
 
-set SRC=src\*.c src\sdl2\*.c src\game\*.c src\ogl\*.c
+set SRC=src\*.c src\platform\sdl2\*.c src\game\*.c src\ogl\*.c
 set CC=cl
 
 set CFLAGS=^

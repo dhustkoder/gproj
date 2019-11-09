@@ -16,7 +16,7 @@ void game_init(int argc, char** argv)
 	LOG_DEBUG("#####INITIALIZING GAME#####");
 
 	profiler_init();
-	render_init("GProj Testing", RENDER_MODE_OPENGL);
+	render_init("GProj Testing", NULL);
 	audio_init();
 
 	worldman_init(levels, STATIC_ARRAY_SIZE(levels));

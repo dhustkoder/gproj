@@ -10,12 +10,12 @@ set GPROJ_PROFILING_DEFINES=/DNDEBUG /DGPROJ_PROFILING
 set GPROJ_RELEASE_DEFINES=/DGPROJ_RELEASE
 
 
-set SRC=src\*.c src\win32\*.c src\game\*.c src\ogl\*.c
+set SRC=src\*.c src\platform\win32\*.c src\game\*.c src\ogl\*.c
 set CC=cl
 
 set LIBS=opengl32.lib
 
-set INCLUDE_FLAGS=/Isrc /Isrc\win32 /Isrc\game /Isrc\ogl
+set INCLUDE_FLAGS=/Isrc /Isrc\platform /Isrc\platform\win32 /Isrc\game /Isrc\ogl
 
 
 set CFLAGS=^

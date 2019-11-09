@@ -7,20 +7,8 @@
 #include <inttypes.h>
 #include <stddef.h>
 #include <stdarg.h>
+#include "utils.h"
 
-
-#define STATIC_ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
-#define STATIC_ASSERT(ident, cond)  \
-	struct static_assert_##ident {  \
-	u8 fake_array[(cond) ? 1 : -1]; \
-}
-
-
-
-#ifdef _MSC_VER
-// fucking MS please start supporting C99 properly!
-#define restrict __restrict
-#endif
 
 typedef uint8_t  u8;
 typedef uint16_t u16;
@@ -92,23 +80,7 @@ STATIC_ASSERT(b_type_sizes,
 STATIC_ASSERT(f_type_sizes, (sizeof(f32) == 4));
 
 
-struct vec2i {
-	s16 x, y;
-};
 
-struct vec2f {
-	f32 x, y;
-};
-
-struct recti {
-	struct vec2i pos;
-	struct vec2i size;
-};
-
-struct rectf {
-	struct vec2f pos;
-	struct vec2f size;
-};
 
 
 #endif

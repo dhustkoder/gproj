@@ -17,8 +17,22 @@ SDL_Window* sdl_window = NULL;
 SDL_GLContext* sdl_gl_context = NULL;
 
 
+enum modes { 
+	MODE_SDL2,
+	MODE_OPENGL,
+	MODE_DEFAULT = MODE_OPENGL,
+	NMODES = 2 
+};
+
+const struct render_mode render_modes[NMODES] = {
+	[MODE_SDL2] = { .name = "SDL2" },
+	[MODE_OPENGL] = { .name = "OpenGL" }
+};
+
 static void (*target_render_init)(void);
 static void (*target_render_term)(void);
+
+
 
 static void init_sdl2_window(const char* name, const Uint32 flags)
 {
@@ -46,7 +60,6 @@ static void init_opengl_mode(const char* name)
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-	events_set_window_resize_clbk(ogl_window_resize);
 
 	init_sdl2_window(name, SDL_WINDOW_RESIZABLE|SDL_WINDOW_OPENGL);
 	sdl_gl_context = SDL_GL_CreateContext(sdl_window);
@@ -72,8 +85,14 @@ static void init_sdl2_mode(const char* name)
 
 
 
-void render_init(const char* const name,
-                 const render_mode_t mode)
+void render_get_available_modes(struct render_mode** modes, int* nmodes)
+{
+	*modes = render_modes;
+	*nmodes = NMODES;
+}
+
+void render_init(const char* name,
+                 const struct render_mode* const mode)
 {
 	LOG_DEBUG("INITIALIZING WINDOW");
 	int err;
@@ -81,15 +100,22 @@ void render_init(const char* const name,
 
 	assert(name != NULL);
 
-	switch (mode) {
-	case RENDER_MODE_DEFAULT:
+	unsigned idx;
+	
+	if (mode != NULL)
+		idx = INDEX_OF(render_modes, mode);
+	else
+		idx = MODE_DEFAULT;
+
+	assert(idx >= 0 && idx < NMODES);
+
+	switch (idx) {
+	default:
+	case MODE_SDL2:
 		init_sdl2_mode(name);
 		break;
-	case RENDER_MODE_OPENGL:
+	case MODE_OPENGL:
 		init_opengl_mode(name);
-		break;
-	default:
-		assert(false && "INVALID PATH");
 		break;
 	};
 
@@ -108,4 +134,5 @@ void render_term(void)
 
 	LOG_DEBUG("TERMINATING WINDOW");
 }
+
 
