@@ -42,8 +42,6 @@ static input_button_t gproj_buttons[] = {
 #endif
 };
 
-static window_resize_callback_fn_t win_resz_clbk = NULL;
-
 
 static inline void update_input_event(const SDL_Event* const ev,
                                       struct events* const ge)
@@ -65,20 +63,6 @@ static inline void update_input_event(const SDL_Event* const ev,
 	}
 }
 
-static inline void update_window_event(const SDL_Event* const ev,
-                                       struct events* const ge)
-{
-	if (ev->window.event == SDL_WINDOWEVENT_RESIZED) {
-		ge->flags |= EVENT_FLAG_WINDOW_RESIZED;
-		ge->window.w = ev->window.data1;
-		ge->window.h = ev->window.data2;
-		if (win_resz_clbk)
-			win_resz_clbk(ge->window.w, ge->window.h);
-	}
-}
-
-
-
 void events_update(struct events* const gproj_ev)
 {
 	SDL_Event ev;
@@ -95,15 +79,10 @@ void events_update(struct events* const gproj_ev)
 				update_input_event(&ev, gproj_ev);
 				break;
 			case SDL_WINDOWEVENT:
-				update_window_event(&ev, gproj_ev);
+				// implement
 				break;
 		}
 	}
-}
-
-void events_set_window_resize_clbk(window_resize_callback_fn_t clbk)
-{
-	win_resz_clbk = clbk;
 }
 
 

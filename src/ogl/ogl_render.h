@@ -23,8 +23,5 @@ extern void ogl_render_ss(int layer,
 extern void ogl_render_text(const char *text, ...);
 extern void ogl_render_finish_frame(void);
 
-#ifdef GPROJ_PLATFORM_SDL2
-extern void ogl_window_resize(int w, int h);
-#endif
 
 #endif

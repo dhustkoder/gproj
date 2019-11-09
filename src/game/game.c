@@ -1,12 +1,13 @@
 #include "logger.h"
-#include "workman.h"
 #include "render.h"
 #include "audio.h"
-#include "timer.h"
+#include "profiler.h"
 #include "worldman.h"
 #include "game.h"
 
+
 extern struct world_meta levels[5];
+
 
 void game_init(int argc, char** argv)
 {
@@ -14,8 +15,8 @@ void game_init(int argc, char** argv)
 	((void)argv);
 	LOG_DEBUG("#####INITIALIZING GAME#####");
 
-	timer_profiler_init();
-	render_init("GProj Testing", RENDER_MODE_OPENGL);
+	profiler_init();
+	render_init("GProj Testing");
 	audio_init();
 
 	worldman_init(levels, STATIC_ARRAY_SIZE(levels));
@@ -26,16 +27,13 @@ void game_init(int argc, char** argv)
 
 void game_step(const timer_clk_t now, const float dt)
 {
-	timer_profiler_block_start("frame time", 1);
-
+	profiler_block_start("frame time", 1);
 
 	worldman_update_world(now, dt);
 	worldman_send_render();
 	render_finish_frame();
-	
 
-
-	timer_profiler_block_end();
+	profiler_block_end();
 }
 
 void game_term()
@@ -45,7 +43,7 @@ void game_term()
 	worldman_term();
 	audio_term();
 	render_term();
-	timer_profiler_term();
+	profiler_term();
 
 	LOG_DEBUG("#####GAME TERMINATED#####");
 }

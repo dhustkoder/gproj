@@ -18,8 +18,7 @@ static int search_meta(const char* const name)
 		if (strcmp(metas[i].name, name) == 0)
 			return i;
 
-	assert(false && "INVALID CODE PATH");
-	return 0;
+	INVALID_CODE_PATH;
 }
 
 

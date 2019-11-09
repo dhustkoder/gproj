@@ -1,11 +1,11 @@
 #include "timer.h"
 #include "events.h"
 #include "gproj.h"
+#include "profiler.h"
 #include "game.h"
 
 
 struct events gproj_events;
-
 
 
 int gproj_main(int argc, char** argv)

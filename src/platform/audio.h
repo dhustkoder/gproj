@@ -1,6 +1,5 @@
 #ifndef GPROJ_AUDIO_H_
 #define GPROJ_AUDIO_H_
-#include <SDL.h>
 
 
 #define GPROJ_MAX_BGMS (1)
@@ -18,5 +17,7 @@ extern void audio_play_sfx(int id);
 
 extern void audio_stop_bgm(void);
 extern void audio_stop_sfx(int id);
+
+
 
 #endif

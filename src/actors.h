@@ -1,6 +1,7 @@
 #ifndef GPROJ_ACTORS_H_
 #define GPROJ_ACTORS_H_
-#include "platform_defs.h"
+#include "timer.h"
+#include "gmath.h"
 
 /*
 	An actor is an object that appears in the game world with position and size.

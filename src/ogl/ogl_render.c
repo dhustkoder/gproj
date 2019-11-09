@@ -185,7 +185,9 @@ static void compile_shader(GLuint* const id, GLenum type, const GLchar* source)
 	const GLint length[] = { strlen(source) };
 
 	glShaderSource(*id, 1, src, length);
+	OGL_ASSERT_NO_ERROR();
 	glCompileShader(*id);
+	OGL_ASSERT_NO_ERROR();
 
 #ifdef GPROJ_DEBUG
 	GLint status;
@@ -209,8 +211,11 @@ static void init_shader_program(void)
 	assert(shader_program_id != 0);
 
 	glAttachShader(shader_program_id, vs_id);
+	OGL_ASSERT_NO_ERROR();
 	glAttachShader(shader_program_id, fs_id);
+	OGL_ASSERT_NO_ERROR();
 	glLinkProgram(shader_program_id);
+	OGL_ASSERT_NO_ERROR();
 
 #ifdef GPROJ_DEBUG
 	GLint status;
@@ -241,7 +246,9 @@ static void term_shader_program(void)
 static void init_buffers(void)
 {
 	glGenBuffers(1, &vbo_id);
+	OGL_ASSERT_NO_ERROR();
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
+	OGL_ASSERT_NO_ERROR();
 	glBufferData(GL_ARRAY_BUFFER,
 	             sizeof(struct vec2f) * (MAP_MAX_X_TILES * 2 * MAP_MAX_Y_TILES),
 				 NULL,
@@ -249,7 +256,9 @@ static void init_buffers(void)
 	OGL_ASSERT_NO_ERROR();
 
 	GLint pos_loc = glGetAttribLocation(shader_program_id, "dep_position");
+	OGL_ASSERT_NO_ERROR();
 	glVertexAttribPointer(pos_loc, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(f32), NULL);
+	OGL_ASSERT_NO_ERROR();
 	glEnableVertexAttribArray(pos_loc);
 	OGL_ASSERT_NO_ERROR();
 }
@@ -257,13 +266,16 @@ static void init_buffers(void)
 static void term_buffers(void)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	OGL_ASSERT_NO_ERROR();
 	glDeleteBuffers(1, &vbo_id);
+	OGL_ASSERT_NO_ERROR();
 }
 
 
 static void init_textures(void)
 {
 	glGenTextures(1, &ts_tex_id);
+	OGL_ASSERT_NO_ERROR();
 	glBindTexture(GL_TEXTURE_2D, ts_tex_id);
 	OGL_ASSERT_NO_ERROR();
 }
@@ -282,15 +294,21 @@ void ogl_render_init(void)
 	init_buffers();
 
 	glViewport(0, 0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
+	OGL_ASSERT_NO_ERROR();
 	glClearColor(0, 0, 1, 1);
+	OGL_ASSERT_NO_ERROR();
 
 	glMatrixMode(GL_PROJECTION);
+	OGL_ASSERT_NO_ERROR();
 	glLoadIdentity();
+	OGL_ASSERT_NO_ERROR();
 	glOrtho(0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT, 0, -1.0f, 1.0f);
-
+	OGL_ASSERT_NO_ERROR();
+	
 	glMatrixMode(GL_MODELVIEW);
+	OGL_ASSERT_NO_ERROR();
 	glLoadIdentity();
-
+	OGL_ASSERT_NO_ERROR();
 }
 
 void ogl_render_term(void)
@@ -378,6 +396,7 @@ void ogl_render_text(const char* const text, ...)
 void ogl_render_finish_frame(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	OGL_ASSERT_NO_ERROR();
 
 	/*
 	glBegin(GL_TRIANGLES);
@@ -418,17 +437,11 @@ void ogl_render_finish_frame(void)
 	extern SDL_Window* sdl_window;
 
 	SDL_GL_SwapWindow(sdl_window);
+	#elif defined(GPROJ_PLATFORM_WIN32)
+	// ...
 	#else
-	#error "NEED IMPLEMENTATION"
+	#error "Unknown Platform"
 	#endif
 }
 
 
-#ifdef GPROJ_PLATFORM_SDL2
-void ogl_window_resize(int w, int h)
-{
-	glViewport(0, 0, w, h);
-	OGL_ASSERT_NO_ERROR();
-
-}
-#endif

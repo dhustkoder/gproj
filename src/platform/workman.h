@@ -1,8 +1,6 @@
 #ifndef GPROJ_WORKMAN_H_
 #define GPROJ_WORKMAN_H_
-#include <limits.h>
 #include "timer.h"
-
 
 
 #define GPROJ_MAX_WORKMAN_QUEUE_SIZE (16)
