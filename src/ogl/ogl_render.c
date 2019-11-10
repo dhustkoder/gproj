@@ -6,8 +6,8 @@
 
 
 struct ts_vertex {
-	struct vec2f pos;
-	struct vec2f tex;
+	struct vec2f world_pos;
+	struct vec2f tex_pos;
 };
 
 
@@ -156,25 +156,26 @@ static GLchar shader_compilation_info_buffer[SHADER_COMPILATION_INFO_BUFFER_SIZE
 #endif
 
 static const GLchar* const vs_source = OGL_SL(
-	attribute vec2 pos;
-	attribute vec2 tex;
-	out vec2 TexCoord;
+	attribute vec2 world_pos;
+	attribute vec2 tex_pos;
+
+	out vec2 fs_tex_pos;
 	void main()
 	{
-		TexCoord = vec2(tex.x / 512, tex.y / 512);
+		fs_tex_pos = tex_pos;
 		gl_Position = gl_ProjectionMatrix *
 		              gl_ModelViewMatrix *
-		              vec4(pos, 0.0, 1.0);
+		              vec4(world_pos, 0.0, 1.0);
 	}
 
 );
 
 static const GLchar* const fs_source = OGL_SL(
-	in vec2 TexCoord;
-	uniform sampler2D ts_texture;
+	in vec2 fs_tex_pos;
+	uniform sampler2D textures;
 	void main()
 	{
-		gl_FragColor = texture2D(ts_texture, TexCoord);
+		gl_FragColor = texture2D(textures[0], fs_tex_pos / textureSize(textures, 0));
 	}
 );
 
@@ -284,9 +285,9 @@ static void init_buffers(void)
 	);
 	OGL_ASSERT_NO_ERROR();
 
-	const GLint xy_loc = glGetAttribLocation(shader_program_id, "pos");
+	const GLint xy_loc = glGetAttribLocation(shader_program_id, "world_pos");
 	OGL_ASSERT_NO_ERROR();
-	const GLint uv_loc = glGetAttribLocation(shader_program_id, "tex");
+	const GLint uv_loc = glGetAttribLocation(shader_program_id, "tex_pos");
 	OGL_ASSERT_NO_ERROR();
 
 	glVertexAttribPointer(
@@ -295,7 +296,7 @@ static void init_buffers(void)
 		GL_FLOAT,
 		GL_FALSE,
 		sizeof(struct ts_vertex),
-		(void*) OFFSETOF(struct ts_vertex, pos)	
+		(void*) OFFSETOF(struct ts_vertex, world_pos)	
 	);
 	OGL_ASSERT_NO_ERROR();
 
@@ -305,7 +306,7 @@ static void init_buffers(void)
 		GL_FLOAT,
 		GL_FALSE,
 		sizeof(struct ts_vertex),
-		(void*) OFFSETOF(struct ts_vertex, tex)
+		(void*) OFFSETOF(struct ts_vertex, tex_pos)
 	);
 	OGL_ASSERT_NO_ERROR();
 
@@ -328,6 +329,21 @@ static void init_textures(void)
 {
 	glGenTextures(1, &ts_tex_id);
 	OGL_ASSERT_NO_ERROR();
+	
+	glActiveTexture(GL_TEXTURE0);
+	OGL_ASSERT_NO_ERROR();
+	
+	glBindTexture(GL_TEXTURE_2D, ts_tex_id);
+	OGL_ASSERT_NO_ERROR();
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	OGL_ASSERT_NO_ERROR();
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	OGL_ASSERT_NO_ERROR();
+
+	glUniform1i(glGetUniformLocation(shader_program_id, "ts_texture"), 0);
+	OGL_ASSERT_NO_ERROR();
 }
 
 static void term_textures(void)
@@ -348,7 +364,7 @@ void ogl_render_init(void)
 
 	glViewport(0, 0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	OGL_ASSERT_NO_ERROR();
-	glClearColor(0, 0, 1, 1);
+	glClearColor(0, 0, 0, 0);
 	OGL_ASSERT_NO_ERROR();
 
 	glMatrixMode(GL_PROJECTION);
@@ -389,15 +405,10 @@ void ogl_render_load_ts(const char* const path)
 		path, x, y, nchan
 	);
 
-	
 	glActiveTexture(GL_TEXTURE0);
 	OGL_ASSERT_NO_ERROR();
-	glBindTexture(GL_TEXTURE_2D, ts_tex_id);
-	OGL_ASSERT_NO_ERROR();
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	OGL_ASSERT_NO_ERROR();
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glBindTexture(GL_TEXTURE_2D, ts_tex_id);
 	OGL_ASSERT_NO_ERROR();
 
 	glTexImage2D(
@@ -413,8 +424,6 @@ void ogl_render_load_ts(const char* const path)
 	);
 	OGL_ASSERT_NO_ERROR();
 
-	glUniform1i(glGetUniformLocation(shader_program_id, "ts_texture"), 0);
-	OGL_ASSERT_NO_ERROR();
 
 
 	stbi_image_free(data);
@@ -443,28 +452,28 @@ void ogl_render_map(const struct map_view* const view)
 
 			const GLfloat x = (w * TILE_WIDTH) + pos.x;
 			const GLfloat y = (h * TILE_HEIGHT) + pos.y;
-			dst->pos.x = x;
-			dst->pos.y = y;
-			dst->tex.x = u;
-			dst->tex.y = v;
+			dst->world_pos.x = x;
+			dst->world_pos.y = y;
+			dst->tex_pos.x   = u;
+			dst->tex_pos.y   = v;
 			++dst;
 
-			dst->pos.x = x + TILE_WIDTH;
-			dst->pos.y = y;
-			dst->tex.x = u + TILE_WIDTH;
-			dst->tex.y = v;
+			dst->world_pos.x = x + TILE_WIDTH;
+			dst->world_pos.y = y;
+			dst->tex_pos.x   = u + TILE_WIDTH;
+			dst->tex_pos.y   = v;
 			++dst;
 
-			dst->pos.x = x + TILE_WIDTH;
-			dst->pos.y = y + TILE_HEIGHT;
-			dst->tex.x = u + TILE_WIDTH;
-			dst->tex.y = v + TILE_HEIGHT;
+			dst->world_pos.x = x + TILE_WIDTH;
+			dst->world_pos.y = y + TILE_HEIGHT;
+			dst->tex_pos.x   = u + TILE_WIDTH;
+			dst->tex_pos.y   = v + TILE_HEIGHT;
 			++dst;
 
-			dst->pos.x = x;
-			dst->pos.y = y + TILE_HEIGHT;
-			dst->tex.x = u;
-			dst->tex.y = v + TILE_HEIGHT;
+			dst->world_pos.x = x;
+			dst->world_pos.y = y + TILE_HEIGHT;
+			dst->tex_pos.x   = u;
+			dst->tex_pos.y   = v + TILE_HEIGHT;
 			++dst;
 		}
 	}
