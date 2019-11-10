@@ -546,7 +546,11 @@ void ogl_render_finish_frame(void)
 
 	SDL_GL_SwapWindow(sdl_window);
 	#elif defined(GPROJ_PLATFORM_WIN32)
-	// ...
+	extern HDC hdc;
+	
+	if (SwapBuffers(hdc) == FALSE)
+		INVALID_CODE_PATH;
+	
 	#else
 	#error "Unknown Platform"
 	#endif

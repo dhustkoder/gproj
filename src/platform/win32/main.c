@@ -1,3 +1,4 @@
+#include "gproj.h"
 #include "logger.h"
 
 
@@ -5,7 +6,6 @@
 
 int main(void)
 {
-	LOG("TESTING WIN32\n");
-	return 0;
+	return gproj_main(0, NULL);
 }
 
