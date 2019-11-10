@@ -1,8 +1,14 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include "stb_image.h"
 #include "logger.h"
 #include "ogl_render.h"
 
+
+struct ts_vertex {
+	struct vec2f pos;
+	struct vec2f tex;
+};
 
 
 #ifndef GL_VERSION_2_0
@@ -35,6 +41,10 @@ glTexParameterfv_fn_t glTexParameterfv;
 glTexParameteri_fn_t glTexParameteri;
 glTexParameteriv_fn_t glTexParameteriv;
 */
+glActiveTexture_fn_t glActiveTexture;
+glUniform1i_fn_t glUniform1i;
+glGetUniformLocation_fn_t glGetUniformLocation;
+
 
 #ifdef GPROJ_DEBUG
 glGetShaderiv_fn_t glGetShaderiv;
@@ -76,6 +86,9 @@ static GLchar* gl_proc_names[] = {
 	"glTexParameteri",
 	"glTexParameteriv"
 */
+	,"glActiveTexture",
+	"glUniform1i",
+	"glGetUniformLocation"
 	#ifdef GPROJ_DEBUG
 	,"glGetShaderiv",
 	"glGetShaderInfoLog",
@@ -114,6 +127,9 @@ static gl_void_proc_fn_t* gl_proc_ptrs[] = {
 	&glTexParameteri,
 	&glTexParameteriv
 */
+	,&glActiveTexture,
+	&glUniform1i,
+	&glGetUniformLocation
 
 	#ifdef GPROJ_DEBUG
 	,&glGetShaderiv,
@@ -140,26 +156,33 @@ static GLchar shader_compilation_info_buffer[SHADER_COMPILATION_INFO_BUFFER_SIZE
 #endif
 
 static const GLchar* const vs_source = OGL_SL(
-	attribute vec2 dep_position;
-	attribute vec2 position;
-
+	attribute vec2 pos;
+	attribute vec2 tex;
+	out vec2 TexCoord;
 	void main()
 	{
-		gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix *
-		              vec4(dep_position, 0.0, 1.0);
+		TexCoord = vec2(tex.x / 512, tex.y / 512);
+		gl_Position = gl_ProjectionMatrix *
+		              gl_ModelViewMatrix *
+		              vec4(pos, 0.0, 1.0);
 	}
+
 );
 
 static const GLchar* const fs_source = OGL_SL(
+	in vec2 TexCoord;
+	uniform sampler2D ts_texture;
 	void main()
 	{
-		gl_FragColor = vec4(0.0f, 1.0f, 0.0f, 0.5f);
+		gl_FragColor = texture2D(ts_texture, TexCoord);
 	}
 );
 
 
 static GLuint vbo_id;
 static GLuint ts_tex_id;
+static struct ts_vertex ts_verts[MAP_MAX_X_TILES * MAP_MAX_Y_TILES * 4];
+static GLsizei ts_nverts = 0;
 
 
 
@@ -249,17 +272,46 @@ static void init_buffers(void)
 	OGL_ASSERT_NO_ERROR();
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
 	OGL_ASSERT_NO_ERROR();
-	glBufferData(GL_ARRAY_BUFFER,
-	             sizeof(struct vec2f) * (MAP_MAX_X_TILES * 2 * MAP_MAX_Y_TILES),
-				 NULL,
-				 GL_DYNAMIC_DRAW);
+	glBufferData(
+		GL_ARRAY_BUFFER,
+
+		(sizeof(struct ts_vertex) * 
+		MAP_MAX_X_TILES * 
+		MAP_MAX_Y_TILES * 4),
+
+		NULL,
+		GL_DYNAMIC_DRAW
+	);
 	OGL_ASSERT_NO_ERROR();
 
-	GLint pos_loc = glGetAttribLocation(shader_program_id, "dep_position");
+	const GLint xy_loc = glGetAttribLocation(shader_program_id, "pos");
 	OGL_ASSERT_NO_ERROR();
-	glVertexAttribPointer(pos_loc, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(f32), NULL);
+	const GLint uv_loc = glGetAttribLocation(shader_program_id, "tex");
 	OGL_ASSERT_NO_ERROR();
-	glEnableVertexAttribArray(pos_loc);
+
+	glVertexAttribPointer(
+		xy_loc,
+		2,
+		GL_FLOAT,
+		GL_FALSE,
+		sizeof(struct ts_vertex),
+		(void*) OFFSETOF(struct ts_vertex, pos)	
+	);
+	OGL_ASSERT_NO_ERROR();
+
+	glVertexAttribPointer(
+		uv_loc,
+		2,
+		GL_FLOAT,
+		GL_FALSE,
+		sizeof(struct ts_vertex),
+		(void*) OFFSETOF(struct ts_vertex, tex)
+	);
+	OGL_ASSERT_NO_ERROR();
+
+	glEnableVertexAttribArray(xy_loc);
+	OGL_ASSERT_NO_ERROR();
+	glEnableVertexAttribArray(uv_loc);
 	OGL_ASSERT_NO_ERROR();
 }
 
@@ -276,8 +328,6 @@ static void init_textures(void)
 {
 	glGenTextures(1, &ts_tex_id);
 	OGL_ASSERT_NO_ERROR();
-	glBindTexture(GL_TEXTURE_2D, ts_tex_id);
-	OGL_ASSERT_NO_ERROR();
 }
 
 static void term_textures(void)
@@ -285,13 +335,16 @@ static void term_textures(void)
 	glDeleteTextures(1, &ts_tex_id);
 }
 
+
 void ogl_render_init(void)
 {
 	LOG_DEBUG("INITIALIZING OPENGL RENDER");
 
 	load_gl_procs();
+
 	init_shader_program();
 	init_buffers();
+	init_textures();
 
 	glViewport(0, 0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	OGL_ASSERT_NO_ERROR();
@@ -322,14 +375,55 @@ void ogl_render_term(void)
 
 void ogl_render_load_ts(const char* const path)
 {
+	LOG_DEBUG("LOADING TS: %s", path);
+
+	int x, y, nchan;
+	u8* data = stbi_load(path, &x, &y, &nchan, 0);
+	assert(data != NULL);
+
+	LOG_DEBUG(
+		"LOADED TS FROM FILE %s\n"
+	        "WIDTH: %d\n"
+		"HEIGHT: %d\n"
+		"CHANNELS: %d",
+		path, x, y, nchan
+	);
+
+	
+	glActiveTexture(GL_TEXTURE0);
+	OGL_ASSERT_NO_ERROR();
+	glBindTexture(GL_TEXTURE_2D, ts_tex_id);
+	OGL_ASSERT_NO_ERROR();
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	OGL_ASSERT_NO_ERROR();
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	OGL_ASSERT_NO_ERROR();
+
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0,
+		GL_RGB,
+		x,
+		y,
+		0,
+		GL_RGB,
+		GL_UNSIGNED_BYTE,
+		data
+	);
+	OGL_ASSERT_NO_ERROR();
+
+	glUniform1i(glGetUniformLocation(shader_program_id, "ts_texture"), 0);
+	OGL_ASSERT_NO_ERROR();
+
+
+	stbi_image_free(data);
 }
 
 void ogl_render_load_ss(const char* const path)
 {
 }
 
-static struct vec2f map_verts[MAP_MAX_X_TILES * MAP_MAX_Y_TILES * 4];
-static GLsizei map_verts_size = 0;
 
 
 void ogl_render_map(const struct map_view* const view)
@@ -337,39 +431,45 @@ void ogl_render_map(const struct map_view* const view)
 	const struct vec2i size = view->size;
 	const struct vec2i pos = view->scrpos;
 	const struct vec2i* src = view->data;
-	struct vec2f* dst = map_verts;
-
-	map_verts_size = 0;
+	struct ts_vertex* dst = ts_verts;
 
 	for (int h = 0; h < size.y; ++h) {
 		for (int w = 0; w < size.x; ++w) {
-			const GLfloat tsx = src->x;
+			const GLfloat u = src->x;
+			const GLfloat v = src->y;
 			++src;
-			if (tsx < 0)
+			if (u < 0)
 				continue;
 
 			const GLfloat x = (w * TILE_WIDTH) + pos.x;
 			const GLfloat y = (h * TILE_HEIGHT) + pos.y;
-			dst->x = x;
-			dst->y = y;
+			dst->pos.x = x;
+			dst->pos.y = y;
+			dst->tex.x = u;
+			dst->tex.y = v;
 			++dst;
 
-			dst->x = x + TILE_WIDTH;
-			dst->y = y;
+			dst->pos.x = x + TILE_WIDTH;
+			dst->pos.y = y;
+			dst->tex.x = u + TILE_WIDTH;
+			dst->tex.y = v;
 			++dst;
 
-			dst->x = x + TILE_WIDTH;
-			dst->y = y + TILE_HEIGHT;
+			dst->pos.x = x + TILE_WIDTH;
+			dst->pos.y = y + TILE_HEIGHT;
+			dst->tex.x = u + TILE_WIDTH;
+			dst->tex.y = v + TILE_HEIGHT;
 			++dst;
 
-			dst->x = x;
-			dst->y = y + TILE_HEIGHT;
+			dst->pos.x = x;
+			dst->pos.y = y + TILE_HEIGHT;
+			dst->tex.x = u;
+			dst->tex.y = v + TILE_HEIGHT;
 			++dst;
-
-			map_verts_size += 4;
 		}
 	}
 
+	ts_nverts = INDEX_OF(ts_verts, dst);
 }
 
 void ogl_render_ss(const int layer,
@@ -424,13 +524,16 @@ void ogl_render_finish_frame(void)
 	glDrawArrays(GL_QUADS, 0, 4);
 */
 
-	glBufferData(GL_ARRAY_BUFFER,
-	             sizeof(map_verts[0]) * map_verts_size,
-                 map_verts,
-	             GL_DYNAMIC_DRAW);
+	glBufferData(
+		GL_ARRAY_BUFFER,
+		sizeof(ts_verts[0]) * ts_nverts,
+        	ts_verts,
+		GL_DYNAMIC_DRAW
+	);
+
 	OGL_ASSERT_NO_ERROR();
 
-	glDrawArrays(GL_QUADS, 0, map_verts_size);
+	glDrawArrays(GL_QUADS, 0, ts_nverts);
 	OGL_ASSERT_NO_ERROR();
 
 	#ifdef GPROJ_PLATFORM_SDL2

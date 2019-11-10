@@ -49,6 +49,7 @@ typedef void (OGLAPI *gl_void_proc_fn_t)();
 #define GL_LINK_STATUS     ((GLenum)0x8B82)
 #define GL_ARRAY_BUFFER    ((GLenum)0x8892)
 #define GL_DYNAMIC_DRAW    ((GLenum)0x88E8)
+#define GL_TEXTURE0        ((GLenum)0x84C0)
 
 typedef char GLchar;
 typedef sptr GLsizeiptr;
@@ -86,6 +87,7 @@ typedef void (OGLAPI *glEnableVertexAttribArray_fn_t)(GLuint index);
 
 
 /* 
+ * textures
 typedef void (OGLAPI *glGenTextures_fn_t)(GLsizei n, GLuint *textures);
 typedef void (OGLAPI *glDeleteTextures_fn_t)(GLsizei n, const GLuint* textures);
 typedef void (OGLAPI *glBindTexture_fn_t)(GLenum target, GLuint textureId);
@@ -94,7 +96,9 @@ typedef void (OGLAPI *glTexParameterfv_fn_t)(GLenum target, GLenum pname, const 
 typedef void (OGLAPI *glTexParameteri_fn_t)(GLenum target, GLenum pname, GLint param);
 typedef void (OGLAPI *glTexParameteriv_fn_t)(GLenum target, GLenum pname, const GLint *params);
 */
-
+typedef void (OGLAPI *glActiveTexture_fn_t)(GLenum texture);
+typedef void (OGLAPI *glUniform1i_fn_t)(GLint location, GLint v0);
+typedef GLint (OGLAPI *glGetUniformLocation_fn_t)(GLuint program, const GLchar* name);
 
 #ifdef GPROJ_DEBUG
 /* shaders error check */
@@ -138,6 +142,9 @@ extern glTexParameterfv_fn_t glTexParameterfv;
 extern glTexParameteri_fn_t glTexParameteri;
 extern glTexParameteriv_fn_t glTexParameteriv;
 */
+extern glActiveTexture_fn_t glActiveTexture;
+extern glUniform1i_fn_t glUniform1i;
+extern glGetUniformLocation_fn_t glGetUniformLocation;
 
 #ifdef GPROJ_DEBUG
 extern glGetShaderiv_fn_t glGetShaderiv;
