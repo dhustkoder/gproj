@@ -172,10 +172,11 @@ static const GLchar* const vs_source = OGL_SL(
 
 static const GLchar* const fs_source = OGL_SL(
 	in vec2 fs_tex_pos;
+	out vec4 out_color;
 	uniform sampler2D textures;
 	void main()
 	{
-		gl_FragColor = texture2D(textures[0], fs_tex_pos / textureSize(textures, 0));
+		out_color = texture2D(textures, fs_tex_pos / textureSize(textures, 0));
 	}
 );
 
@@ -217,9 +218,17 @@ static void compile_shader(GLuint* const id, GLenum type, const GLchar* source)
 	GLint status;
 	glGetShaderiv(*id, GL_COMPILE_STATUS, &status);
 	if (status != GL_TRUE) {
-		glGetShaderInfoLog(*id, SHADER_COMPILATION_INFO_BUFFER_SIZE,
-		                   NULL, shader_compilation_info_buffer);
-		LOG_DEBUG("FAILED TO COMPILE SHADER: %s", shader_compilation_info_buffer);
+		glGetShaderInfoLog(
+			*id,
+			SHADER_COMPILATION_INFO_BUFFER_SIZE,
+			NULL,
+			shader_compilation_info_buffer
+		);
+		LOG_DEBUG(
+			"FAILED TO COMPILE SHADER: %s\n"
+			"ERROR: %s",
+			source, shader_compilation_info_buffer
+		);
 		assert(false && "FAILED SHADER COMPILATION");
 	}
 #endif
@@ -378,6 +387,20 @@ void ogl_render_init(void)
 	OGL_ASSERT_NO_ERROR();
 	glLoadIdentity();
 	OGL_ASSERT_NO_ERROR();
+
+
+	// GL_VENDOR, GL_RENDERER, GL_VERSION, or GL_SHADING_LANGUAGE_VERSION
+	const GLubyte* vendor = glGetString(GL_VENDOR);
+	const GLubyte* renderer = glGetString(GL_RENDERER);
+	const GLubyte* version = glGetString(GL_VERSION);
+	LOG_DEBUG(
+		"OpenGL INFO: \n"
+		"VENDOR: %s\n"
+		"RENDERER: %s\n"
+		"VERSION: %s\n",
+		vendor, renderer, version
+	);
+
 }
 
 void ogl_render_term(void)
@@ -507,39 +530,12 @@ void ogl_render_finish_frame(void)
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	OGL_ASSERT_NO_ERROR();
 
-	/*
-	glBegin(GL_TRIANGLES);
-
-	glColor4f(1, 0, 0, 1);
-	glVertex3f(-1, -1, 0);
-	glVertex3f(1, -1, 0);
-	glVertex3f(1,  1, 0);
-
-	glEnd();
-	*/
-/*
-	struct vec2f test_verts[] = {
-		{  0, 0   },
-		{  32, 0  },
-		{  32, 32 },
-		{  0, 32  }
-	};
-
-	glBufferData(GL_ARRAY_BUFFER,
-	             sizeof(test_verts[0]) * 4,
-                 test_verts,
-	             GL_DYNAMIC_DRAW);
-
-	glDrawArrays(GL_QUADS, 0, 4);
-*/
-
 	glBufferData(
 		GL_ARRAY_BUFFER,
 		sizeof(ts_verts[0]) * ts_nverts,
         	ts_verts,
 		GL_DYNAMIC_DRAW
 	);
-
 	OGL_ASSERT_NO_ERROR();
 
 	glDrawArrays(GL_QUADS, 0, ts_nverts);
