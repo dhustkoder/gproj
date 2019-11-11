@@ -81,6 +81,4 @@ STATIC_ASSERT(f_type_sizes, (sizeof(f32) == 4));
 
 
 
-
-
 #endif

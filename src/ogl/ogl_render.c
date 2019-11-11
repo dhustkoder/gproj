@@ -373,8 +373,13 @@ void ogl_render_init(void)
 
 	glViewport(0, 0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	OGL_ASSERT_NO_ERROR();
-	glClearColor(0, 0, 0, 0);
-	OGL_ASSERT_NO_ERROR();
+
+	glShadeModel(GL_SMOOTH);							// Enable Smooth Shading
+	glClearColor(0.0f, 0.0f, 0.0f, 0.5f);				// Black Background
+	glClearDepth(1.0f);									// Depth Buffer Setup
+	glEnable(GL_DEPTH_TEST);							// Enables Depth Testing
+	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
 
 	glMatrixMode(GL_PROJECTION);
 	OGL_ASSERT_NO_ERROR();
@@ -387,7 +392,6 @@ void ogl_render_init(void)
 	OGL_ASSERT_NO_ERROR();
 	glLoadIdentity();
 	OGL_ASSERT_NO_ERROR();
-
 
 	// GL_VENDOR, GL_RENDERER, GL_VERSION, or GL_SHADING_LANGUAGE_VERSION
 	const GLubyte* vendor = glGetString(GL_VENDOR);
@@ -541,13 +545,19 @@ void ogl_render_finish_frame(void)
 	glDrawArrays(GL_QUADS, 0, ts_nverts);
 	OGL_ASSERT_NO_ERROR();
 
+	glFlush();
+	OGL_ASSERT_NO_ERROR();
+
 	#ifdef GPROJ_PLATFORM_SDL2
+
 	extern SDL_Window* sdl_window;
 
 	SDL_GL_SwapWindow(sdl_window);
+
 	#elif defined(GPROJ_PLATFORM_WIN32)
 	extern HDC hdc;
 	
+
 	if (SwapBuffers(hdc) == FALSE)
 		INVALID_CODE_PATH;
 	

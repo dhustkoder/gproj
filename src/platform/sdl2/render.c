@@ -57,6 +57,7 @@ static void init_opengl_mode(const char* winname)
 
 	init_sdl2_window(winname, SDL_WINDOW_OPENGL);
 	sdl_gl_context = SDL_GL_CreateContext(sdl_window);
+	SDL_GL_MakeCurrent(sdl_window, sdl_gl_context);
 	assert(sdl_gl_context != NULL);
 	SDL_GL_SetSwapInterval(0);
 }

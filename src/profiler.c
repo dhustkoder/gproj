@@ -30,10 +30,6 @@ void profiler_init(void)
 {
 	int err;
 	LOG_DEBUG("INITIALIZING PROFILER");
-
-	err = SDL_InitSubSystem(SDL_INIT_TIMER);
-	((void)err);
-	assert(err == 0);
 	timer_hp_frequency = timer_high_precision_counter_frequency();
 	LOG_DEBUG("HP FREQUENCY: %lf", timer_hp_frequency);
 }
