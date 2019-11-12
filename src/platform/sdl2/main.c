@@ -17,6 +17,9 @@
 
 
 
+timer_hp_clk_t gproj_timer_hp_frequency;
+
+
 
 static bool platform_init(void)
 {
@@ -34,7 +37,8 @@ static bool platform_init(void)
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) != 0)
 		goto Lfailure;
 
-
+	
+	gproj_timer_hp_frequency = SDL_GetPerformanceFrequency();
 
 	return true;
 

@@ -13,7 +13,12 @@ typedef double timer_hp_clk_t;
 #define TIMER_HP_CLK_FMT ".12lf"
 
 #define timer_high_precision_counter() (SDL_GetPerformanceCounter())
-#define timer_high_precision_counter_frequency() (SDL_GetPerformanceFrequency())
+
+static inline timer_hp_clk_t timer_high_precision_counter_frequency()
+{
+	extern timer_hp_clk_t gproj_timer_hp_frequency;
+	return gproj_timer_hp_frequency;
+}
 
 
 #endif

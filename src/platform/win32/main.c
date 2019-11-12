@@ -5,7 +5,8 @@
 #include "timer.h"
 #include "gproj.h"
 
-timer_hp_clk_t gproj_win32_hp_freq;
+
+timer_hp_clk_t gproj_timer_hp_freq;
 
 render_load_ts_fn_t render_load_ts;
 render_load_ss_fn_t render_load_ss;
@@ -228,8 +229,7 @@ static void platform_init(void)
 	/* timer */
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
-	gproj_win32_hp_freq = freq.QuadPart;
-	LOG_DEBUG("FREQ: %.12lf", gproj_win32_hp_freq);
+	gproj_timer_hp_freq = freq.QuadPart;
 }
 
 static void platform_term(void)

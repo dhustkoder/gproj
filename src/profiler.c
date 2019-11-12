@@ -10,6 +10,7 @@
 #define profiler_start() timer_high_precision_counter()
 #define profiler_end(start) ((timer_high_precision_counter() - start) / timer_hp_frequency)
 
+
 struct block {
 	int max_hits;
 	int hits;
@@ -17,6 +18,7 @@ struct block {
 	timer_hp_clk_t adder;
 	timer_hp_clk_t result;
 };
+
 
 static timer_hp_clk_t timer_hp_frequency;
 static const char* ids[GPROJ_MAX_PROFILING_IDS];
@@ -30,7 +32,6 @@ void profiler_init(void)
 {
 	LOG_DEBUG("INITIALIZING PROFILER");
 	timer_hp_frequency = timer_high_precision_counter_frequency();
-	LOG_DEBUG("TIMER HP FREQUENCY: %lf", timer_hp_frequency);
 }
 
 void profiler_term(void)
