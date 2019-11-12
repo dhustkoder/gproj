@@ -2,8 +2,10 @@
 #include "render.h"
 #include "events.h"
 #include "ogl_render.h"
+#include "timer.h"
 #include "gproj.h"
 
+timer_hp_clk_t gproj_win32_hp_freq;
 
 render_load_ts_fn_t render_load_ts;
 render_load_ss_fn_t render_load_ss;
@@ -221,9 +223,28 @@ void events_update(struct events* const in_gproj_ev)
 
 
 
+static void platform_init(void)
+{
+	/* timer */
+	LARGE_INTEGER freq;
+	QueryPerformanceFrequency(&freq);
+	gproj_win32_hp_freq = freq.QuadPart;
+	LOG_DEBUG("FREQ: %.12lf", gproj_win32_hp_freq);
+}
+
+static void platform_term(void)
+{
+
+}
 
 int main(void)
 {
-	return gproj_main(0, NULL);
+	platform_init();
+
+	const int ret = gproj_main(0, NULL);
+
+	platform_term();
+
+	return ret;
 }
 

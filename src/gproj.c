@@ -2,6 +2,7 @@
 #include "events.h"
 #include "gproj.h"
 #include "profiler.h"
+#include "logger.h"
 #include "game.h"
 
 
@@ -17,7 +18,7 @@ int gproj_main(int argc, char** argv)
 
 	do {
 		const timer_clk_t now = timer_now();
-		const float dt = (((float)now) - ((float)lastclk)) / 1000.f;
+		const float dt = (now - lastclk) / 1000.f;
 
 		events_update(&gproj_events);
 
