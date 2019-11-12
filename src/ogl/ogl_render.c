@@ -44,6 +44,7 @@ glTexParameteriv_fn_t glTexParameteriv;
 glActiveTexture_fn_t glActiveTexture;
 glUniform1i_fn_t glUniform1i;
 glGetUniformLocation_fn_t glGetUniformLocation;
+glUniform2f_fn_t glUniform2f;
 
 
 #ifdef GPROJ_DEBUG
@@ -88,7 +89,9 @@ static GLchar* gl_proc_names[] = {
 */
 	,"glActiveTexture",
 	"glUniform1i",
-	"glGetUniformLocation"
+	"glGetUniformLocation",
+	"glUniform2f"
+
 	#ifdef GPROJ_DEBUG
 	,"glGetShaderiv",
 	"glGetShaderInfoLog",
@@ -129,7 +132,8 @@ static gl_void_proc_fn_t* gl_proc_ptrs[] = {
 */
 	,&glActiveTexture,
 	&glUniform1i,
-	&glGetUniformLocation
+	&glGetUniformLocation,
+	&glUniform2f
 
 	#ifdef GPROJ_DEBUG
 	,&glGetShaderiv,

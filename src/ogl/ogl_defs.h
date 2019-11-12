@@ -130,7 +130,7 @@ typedef void (OGLAPI *glTexParameteriv_fn_t)(GLenum target, GLenum pname, const 
 typedef void (OGLAPI *glActiveTexture_fn_t)(GLenum texture);
 typedef void (OGLAPI *glUniform1i_fn_t)(GLint location, GLint v0);
 typedef GLint (OGLAPI *glGetUniformLocation_fn_t)(GLuint program, const GLchar* name);
-
+typedef void (OGLAPI *glUniform2f_fn_t)(GLint location, GLfloat v0, GLfloat v1);
 #ifdef GPROJ_DEBUG
 /* shaders error check */
 typedef void  (OGLAPI *glGetShaderiv_fn_t)(GLuint shader, GLenum pname, GLint *params);
@@ -176,6 +176,7 @@ extern glTexParameteriv_fn_t glTexParameteriv;
 extern glActiveTexture_fn_t glActiveTexture;
 extern glUniform1i_fn_t glUniform1i;
 extern glGetUniformLocation_fn_t glGetUniformLocation;
+extern glUniform2f_fn_t glUniform2f;
 
 #ifdef GPROJ_DEBUG
 extern glGetShaderiv_fn_t glGetShaderiv;
