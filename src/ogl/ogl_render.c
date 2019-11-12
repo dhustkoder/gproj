@@ -201,7 +201,7 @@ static void load_gl_procs(void)
 {
 	#ifndef GL_VERSION_2_0
 	for (int i = 0; i < STATIC_ARRAY_SIZE(gl_proc_names); ++i) {
-		gl_void_proc_fn_t proc = (gl_void_proc_fn_t) OGL_GET_PROC_ADDR(gl_proc_names[i]);
+		gl_void_proc_fn_t proc = (gl_void_proc_fn_t) ogl_get_proc_addr(gl_proc_names[i]);
 		assert(proc != NULL);
 		*gl_proc_ptrs[i] = proc;
 	}

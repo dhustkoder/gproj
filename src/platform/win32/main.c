@@ -133,7 +133,7 @@ void render_init(const char* const winname)
 	WNDCLASS wc;
 	memset(&wc, 0, sizeof wc);
 
-	const LPSTR app_name = winname;	
+	const LPCSTR app_name = winname;	
 	wc.style = CS_OWNDC|CS_HREDRAW|CS_VREDRAW;
 	wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
 	wc.lpfnWndProc = window_proc_clbk;
@@ -189,7 +189,7 @@ void render_init(const char* const winname)
 	if (wglMakeCurrent(hdc, hglrc) == FALSE)
 		INVALID_CODE_PATH;
 
-	OGL_GET_PROC_ADDR("wglSwapIntervalEXT")(1);
+	ogl_get_proc_addr("wglSwapIntervalEXT")(1);
 
 	ShowWindow(hwnd, SW_SHOW);
 	UpdateWindow(hwnd);

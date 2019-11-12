@@ -16,10 +16,14 @@
 #endif
 
 
+typedef void (OGLAPI *gl_void_proc_fn_t)();
+
+
+
 #ifdef GPROJ_PLATFORM_SDL2
-#define OGL_GET_PROC_ADDR(proc_name) SDL_GL_GetProcAddress(proc_name)
+#define ogl_get_proc_addr(proc_name) (gl_void_proc_fn_t)SDL_GL_GetProcAddress(proc_name)
 #elif defined(GPROJ_PLATFORM_WIN32)
-#define OGL_GET_PROC_ADDR(proc_name) wglGetProcAddress(proc_name)
+#define ogl_get_proc_addr(proc_name) (gl_void_proc_fn_t)wglGetProcAddress(proc_name)
 #else
 #error "Unknown Platform"
 #endif
@@ -40,7 +44,6 @@
 #define OGL_ASSERT_NO_ERROR() ((void)0)
 #endif
 
-typedef void (OGLAPI *gl_void_proc_fn_t)();
 
 #ifndef GL_VERSION_2_0
 #define GL_FRAGMENT_SHADER ((GLenum)0x8B30)
