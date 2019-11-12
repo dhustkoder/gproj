@@ -423,6 +423,7 @@ void ogl_render_load_ts(const char* const path)
 	int x, y, nchan;
 	u8* data = stbi_load(path, &x, &y, &nchan, 0);
 	assert(data != NULL);
+	assert(nchan == 4); // assert RGBA
 
 	LOG_DEBUG(
 		"LOADED TS FROM FILE %s\n"
@@ -441,16 +442,15 @@ void ogl_render_load_ts(const char* const path)
 	glTexImage2D(
 		GL_TEXTURE_2D,
 		0,
-		GL_RGB,
+		GL_RGBA,
 		x,
 		y,
 		0,
-		GL_RGB,
+		GL_RGBA,
 		GL_UNSIGNED_BYTE,
 		data
 	);
 	OGL_ASSERT_NO_ERROR();
-
 
 
 	stbi_image_free(data);

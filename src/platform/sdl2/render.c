@@ -88,7 +88,7 @@ void render_init(const char* winname)
 
 	assert(winname != NULL);
 
-	const enum render_modes mode = RENDER_MODE_OPENGL;
+	const enum render_modes mode = RENDER_MODE_SDL2;
 	
 	switch (mode) {
 	default:
