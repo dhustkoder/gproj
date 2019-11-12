@@ -14,7 +14,7 @@ endif
 PLATFORM_LSTR=sdl2
 PLATFORM_USTR=SDL2
 
-PLATFORM_CFLAGS=$(shell sdl2-config --cflags) 
+PLATFORM_CFLAGS=$(shell sdl2-config --cflags)
 PLATFORM_LDFLAGS=$(shell sdl2-config --libs) -lSDL2_image -lSDL2_mixer -lSDL2_ttf
 
 EXTERNALS_DIR=./externals
@@ -112,11 +112,14 @@ ifeq ($(ENABLE_LTO),ON)
 	CFLAGS += -flto
 endif
 
-.PHONY: all clean asm
+.PHONY: all clean asm run
 
 
 all: $(EXTERNALS_LIBS) $(BUILD_DIR)/gproj
 asm: $(ASM) $(PLATFORM_ASM) $(GAME_ASM)
+run: all
+	$(shell ln -s $(pwd)/assets/* $(pwd)/build 2>&-)
+	pushd ./build && ./gproj && popd
 
 
 $(BUILD_DIR)/gproj: $(PLATFORM_OBJS) $(OGL_OBJS) $(OBJS) $(GAME_OBJS)
