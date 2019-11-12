@@ -28,10 +28,9 @@ static struct block blocks[GPROJ_MAX_PROFILING_IDS];
 
 void profiler_init(void)
 {
-	int err;
 	LOG_DEBUG("INITIALIZING PROFILER");
 	timer_hp_frequency = timer_high_precision_counter_frequency();
-	LOG_DEBUG("HP FREQUENCY: %lf", timer_hp_frequency);
+	LOG_DEBUG("TIMER HP FREQUENCY: %lf", timer_hp_frequency);
 }
 
 void profiler_term(void)

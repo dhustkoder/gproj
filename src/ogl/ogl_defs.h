@@ -25,17 +25,17 @@
 #endif
 
 
-#define OGL_SL(...) "#version 130\n" #__VA_ARGS__
+#define OGL_SL(...) "#version 120\n" #__VA_ARGS__
 
 
 #ifdef GPROJ_DEBUG
-#define OGL_ASSERT_NO_ERROR() do { \
-	GLenum gl_error_code = glGetError(); \
+#define OGL_ASSERT_NO_ERROR() { \
+	const GLenum gl_error_code = glGetError(); \
 	if (gl_error_code != GL_NO_ERROR) { \
 		LOG_DEBUG("GL ERROR: %d", gl_error_code); \
 		assert(false && "OGL ERROR"); \
 	} \
-} while (0)
+}
 #else
 #define OGL_ASSERT_NO_ERROR() ((void)0)
 #endif

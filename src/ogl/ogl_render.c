@@ -159,7 +159,7 @@ static const GLchar* const vs_source = OGL_SL(
 	attribute vec2 world_pos;
 	attribute vec2 tex_pos;
 
-	out vec2 fs_tex_pos;
+	varying vec2 fs_tex_pos;
 	void main()
 	{
 		fs_tex_pos = tex_pos;
@@ -171,13 +171,18 @@ static const GLchar* const vs_source = OGL_SL(
 );
 
 static const GLchar* const fs_source = OGL_SL(
-	in vec2 fs_tex_pos;
-	out vec4 out_color;
+	varying vec2 fs_tex_pos;
+
+	uniform vec2 ts_tex_size;
 	uniform sampler2D textures;
 	void main()
 	{
-		out_color = texture2D(textures, fs_tex_pos / textureSize(textures, 0));
+		gl_FragColor = texture2D(
+			textures,
+			fs_tex_pos / ts_tex_size 
+		);
 	}
+
 );
 
 
@@ -210,9 +215,8 @@ static void compile_shader(GLuint* const id, GLenum type, const GLchar* source)
 	const GLint length[] = { strlen(source) };
 
 	glShaderSource(*id, 1, src, length);
-	OGL_ASSERT_NO_ERROR();
 	glCompileShader(*id);
-	OGL_ASSERT_NO_ERROR();
+
 
 #ifdef GPROJ_DEBUG
 	GLint status;
@@ -233,6 +237,8 @@ static void compile_shader(GLuint* const id, GLenum type, const GLchar* source)
 	}
 #endif
 
+	OGL_ASSERT_NO_ERROR();
+
 }
 
 static void init_shader_program(void)
@@ -244,11 +250,8 @@ static void init_shader_program(void)
 	assert(shader_program_id != 0);
 
 	glAttachShader(shader_program_id, vs_id);
-	OGL_ASSERT_NO_ERROR();
 	glAttachShader(shader_program_id, fs_id);
-	OGL_ASSERT_NO_ERROR();
 	glLinkProgram(shader_program_id);
-	OGL_ASSERT_NO_ERROR();
 
 #ifdef GPROJ_DEBUG
 	GLint status;
@@ -264,6 +267,7 @@ static void init_shader_program(void)
 #endif
 
 	glUseProgram(shader_program_id);
+
 	OGL_ASSERT_NO_ERROR();
 }
 
@@ -279,9 +283,7 @@ static void term_shader_program(void)
 static void init_buffers(void)
 {
 	glGenBuffers(1, &vbo_id);
-	OGL_ASSERT_NO_ERROR();
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
-	OGL_ASSERT_NO_ERROR();
 	glBufferData(
 		GL_ARRAY_BUFFER,
 
@@ -292,12 +294,9 @@ static void init_buffers(void)
 		NULL,
 		GL_DYNAMIC_DRAW
 	);
-	OGL_ASSERT_NO_ERROR();
 
 	const GLint xy_loc = glGetAttribLocation(shader_program_id, "world_pos");
-	OGL_ASSERT_NO_ERROR();
 	const GLint uv_loc = glGetAttribLocation(shader_program_id, "tex_pos");
-	OGL_ASSERT_NO_ERROR();
 
 	glVertexAttribPointer(
 		xy_loc,
@@ -307,7 +306,6 @@ static void init_buffers(void)
 		sizeof(struct ts_vertex),
 		(void*) OFFSETOF(struct ts_vertex, world_pos)	
 	);
-	OGL_ASSERT_NO_ERROR();
 
 	glVertexAttribPointer(
 		uv_loc,
@@ -317,41 +315,29 @@ static void init_buffers(void)
 		sizeof(struct ts_vertex),
 		(void*) OFFSETOF(struct ts_vertex, tex_pos)
 	);
-	OGL_ASSERT_NO_ERROR();
 
 	glEnableVertexAttribArray(xy_loc);
-	OGL_ASSERT_NO_ERROR();
 	glEnableVertexAttribArray(uv_loc);
+
 	OGL_ASSERT_NO_ERROR();
 }
 
 static void term_buffers(void)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	OGL_ASSERT_NO_ERROR();
 	glDeleteBuffers(1, &vbo_id);
-	OGL_ASSERT_NO_ERROR();
 }
 
 
 static void init_textures(void)
 {
 	glGenTextures(1, &ts_tex_id);
-	OGL_ASSERT_NO_ERROR();
-	
 	glActiveTexture(GL_TEXTURE0);
-	OGL_ASSERT_NO_ERROR();
-	
 	glBindTexture(GL_TEXTURE_2D, ts_tex_id);
-	OGL_ASSERT_NO_ERROR();
-
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	OGL_ASSERT_NO_ERROR();
-
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	OGL_ASSERT_NO_ERROR();
-
 	glUniform1i(glGetUniformLocation(shader_program_id, "ts_texture"), 0);
+
 	OGL_ASSERT_NO_ERROR();
 }
 
@@ -371,29 +357,16 @@ void ogl_render_init(void)
 	init_buffers();
 	init_textures();
 
-	glViewport(0, 0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
-	OGL_ASSERT_NO_ERROR();
 
-	glShadeModel(GL_SMOOTH);							// Enable Smooth Shading
-	glClearColor(0.0f, 0.0f, 0.0f, 0.5f);				// Black Background
-	glClearDepth(1.0f);									// Depth Buffer Setup
-	glEnable(GL_DEPTH_TEST);							// Enables Depth Testing
-	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
+	glClearColor(0.0f, 0.0f, 0.0f, 0.5f); // Black Background
 
 	glMatrixMode(GL_PROJECTION);
-	OGL_ASSERT_NO_ERROR();
 	glLoadIdentity();
-	OGL_ASSERT_NO_ERROR();
 	glOrtho(0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT, 0, -1.0f, 1.0f);
-	OGL_ASSERT_NO_ERROR();
 	
 	glMatrixMode(GL_MODELVIEW);
-	OGL_ASSERT_NO_ERROR();
 	glLoadIdentity();
-	OGL_ASSERT_NO_ERROR();
 
-	// GL_VENDOR, GL_RENDERER, GL_VERSION, or GL_SHADING_LANGUAGE_VERSION
 	const GLubyte* vendor = glGetString(GL_VENDOR);
 	const GLubyte* renderer = glGetString(GL_RENDERER);
 	const GLubyte* version = glGetString(GL_VERSION);
@@ -405,6 +378,8 @@ void ogl_render_init(void)
 		vendor, renderer, version
 	);
 
+
+	OGL_ASSERT_NO_ERROR();
 }
 
 void ogl_render_term(void)
@@ -421,7 +396,7 @@ void ogl_render_load_ts(const char* const path)
 	LOG_DEBUG("LOADING TS: %s", path);
 
 	int x, y, nchan;
-	u8* data = stbi_load(path, &x, &y, &nchan, 0);
+	void* const data = stbi_load(path, &x, &y, &nchan, 0);
 	assert(data != NULL);
 	assert(nchan == 4); // assert RGBA
 
@@ -434,10 +409,7 @@ void ogl_render_load_ts(const char* const path)
 	);
 
 	glActiveTexture(GL_TEXTURE0);
-	OGL_ASSERT_NO_ERROR();
-
 	glBindTexture(GL_TEXTURE_2D, ts_tex_id);
-	OGL_ASSERT_NO_ERROR();
 
 	glTexImage2D(
 		GL_TEXTURE_2D,
@@ -450,8 +422,11 @@ void ogl_render_load_ts(const char* const path)
 		GL_UNSIGNED_BYTE,
 		data
 	);
-	OGL_ASSERT_NO_ERROR();
 
+	const GLint ts_tex_size_id = glGetUniformLocation(shader_program_id, "ts_tex_size");
+	glUniform2f(ts_tex_size_id, (GLfloat)x, (GLfloat)y);
+
+	OGL_ASSERT_NO_ERROR();
 
 	stbi_image_free(data);
 }
@@ -532,7 +507,6 @@ void ogl_render_text(const char* const text, ...)
 void ogl_render_finish_frame(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	OGL_ASSERT_NO_ERROR();
 
 	glBufferData(
 		GL_ARRAY_BUFFER,
@@ -540,13 +514,9 @@ void ogl_render_finish_frame(void)
         	ts_verts,
 		GL_DYNAMIC_DRAW
 	);
-	OGL_ASSERT_NO_ERROR();
 
 	glDrawArrays(GL_QUADS, 0, ts_nverts);
-	OGL_ASSERT_NO_ERROR();
-
 	glFlush();
-	OGL_ASSERT_NO_ERROR();
 
 	#ifdef GPROJ_PLATFORM_SDL2
 
@@ -564,6 +534,8 @@ void ogl_render_finish_frame(void)
 	#else
 	#error "Unknown Platform"
 	#endif
+
+	OGL_ASSERT_NO_ERROR();
 }
 
 
