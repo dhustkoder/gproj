@@ -61,6 +61,19 @@ static input_button_t gprojkeys[] = {
 
 
 
+static void platform_init(void)
+{
+	/* timer */
+	LARGE_INTEGER freq;
+	QueryPerformanceFrequency(&freq);
+	gproj_timer_hp_freq = freq.QuadPart;
+}
+
+static void platform_term(void)
+{
+
+}
+
 static void update_keys(WPARAM key, UINT evtype)
 {
 	assert(evtype == WM_KEYDOWN || evtype == WM_KEYUP);
@@ -88,15 +101,16 @@ static void window_size_update(void)
 	GetClientRect(hwnd, &rect);
 	const DWORD width = rect.right - rect.left;
 	const DWORD height = rect.bottom - rect.top;
+	
 	glViewport(0, 0, width, height);
+	
 	glMatrixMode(GL_PROJECTION);
-	OGL_ASSERT_NO_ERROR();
 	glLoadIdentity();
-	OGL_ASSERT_NO_ERROR();
 	glOrtho(0, width, height, 0, -1.0f, 1.0f);
+
+	
 	OGL_ASSERT_NO_ERROR();
 }
-
 
 static LRESULT window_proc_clbk(HWND hWnd,
                                 UINT evtype,
@@ -123,8 +137,6 @@ static LRESULT window_proc_clbk(HWND hWnd,
 Lret:
 	return DefWindowProc(hWnd, evtype, wParam, lParam);
 }
-
-
 
 void render_init(const char* const winname)
 {
@@ -224,18 +236,6 @@ void events_update(struct events* const in_gproj_ev)
 
 
 
-static void platform_init(void)
-{
-	/* timer */
-	LARGE_INTEGER freq;
-	QueryPerformanceFrequency(&freq);
-	gproj_timer_hp_freq = freq.QuadPart;
-}
-
-static void platform_term(void)
-{
-
-}
 
 int main(void)
 {
