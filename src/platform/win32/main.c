@@ -24,8 +24,6 @@ static HINSTANCE hprevinstance;
 static int showcmd;
 static struct events* gproj_ev = NULL;
 
-
-
 static u8 winkeys[] = {
 	0x57, // w
 	0x53, // s
@@ -61,30 +59,26 @@ static input_button_t gprojkeys[] = {
 #endif
 };
 
+static HANDLE log_handles[GPROJ_WIN32_LOG_HANDLE_NHANDLES];
 
-static HANDLE console_handles[GPROJ_WIN32_CONSOLE_HANDLE_NHANDLES];
 
 static void platform_init(void)
 {
 	AttachConsole(ATTACH_PARENT_PROCESS);
-	console_handles[GPROJ_WIN32_CONSOLE_HANDLE_STDOUT] = GetStdHandle(STD_OUTPUT_HANDLE);
-	console_handles[GPROJ_WIN32_CONSOLE_HANDLE_STDERR] = GetStdHandle(STD_ERROR_HANDLE);
-
+	log_handles[GPROJ_WIN32_LOG_HANDLE_STDOUT] = GetStdHandle(STD_OUTPUT_HANDLE);
+	log_handles[GPROJ_WIN32_LOG_HANDLE_STDERR] = GetStdHandle(STD_ERROR_HANDLE);
 
 	log_dbg("INITIALIZING WIN32 PLATFORM");
+
 	/* timer */
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
 	gproj_timer_hp_freq = freq.QuadPart;
-
-
-
 }
 
 static void platform_term(void)
 {
 	log_dbg("TERMINATING WIN32 PLATFORM");
-
 	FreeConsole();
 }
 
@@ -119,18 +113,18 @@ static void wm_create(HWND hWnd)
 	if (wglMakeCurrent(hdc, hgl_context) == FALSE)
 		INVALID_CODE_PATH;
 
-	ogl_get_proc_addr("wglSwapIntervalEXT")(1);
+	ogl_get_proc_addr("wglSwapIntervalEXT")(0);
 	ogl_render_init();
 }
 
-static void wm_update_keys(WPARAM key, UINT evtype)
+static void wm_update_keys(WPARAM key, UINT msg)
 {
-	assert(evtype == WM_KEYDOWN || evtype == WM_KEYUP);
+	assert(msg == WM_KEYDOWN || msg == WM_KEYUP);
 
 	input_button_t buttons = gproj_ev->input.buttons;
 	for (int i = 0; i < STATIC_ARRAY_SIZE(winkeys); ++i) {
 		if (winkeys[i] == key) {
-			if (evtype == WM_KEYUP) {
+			if (msg == WM_KEYUP) {
 				buttons &= ~gprojkeys[i];
 			} else {
 				buttons |= gprojkeys[i];
@@ -162,14 +156,14 @@ static void wm_size(void)
 }
 
 static LRESULT window_proc_clbk(HWND hWnd,
-                                UINT evtype,
+                                UINT msg,
                                 WPARAM wParam,
                                 LPARAM lParam)
 {
 	if (gproj_ev == NULL)
 		goto Lret;
 
-	switch (evtype) {
+	switch (msg) {
 		case WM_CREATE:
 			wm_create(hWnd);
 			break;
@@ -178,7 +172,7 @@ static LRESULT window_proc_clbk(HWND hWnd,
 			break;
 		case WM_KEYDOWN:
 		case WM_KEYUP:
-			wm_update_keys(wParam, evtype);
+			wm_update_keys(wParam, msg);
 			break;
 		case WM_DESTROY:
 			PostQuitMessage(0);
@@ -187,7 +181,7 @@ static LRESULT window_proc_clbk(HWND hWnd,
 	}
 
 Lret:
-	return DefWindowProc(hWnd, evtype, wParam, lParam);
+	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 static void dispatch_messages(void)
@@ -269,13 +263,13 @@ void events_update(struct events* const in_gproj_ev)
 	dispatch_messages();
 }
 
-void gproj_win32_console_write(
-	enum gproj_win32_console_handle handle,
+void gproj_win32_log_write(
+	enum gproj_win32_log_handle handle,
 	const char* fmt,
 	...
 )
 {
-	static char buffer[GPROJ_WIN32_LOGBUFFER_SIZE];
+	static char buffer[GPROJ_WIN32_LOG_BUFFER_SIZE];
 
 	DWORD towrite, written;
 	va_list valist;
@@ -285,7 +279,7 @@ void gproj_win32_console_write(
 	
 	buffer[towrite++] = '\n';
 	
-	WriteConsoleA(console_handles[handle], buffer, towrite, &written, NULL);
+	WriteFile(log_handles[handle], buffer, towrite, &written, NULL);
 }
 
 
