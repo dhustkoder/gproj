@@ -36,7 +36,7 @@ typedef void (OGLAPI *gl_void_proc_fn_t)();
 #define OGL_ASSERT_NO_ERROR() { \
 	const GLenum gl_error_code = glGetError(); \
 	if (gl_error_code != GL_NO_ERROR) { \
-		LOG_DEBUG("GL ERROR: %d", gl_error_code); \
+		log_dbg("GL ERROR: %d", gl_error_code); \
 		assert(false && "OGL ERROR"); \
 	} \
 }

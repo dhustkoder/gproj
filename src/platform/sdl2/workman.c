@@ -52,7 +52,7 @@ static void debug_work_ownership_monitor_report_duplication(SDL_threadID a, SDL_
 {
 	const char* b_name = debug_get_thread_name_by_id(a);
 	const char* a_name = debug_get_thread_name_by_id(b);
-	LOG_DEBUG("DUPLICATED WORK BETWEEN THREADS (%s) AND (%s)", a_name, b_name);
+	log_dbg("DUPLICATED WORK BETWEEN THREADS (%s) AND (%s)", a_name, b_name);
 	assert(false && "DUPLICATED WORK");
 }
 
@@ -78,7 +78,7 @@ static void debug_work_ownership_monitor_lock(const struct work_queue_entry* con
 	const int entry = (int)(entryp - (&queue[0]));
 	const SDL_threadID myid = SDL_ThreadID();
 	const char* my_name = debug_get_thread_name_by_id(myid);
-	LOG_DEBUG("THREAD %-16s STARTING WORK IDX => %4d => (%"UPTR_FMT
+	log_dbg("THREAD %-16s STARTING WORK IDX => %4d => (%"UPTR_FMT
 	          ") : WORK_CNT => %4d",
 	           my_name, entry, (uptr)entryp->fn, work_cnt);
 
@@ -103,7 +103,7 @@ static void debug_work_ownership_monitor_unlock(const struct work_queue_entry* c
 	const SDL_threadID myid = SDL_ThreadID();
 	const char* my_name = debug_get_thread_name_by_id(myid);
 	const int entry = (int)(entryp - (&queue[0]));
-	LOG_DEBUG("THREAD %-16s FINISHED WORK IDX => %4d => (%"UPTR_FMT
+	log_dbg("THREAD %-16s FINISHED WORK IDX => %4d => (%"UPTR_FMT
 	          ") : WORK_CNT => %4d",
 	          my_name, entry, (uptr)entryp->fn, work_cnt);
 	if (myid == manager_thr_id) {
@@ -195,11 +195,11 @@ static int worker_thr_main(void* dummy)
 	((void)dummy);
 	SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
 
-	LOG_DEBUG("STARTING WORKER_THREAD_%lx", SDL_ThreadID());
+	log_dbg("STARTING WORKER_THREAD_%lx", SDL_ThreadID());
 	
 	work_until_term();
 	
-	LOG_DEBUG("TERMINATING WORKER_THREAD_%lx", SDL_ThreadID());
+	log_dbg("TERMINATING WORKER_THREAD_%lx", SDL_ThreadID());
 	
 	return 0;
 }
@@ -207,7 +207,7 @@ static int worker_thr_main(void* dummy)
 
 void workman_init(void)
 {
-	LOG_DEBUG("INITIALIZING WORKMAN");
+	log_dbg("INITIALIZING WORKMAN");
 	char namebuff[32];
 	work_cnt = 0;
 	work_next =  0;
@@ -233,7 +233,7 @@ void workman_term(void)
 {
 	/* TODO: check if terminating as this can cause crashes */
 	assert(SDL_ThreadID() == manager_thr_id);
-	LOG_DEBUG("TERMINATING WORKMAN");
+	log_dbg("TERMINATING WORKMAN");
 	terminated = true;
 	if (thread_cnt > 0) {
 		debug_work_ownership_monitor_term();

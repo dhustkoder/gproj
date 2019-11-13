@@ -232,7 +232,7 @@ static void compile_shader(GLuint* const id, GLenum type, const GLchar* source)
 			NULL,
 			shader_compilation_info_buffer
 		);
-		LOG_DEBUG(
+		log_dbg(
 			"FAILED TO COMPILE SHADER: %s\n"
 			"ERROR: %s",
 			source, shader_compilation_info_buffer
@@ -265,7 +265,7 @@ static void init_shader_program(void)
 		                    SHADER_COMPILATION_INFO_BUFFER_SIZE,
 		                    NULL,
 		                    shader_compilation_info_buffer);
-		LOG_DEBUG("FAILED TO LINK PROGRAM: %s", shader_compilation_info_buffer);
+		log_dbg("FAILED TO LINK PROGRAM: %s", shader_compilation_info_buffer);
 		assert(false && "FAILED PROGRAM LINK");
 	}
 #endif
@@ -277,6 +277,7 @@ static void init_shader_program(void)
 
 static void term_shader_program(void)
 {
+	glUseProgram(0);
 	glDetachShader(shader_program_id, vs_id);
 	glDetachShader(shader_program_id, fs_id);
 	glDeleteShader(vs_id);
@@ -353,7 +354,7 @@ static void term_textures(void)
 
 void ogl_render_init(void)
 {
-	LOG_DEBUG("INITIALIZING OPENGL RENDER");
+	log_dbg("INITIALIZING OPENGL RENDER");
 
 	load_gl_procs();
 
@@ -374,7 +375,7 @@ void ogl_render_init(void)
 	const GLubyte* vendor = glGetString(GL_VENDOR);
 	const GLubyte* renderer = glGetString(GL_RENDERER);
 	const GLubyte* version = glGetString(GL_VERSION);
-	LOG_DEBUG(
+	log_dbg(
 		"OpenGL INFO: \n"
 		"VENDOR: %s\n"
 		"RENDERER: %s\n"
@@ -388,7 +389,7 @@ void ogl_render_init(void)
 
 void ogl_render_term(void)
 {
-	LOG_DEBUG("TERMINATING OPENGL RENDER");
+	log_dbg("TERMINATING OPENGL RENDER");
 
 	term_textures();
 	term_buffers();
@@ -397,14 +398,14 @@ void ogl_render_term(void)
 
 void ogl_render_load_ts(const char* const path)
 {
-	LOG_DEBUG("LOADING TS: %s", path);
+	log_dbg("LOADING TS: %s", path);
 
 	int x, y, nchan;
 	void* const data = stbi_load(path, &x, &y, &nchan, 0);
 	assert(data != NULL);
 	assert(nchan == 4); // assert RGBA
 
-	LOG_DEBUG(
+	log_dbg(
 		"LOADED TS FROM FILE %s\n"
 		"WIDTH: %d\n"
 		"HEIGHT: %d\n"
@@ -499,13 +500,14 @@ void ogl_render_ss(const int layer,
 }
 
 
-void ogl_render_text(const char* const text, ...)
+void ogl_render_text(const char* const fmt, ...)
 {
+	static char buffer[1024];
 	va_list args;
-	va_start(args, text);
-	vprintf(text, args);
-	printf("\n");
+	va_start(args, fmt);
+	vsprintf(buffer, fmt, args);
 	va_end(args);
+	log(buffer);
 }
 
 void ogl_render_finish_frame(void)

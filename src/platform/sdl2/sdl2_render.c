@@ -37,7 +37,7 @@ static void prepare_target_layer(const int layer)
 
 void sdl2_render_init(void)
 {
-	LOG_DEBUG("INITIALIZING SDL2 RENDER");
+	log_dbg("INITIALIZING SDL2 RENDER");
 	int err;
 	((void)err);
 
@@ -78,7 +78,7 @@ void sdl2_render_init(void)
 
 void sdl2_render_term(void)
 {
-	LOG_DEBUG("TERMINATING SDL2 RENDER");
+	log_dbg("TERMINATING SDL2 RENDER");
 	FC_FreeFont(font);
 
 	if (tex_ts != NULL)
@@ -97,7 +97,7 @@ void sdl2_render_term(void)
 
 void sdl2_render_load_ts(const char* const path)
 {
-	LOG_DEBUG("LOADING TILESET: %s", path);
+	log_dbg("LOADING TILESET: %s", path);
 	if (tex_ts)
 		SDL_DestroyTexture(tex_ts);
 
@@ -110,7 +110,7 @@ void sdl2_render_load_ts(const char* const path)
 
 void sdl2_render_load_ss(const char* const path)
 {
-	LOG_DEBUG("LOADING SPRITESHEET: %s", path);
+	log_dbg("LOADING SPRITESHEET: %s", path);
 	if (tex_ss)
 		SDL_DestroyTexture(tex_ss);
 

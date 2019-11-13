@@ -82,7 +82,7 @@ static void init_sdl2_mode(const char* winname)
 
 void render_init(const char* winname)
 {
-	LOG_DEBUG("INITIALIZING WINDOW");
+	log_dbg("INITIALIZING WINDOW");
 	int err;
 	((void)err);
 
@@ -113,7 +113,7 @@ void render_term(void)
 	if (sdl_window != NULL)
 		SDL_DestroyWindow(sdl_window);
 
-	LOG_DEBUG("TERMINATING WINDOW");
+	log_dbg("TERMINATING WINDOW");
 }
 
 

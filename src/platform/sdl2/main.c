@@ -23,7 +23,7 @@ timer_hp_clk_t gproj_timer_hp_frequency;
 
 static bool platform_init(void)
 {
-	LOG_DEBUG("INITIALIZING PLATFORM SDL2");
+	log_dbg("INITIALIZING PLATFORM SDL2");
 
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 		goto Lfailure;
@@ -43,13 +43,13 @@ static bool platform_init(void)
 	return true;
 
 Lfailure:
-	LOG_ERR("Couldn't initialize platform: %s\n", SDL_GetError());
+	log_err("Couldn't initialize platform: %s\n", SDL_GetError());
 	return false;
 }
 
 static void platform_term(void)
 {
-	LOG_DEBUG("TERMINATING PLATFORM SDL2");
+	log_dbg("TERMINATING PLATFORM SDL2");
 
 	Mix_CloseAudio();
 	TTF_Quit();

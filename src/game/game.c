@@ -13,7 +13,7 @@ void game_init(int argc, char** argv)
 {
 	((void)argc);
 	((void)argv);
-	LOG_DEBUG("#####INITIALIZING GAME#####");
+	log_dbg("#####INITIALIZING GAME#####");
 
 	profiler_init();
 	render_init("GProj Testing");
@@ -22,7 +22,7 @@ void game_init(int argc, char** argv)
 	worldman_init(levels, STATIC_ARRAY_SIZE(levels));
 	worldman_load_world("First");
 
-	LOG_DEBUG("#####GAME INITIALIZED#####");
+	log_dbg("#####GAME INITIALIZED#####");
 }
 
 void game_step(const timer_clk_t now, const float dt)
@@ -38,14 +38,14 @@ void game_step(const timer_clk_t now, const float dt)
 
 void game_term()
 {
-	LOG_DEBUG("#####TERMINATING GAME#####");
+	log_dbg("#####TERMINATING GAME#####");
 
 	worldman_term();
 	audio_term();
 	render_term();
 	profiler_term();
 
-	LOG_DEBUG("#####GAME TERMINATED#####");
+	log_dbg("#####GAME TERMINATED#####");
 }
 
 

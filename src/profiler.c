@@ -30,13 +30,13 @@ static struct block blocks[GPROJ_MAX_PROFILING_IDS];
 
 void profiler_init(void)
 {
-	LOG_DEBUG("INITIALIZING PROFILER");
+	log_dbg("INITIALIZING PROFILER");
 	timer_hp_frequency = timer_high_precision_counter_frequency();
 }
 
 void profiler_term(void)
 {
-	LOG_DEBUG("TERMINATING PROFILER");
+	log_dbg("TERMINATING PROFILER");
 }
 
 void profiler_block_start(const char* const id,

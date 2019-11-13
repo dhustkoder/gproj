@@ -16,12 +16,14 @@ render_text_fn_t render_text;
 render_finish_frame_fn_t render_finish_frame;
 
 
-HWND hwnd;
-HDC hdc;
 
-static HGLRC hglrc;
-static MSG msg;
+HWND hwnd = NULL;
+HDC hdc = NULL;
+static HINSTANCE hinstance;
+static HINSTANCE hprevinstance;
+static int showcmd;
 static struct events* gproj_ev = NULL;
+
 
 
 static u8 winkeys[] = {
@@ -60,21 +62,68 @@ static input_button_t gprojkeys[] = {
 };
 
 
+static HANDLE console_handles[GPROJ_WIN32_CONSOLE_HANDLE_NHANDLES];
 
 static void platform_init(void)
 {
+	AttachConsole(ATTACH_PARENT_PROCESS);
+	console_handles[GPROJ_WIN32_CONSOLE_HANDLE_STDOUT] = GetStdHandle(STD_OUTPUT_HANDLE);
+	console_handles[GPROJ_WIN32_CONSOLE_HANDLE_STDERR] = GetStdHandle(STD_ERROR_HANDLE);
+
+
+	log_dbg("INITIALIZING WIN32 PLATFORM");
 	/* timer */
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
 	gproj_timer_hp_freq = freq.QuadPart;
+
+
+
 }
 
 static void platform_term(void)
 {
+	log_dbg("TERMINATING WIN32 PLATFORM");
 
+	FreeConsole();
 }
 
-static void update_keys(WPARAM key, UINT evtype)
+static void wm_create(HWND hWnd)
+{
+	hwnd = hWnd;
+	hdc = GetDC(hwnd);
+	assert(hdc != NULL);
+
+	PIXELFORMATDESCRIPTOR pfd;
+	memset(&pfd, 0, sizeof pfd);
+
+	pfd.nSize = sizeof pfd;
+	pfd.nVersion = 1;
+	pfd.dwFlags = PFD_DRAW_TO_WINDOW|PFD_DOUBLEBUFFER|PFD_SUPPORT_OPENGL;
+	pfd.iPixelType = PFD_TYPE_RGBA;
+	pfd.iLayerType = PFD_MAIN_PLANE;
+	pfd.cColorBits = 32;
+
+	const DWORD pf = ChoosePixelFormat(hdc, &pfd);
+	assert(pf != 0);
+
+	if (SetPixelFormat(hdc, pf, &pfd) == FALSE)
+		INVALID_CODE_PATH;
+
+	if (!DescribePixelFormat(hdc, pf, sizeof pfd, &pfd))
+		INVALID_CODE_PATH;
+
+	HGLRC hgl_context = wglCreateContext(hdc);
+	assert(hgl_context != NULL);
+
+	if (wglMakeCurrent(hdc, hgl_context) == FALSE)
+		INVALID_CODE_PATH;
+
+	ogl_get_proc_addr("wglSwapIntervalEXT")(1);
+	ogl_render_init();
+}
+
+static void wm_update_keys(WPARAM key, UINT evtype)
 {
 	assert(evtype == WM_KEYDOWN || evtype == WM_KEYUP);
 
@@ -95,7 +144,7 @@ static void update_keys(WPARAM key, UINT evtype)
 	}
 }
 
-static void window_size_update(void)
+static void wm_size(void)
 {
 	RECT rect;
 	GetClientRect(hwnd, &rect);
@@ -121,36 +170,66 @@ static LRESULT window_proc_clbk(HWND hWnd,
 		goto Lret;
 
 	switch (evtype) {
+		case WM_CREATE:
+			wm_create(hWnd);
+			break;
 		case WM_SIZE:
-			window_size_update();
+			wm_size();
 			break;
 		case WM_KEYDOWN:
 		case WM_KEYUP:
-			update_keys(wParam, evtype);
+			wm_update_keys(wParam, evtype);
 			break;
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			gproj_ev->flags |= EVENT_FLAG_QUIT;
-			return WM_DESTROY;
+			break;
 	}
 
 Lret:
 	return DefWindowProc(hWnd, evtype, wParam, lParam);
 }
 
+static void dispatch_messages(void)
+{
+	static MSG msg;
+
+	while (PeekMessageA(&msg, hwnd, 0, 0, PM_REMOVE)) {
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+}
+
+
+
 void render_init(const char* const winname)
 {
-	LOG_DEBUG("INITIALIZING RENDER");
-	const HINSTANCE hInstance = GetModuleHandle(NULL);
+	log_dbg("INITIALIZING RENDER");
+
+	struct events ev;
+	gproj_ev = &ev;
+
+	render_load_ts = ogl_render_load_ts;
+	render_load_ss = ogl_render_load_ss;
+	render_map = ogl_render_map;
+	render_ss = ogl_render_ss;
+	render_text = ogl_render_text;
+	render_finish_frame = ogl_render_finish_frame;
+
+
+	const LPCSTR app_name = winname;
+
 	WNDCLASS wc;
 	memset(&wc, 0, sizeof wc);
 
-	const LPCSTR app_name = winname;	
-	wc.style = CS_OWNDC|CS_HREDRAW|CS_VREDRAW;
-	wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
 	wc.lpfnWndProc = window_proc_clbk;
-	wc.hInstance = hInstance;
+	wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW); 
+	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1); 
+	wc.hInstance = hinstance;
 	wc.lpszClassName = app_name;
+    wc.lpszMenuName  = app_name; 
+    wc.lpszClassName = app_name; 
 	
 	if (RegisterClass(&wc) == 0)
 		INVALID_CODE_PATH;
@@ -162,83 +241,66 @@ void render_init(const char* const winname)
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT,
 		NULL, NULL,
-		hInstance,
+		hinstance,
 		NULL
 	);
 
 	assert(hwnd != NULL);
 
-
-
-	hdc = GetDC(hwnd);
-	assert(hdc != NULL);
-
-	PIXELFORMATDESCRIPTOR pfd;
-	memset(&pfd, 0, sizeof pfd);
-
-	pfd.nSize = sizeof pfd;
-	pfd.nVersion = 1;
-	pfd.dwFlags = PFD_DRAW_TO_WINDOW|PFD_DOUBLEBUFFER|PFD_SUPPORT_OPENGL;
-	pfd.iPixelType = PFD_TYPE_RGBA;
-	pfd.iLayerType = PFD_MAIN_PLANE;
-	pfd.cColorBits = 32;
-
-
-	const DWORD pf = ChoosePixelFormat(hdc, &pfd);
-	assert(pf != 0);
-
-	if (SetPixelFormat(hdc, pf, &pfd) == FALSE)
-		INVALID_CODE_PATH;
-
-	if (!DescribePixelFormat(hdc, pf, sizeof pfd, &pfd))
-		INVALID_CODE_PATH;
-
-
-
-	hglrc = wglCreateContext(hdc);
-	assert(hglrc != NULL);
-
-	if (wglMakeCurrent(hdc, hglrc) == FALSE)
-		INVALID_CODE_PATH;
-
-	ogl_get_proc_addr("wglSwapIntervalEXT")(1);
-
-	ShowWindow(hwnd, SW_SHOW);
+	ShowWindow(hwnd, showcmd);
 	UpdateWindow(hwnd);
-	SetForegroundWindow(hwnd);
-
-	render_load_ts = ogl_render_load_ts;
-	render_load_ss = ogl_render_load_ss;
-	render_map = ogl_render_map;
-	render_ss = ogl_render_ss;
-	render_text = ogl_render_text;
-	render_finish_frame = ogl_render_finish_frame;
-
-	ogl_render_init();
-	window_size_update();
+	
+	while (hdc == NULL)
+		dispatch_messages();
+	
+	gproj_ev = NULL;
 }
 
 void render_term(void)
 {
-	LOG_DEBUG("TERMINATING RENDER");
+	log_dbg("TERMINATING RENDER");
 }
+
 
 void events_update(struct events* const in_gproj_ev)
 {
 	gproj_ev = in_gproj_ev;
 	gproj_ev->flags = 0x00;
+	dispatch_messages();
+}
 
-	while (PeekMessageA(&msg, hwnd, 0, 0, PM_REMOVE)) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
+void gproj_win32_console_write(
+	enum gproj_win32_console_handle handle,
+	const char* fmt,
+	...
+)
+{
+	static char buffer[GPROJ_WIN32_LOGBUFFER_SIZE];
+
+	DWORD towrite, written;
+	va_list valist;
+	va_start(valist, fmt);
+	towrite = vsnprintf(buffer, sizeof(buffer) - 1, fmt, valist);
+	va_end(valist);
+	
+	buffer[towrite++] = '\n';
+	
+	WriteConsoleA(console_handles[handle], buffer, towrite, &written, NULL);
 }
 
 
 
-
-int main(void)
+int WINAPI WinMain(
+	HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	LPSTR     lpCmdLine,
+	int       nShowCmd
+)
 {
+	hinstance = hInstance;
+	hprevinstance = hPrevInstance;
+	showcmd = nShowCmd;
+
 	platform_init();
 
 	const int ret = gproj_main(0, NULL);
