@@ -274,13 +274,16 @@ void gproj_win32_log_write(
 
 	DWORD towrite, written;
 	va_list valist;
+
 	va_start(valist, fmt);
-	towrite = vsnprintf(buffer, sizeof(buffer) - 1, fmt, valist);
-	va_end(valist);
 	
+	towrite = vsnprintf(buffer, sizeof(buffer) - 1, fmt, valist);
 	buffer[towrite++] = '\n';
 	
 	WriteFile(log_handles[handle], buffer, towrite, &written, NULL);
+	assert(written > 0);
+
+	va_end(valist);
 }
 
 
