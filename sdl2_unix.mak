@@ -73,7 +73,7 @@ CFLAGS_PROFILING=$(PERFORMANCE_FLAGS) -DGPROJ_PROFILING -DNDEBUG
 EXTERNALS_LIBS=$(SDLFC_DIR)/libSDL_fontcache.a
 
 LD_INCLUDES=-L$(SDLFC_DIR)
-LDFLAGS=$(LD_INCLUDES) $(PLATFORM_LDFLAGS) -lSDL_fontcache
+LDFLAGS=$(LD_INCLUDES) -lm $(PLATFORM_LDFLAGS) -lSDL_fontcache
 ifeq ($(UNAME_S),Linux)
 	LDFLAGS+=-lGL
 else
@@ -117,8 +117,9 @@ endif
 
 all: $(EXTERNALS_LIBS) $(BUILD_DIR)/gproj
 asm: $(ASM) $(PLATFORM_ASM) $(GAME_ASM)
+
 run: all
-	$(shell ln -s $(pwd)/assets/* $(pwd)/build 2>&-)
+	$(shell ln -s $(PWD)/assets/* $(PWD)/build 2>&-)
 	pushd ./build && ./gproj && popd
 
 

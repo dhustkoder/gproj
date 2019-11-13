@@ -70,7 +70,7 @@ static GLchar* gl_proc_names[] = {
 	"glDetachShader",
 	"glDeleteShader",
 	"glDeleteProgram",
-	
+
 	"glGenBuffers",
 	"glDeleteBuffers",
 	"glBindBuffer",
@@ -112,7 +112,7 @@ static gl_void_proc_fn_t* gl_proc_ptrs[] = {
 	&glDetachShader,
 	&glDeleteShader,
 	&glDeleteProgram,
-	
+
 	&glGenBuffers,
 	&glDeleteBuffers,
 	&glBindBuffer,
@@ -120,7 +120,7 @@ static gl_void_proc_fn_t* gl_proc_ptrs[] = {
 	&glGetAttribLocation,
 	&glVertexAttribPointer,
 	&glEnableVertexAttribArray
-	
+
 /*
 	,&glGenTextures,
 	&glDeleteTextures,
@@ -183,7 +183,7 @@ static const GLchar* const fs_source = OGL_SL(
 	{
 		gl_FragColor = texture2D(
 			textures,
-			fs_tex_pos / ts_tex_size 
+			fs_tex_pos / ts_tex_size
 		);
 	}
 
@@ -291,8 +291,8 @@ static void init_buffers(void)
 	glBufferData(
 		GL_ARRAY_BUFFER,
 
-		(sizeof(struct ts_vertex) * 
-		MAP_MAX_X_TILES * 
+		(sizeof(struct ts_vertex) *
+		MAP_MAX_X_TILES *
 		MAP_MAX_Y_TILES * 4),
 
 		NULL,
@@ -308,7 +308,7 @@ static void init_buffers(void)
 		GL_FLOAT,
 		GL_FALSE,
 		sizeof(struct ts_vertex),
-		(void*) OFFSETOF(struct ts_vertex, world_pos)	
+		(void*) OFFSETOF(struct ts_vertex, world_pos)
 	);
 
 	glVertexAttribPointer(
@@ -367,7 +367,7 @@ void ogl_render_init(void)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT, 0, -1.0f, 1.0f);
-	
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -406,7 +406,7 @@ void ogl_render_load_ts(const char* const path)
 
 	LOG_DEBUG(
 		"LOADED TS FROM FILE %s\n"
-	        "WIDTH: %d\n"
+		"WIDTH: %d\n"
 		"HEIGHT: %d\n"
 		"CHANNELS: %d",
 		path, x, y, nchan
@@ -530,11 +530,11 @@ void ogl_render_finish_frame(void)
 
 	#elif defined(GPROJ_PLATFORM_WIN32)
 	extern HDC hdc;
-	
+
 
 	if (SwapBuffers(hdc) == FALSE)
 		INVALID_CODE_PATH;
-	
+
 	#else
 	#error "Unknown Platform"
 	#endif
