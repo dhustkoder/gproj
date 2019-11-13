@@ -20,8 +20,8 @@
 #endif
 
 
-#define MACR_STRINGFY(x) #x
-#define INVALID_CODE_PATH assert(0 && "INVALID CODE PATH AT " __FILE__ ":" MACR_STRINGFY(__LINE__))
+#define GPROJ_MACR_STRINGIFY(x) #x
+#define INVALID_CODE_PATH assert(0 && "INVALID CODE PATH AT " __FILE__ ":" GPROJ_MACR_STRINGIFY(__LINE__))
 
 
 #endif

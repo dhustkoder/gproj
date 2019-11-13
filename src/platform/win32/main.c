@@ -17,8 +17,9 @@ render_finish_frame_fn_t render_finish_frame;
 
 
 
-HWND hwnd = NULL;
+
 HDC hdc = NULL;
+static HWND hwnd = NULL;
 static HINSTANCE hinstance;
 static HINSTANCE hprevinstance;
 static int showcmd;
@@ -281,7 +282,6 @@ void gproj_win32_log_write(
 	
 	WriteFile(log_handles[handle], buffer, towrite, &written, NULL);
 }
-
 
 
 int WINAPI WinMain(
