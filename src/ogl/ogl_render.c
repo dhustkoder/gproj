@@ -507,7 +507,7 @@ void ogl_render_text(const char* const fmt, ...)
 	va_start(args, fmt);
 	vsprintf(buffer, fmt, args);
 	va_end(args);
-	log(buffer);
+	log("%s", buffer);
 }
 
 void ogl_render_finish_frame(void)
