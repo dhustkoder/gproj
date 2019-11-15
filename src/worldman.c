@@ -2,7 +2,7 @@
 #include <string.h>
 #include "logger.h"
 #include "render.h"
-#include "events.h"
+#include "input.h"
 #include "worldman.h"
 
 
@@ -49,34 +49,30 @@ void worldman_load_world(const char* const name)
 	loaded_world_idx = idx;
 }
 
-void worldman_update_world(const timer_clk_t now, const float dt)
+void worldman_update_world(const input_t input, const timer_clk_t now, const float dt)
 {
 	assert(loaded_world_name != NULL);
 
 #ifdef GPROJ_DEBUG
-	extern struct events gproj_events;
+	if (input&INPUT_BUTTONS_CAM) {
+		if (input&INPUT_BUTTON_CAM_RIGHT)
+			world.cam.x += WORLD_DEBUG_CAM_VELOCITY * dt;
+		else if (input&INPUT_BUTTON_CAM_LEFT)
+			world.cam.x -= WORLD_DEBUG_CAM_VELOCITY * dt;
+		else if (input&INPUT_BUTTON_CAM_UP)
+			world.cam.y -= WORLD_DEBUG_CAM_VELOCITY * dt;
+		else if (input&INPUT_BUTTON_CAM_DOWN)
+			world.cam.y += WORLD_DEBUG_CAM_VELOCITY * dt;
+	}
 
-	const input_button_t buttons = gproj_events.input.buttons;
-
-	if (buttons&INPUT_BUTTON_CAM_RIGHT)
-		world.cam.x += WORLD_DEBUG_CAM_VELOCITY * dt;
-	else if (buttons&INPUT_BUTTON_CAM_LEFT)
-		world.cam.x -= WORLD_DEBUG_CAM_VELOCITY * dt;
-	else if (buttons&INPUT_BUTTON_CAM_UP)
-		world.cam.y -= WORLD_DEBUG_CAM_VELOCITY * dt;
-	else if (buttons&INPUT_BUTTON_CAM_DOWN)
-		world.cam.y += WORLD_DEBUG_CAM_VELOCITY * dt;
-
-	if (gproj_events.flags&EVENT_FLAG_NEW_INPUT) {
-
-
-		if (buttons&INPUT_BUTTON_WORLD_FWD) {
+	if (IS_TAPPED_INPUT(input, INPUT_BUTTONS_WORLD)) {
+		if (input&INPUT_BUTTON_WORLD_FWD) {
 			const int idx = (loaded_world_idx + 1) % nworlds;
 			worldman_load_world(metas[idx].name);
-		} else if (buttons&INPUT_BUTTON_WORLD_SCALE_DOWN &&
+		} else if (input&INPUT_BUTTON_WORLD_SCALE_DOWN &&
 		           world.map.scale > MAP_MIN_SCALE) {
 			world.map.scale -= MAP_SCALE_MOD;
-		} else if (buttons&INPUT_BUTTON_WORLD_SCALE_UP &&
+		} else if (input&INPUT_BUTTON_WORLD_SCALE_UP &&
 		           world.map.scale < MAP_MAX_SCALE) {
 			world.map.scale += MAP_SCALE_MOD;
 		}

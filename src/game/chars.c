@@ -1,6 +1,6 @@
 #include "render.h"
 #include "actors.h"
-#include "events.h"
+#include "input.h"
 #include "chars.h"
 
 
@@ -50,35 +50,24 @@ void chars_term(void)
 
 }
 
-void chars_update(const timer_clk_t now, const float dt)
+void chars_update(const input_t input, const timer_clk_t now, const float dt)
 {
-	((void)dt);
-	((void)now);
-	extern struct events gproj_events;
-
-	if (gproj_events.flags&EVENT_FLAG_NEW_INPUT) {
-		const input_button_t buttons = gproj_events.input.buttons;
-		if (buttons&(INPUT_BUTTON_LEFT |
-		             INPUT_BUTTON_RIGHT|
-		             INPUT_BUTTON_UP   |
-		             INPUT_BUTTON_DOWN)) {
-
-			if (buttons&INPUT_BUTTON_RIGHT) {
-				vel.x = +128;
-				flag &= ~RENDER_FLAG_FLIP_H;
-			} else {
-				vel.x = -128;
-				flag |= RENDER_FLAG_FLIP_H;
-			};
-			animation.frames = walking_frames;
-			animation.cnt = STATIC_ARRAY_SIZE(walking_frames);
-			animation.idx = 0;
+	if (input&INPUT_BUTTONS_GAME) {
+		if (input&INPUT_BUTTON_RIGHT) {
+			vel.x = +128;
+			flag &= ~RENDER_FLAG_FLIP_H;
 		} else {
-			vel.x = 0;
-			animation.frames = idle_frames;
-			animation.cnt = STATIC_ARRAY_SIZE(idle_frames);
-			animation.idx = 0;
-		}
+			vel.x = -128;
+			flag |= RENDER_FLAG_FLIP_H;
+		};
+		animation.frames = walking_frames;
+		animation.cnt = STATIC_ARRAY_SIZE(walking_frames);
+		animation.idx = 0;
+	} else {
+		vel.x = 0;
+		animation.frames = idle_frames;
+		animation.cnt = STATIC_ARRAY_SIZE(idle_frames);
+		animation.idx = 0;
 	}
 
 	actors_move(dt, &vel, &wpos, 1);

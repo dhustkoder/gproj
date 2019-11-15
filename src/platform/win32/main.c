@@ -1,9 +1,9 @@
 #include "logger.h"
 #include "render.h"
-#include "events.h"
+#include "input.h"
 #include "ogl_render.h"
 #include "timer.h"
-#include "gproj.h"
+#include "game.h"
 
 
 timer_hp_clk_t gproj_timer_hp_freq;
@@ -23,7 +23,7 @@ static HWND hwnd = NULL;
 static HINSTANCE hinstance;
 static HINSTANCE hprevinstance;
 static int showcmd;
-static struct events* gproj_ev = NULL;
+static input_t ginput;
 
 static u8 winkeys[] = {
 	0x57, // w
@@ -42,7 +42,7 @@ static u8 winkeys[] = {
 #endif
 };
 
-static input_button_t gprojkeys[] = {
+static input_t gprojkeys[] = {
 	INPUT_BUTTON_UP,
 	INPUT_BUTTON_DOWN,
 	INPUT_BUTTON_LEFT,
@@ -122,7 +122,8 @@ static void wm_update_keys(WPARAM key, UINT msg)
 {
 	assert(msg == WM_KEYDOWN || msg == WM_KEYUP);
 
-	input_button_t buttons = gproj_ev->input.buttons;
+	input_t buttons = NEW_INPUT(ginput);
+
 	for (int i = 0; i < STATIC_ARRAY_SIZE(winkeys); ++i) {
 		if (winkeys[i] == key) {
 			if (msg == WM_KEYUP) {
@@ -133,10 +134,7 @@ static void wm_update_keys(WPARAM key, UINT msg)
 		}
 	}
 
-	if (buttons != gproj_ev->input.buttons) {
-		gproj_ev->input.buttons = buttons;
-		gproj_ev->flags |= EVENT_FLAG_NEW_INPUT;
-	}
+	INPUT_SET_NEW_VALUE(ginput, buttons);
 }
 
 static void wm_size(void)
@@ -156,43 +154,50 @@ static void wm_size(void)
 	OGL_ASSERT_NO_ERROR();
 }
 
-static LRESULT window_proc_clbk(HWND hWnd,
-                                UINT msg,
-                                WPARAM wParam,
-                                LPARAM lParam)
+static LRESULT window_proc_clbk(
+	HWND hWnd,
+	UINT msg,
+	WPARAM wParam,
+	LPARAM lParam
+)
 {
-	if (gproj_ev == NULL)
-		goto Lret;
-
 	switch (msg) {
+
 		case WM_CREATE:
 			wm_create(hWnd);
 			break;
 		case WM_SIZE:
 			wm_size();
 			break;
-		case WM_KEYDOWN:
-		case WM_KEYUP:
+
+		case WM_KEYDOWN: case WM_KEYUP:
 			wm_update_keys(wParam, msg);
 			break;
+
 		case WM_DESTROY:
 			PostQuitMessage(0);
-			gproj_ev->flags |= EVENT_FLAG_QUIT;
-			break;
+			return FALSE;
+
+		default:
+			return DefWindowProc(hWnd, msg, wParam, lParam);
+
 	}
 
-Lret:
-	return DefWindowProc(hWnd, msg, wParam, lParam);
+	return TRUE;
 }
 
-static void dispatch_messages(void)
+static BOOL dispatch_messages(void)
 {
 	static MSG msg;
+
+	INPUT_UPDATE_OLD_VALUE(ginput);
 
 	while (PeekMessageA(&msg, hwnd, 0, 0, PM_REMOVE)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+
+	return TRUE;
 }
 
 
@@ -200,9 +205,6 @@ static void dispatch_messages(void)
 void render_init(const char* const winname)
 {
 	log_dbg("INITIALIZING RENDER");
-
-	struct events ev;
-	gproj_ev = &ev;
 
 	render_load_ts = ogl_render_load_ts;
 	render_load_ss = ogl_render_load_ss;
@@ -245,23 +247,15 @@ void render_init(const char* const winname)
 	ShowWindow(hwnd, showcmd);
 	UpdateWindow(hwnd);
 	
-	while (hdc == NULL)
-		dispatch_messages();
-	
-	gproj_ev = NULL;
+	while (hdc == NULL) {
+		if (dispatch_messages() == FALSE)
+			break;
+	}
 }
 
 void render_term(void)
 {
 	log_dbg("TERMINATING RENDER");
-}
-
-
-void events_update(struct events* const in_gproj_ev)
-{
-	gproj_ev = in_gproj_ev;
-	gproj_ev->flags = 0x00;
-	dispatch_messages();
 }
 
 void gproj_win32_log_write(
@@ -281,7 +275,6 @@ void gproj_win32_log_write(
 	buffer[towrite++] = '\n';
 	
 	WriteFile(log_handles[handle], buffer, towrite, &written, NULL);
-	assert(written > 0);
 
 	va_end(valist);
 }
@@ -299,11 +292,23 @@ int WINAPI WinMain(
 	showcmd = nShowCmd;
 
 	platform_init();
+	game_init();
 
-	const int ret = gproj_main(0, NULL);
+	timer_clk_t clk = timer_now();
+	timer_clk_t lastclk = clk;
 
+	while (dispatch_messages() != FALSE) {
+		const timer_clk_t now = timer_now();
+		const float dt = (now - lastclk) / 1000.f;
+
+		game_step(ginput, now, dt);
+	
+		lastclk = now;
+	};
+
+	game_term();
 	platform_term();
 
-	return ret;
+	return EXIT_SUCCESS;
 }
 

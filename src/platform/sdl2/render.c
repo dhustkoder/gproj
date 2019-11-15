@@ -1,6 +1,5 @@
 #include "logger.h"
 #include "render.h"
-#include "events.h"
 #include "sdl2_render.h"
 #include "ogl_render.h"
 

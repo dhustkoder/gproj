@@ -9,10 +9,8 @@
 extern struct world_meta levels[5];
 
 
-void game_init(int argc, char** argv)
+void game_init(void)
 {
-	((void)argc);
-	((void)argv);
 	log_dbg("#####INITIALIZING GAME#####");
 
 	profiler_init();
@@ -25,11 +23,11 @@ void game_init(int argc, char** argv)
 	log_dbg("#####GAME INITIALIZED#####");
 }
 
-void game_step(const timer_clk_t now, const float dt)
+void game_step(const input_t input, const timer_clk_t now, const float dt)
 {
 	profiler_block_start("frame time", 1);
 
-	worldman_update_world(now, dt);
+	worldman_update_world(input, now, dt);
 	worldman_send_render();
 	render_finish_frame();
 
