@@ -27,6 +27,11 @@ static void (*target_render_init)(void);
 static void (*target_render_term)(void);
 
 
+static void finish_frame_opengl(void)
+{
+	ogl_render_finish_frame();
+	SDL_GL_SwapWindow(sdl_window);
+}
 
 static void init_sdl2_window(const char* winname, const Uint32 flags)
 {
@@ -47,7 +52,7 @@ static void init_opengl_mode(const char* winname)
 	render_map = ogl_render_map;
 	render_ss = ogl_render_ss;
 	render_text = ogl_render_text;
-	render_finish_frame = ogl_render_finish_frame;
+	render_finish_frame = finish_frame_opengl;
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
@@ -75,7 +80,6 @@ static void init_sdl2_mode(const char* winname)
 
 	init_sdl2_window(winname, 0);
 }
-
 
 
 
@@ -114,5 +118,3 @@ void render_term(void)
 
 	log_dbg("TERMINATING WINDOW");
 }
-
-

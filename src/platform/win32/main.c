@@ -16,14 +16,13 @@ render_text_fn_t render_text;
 render_finish_frame_fn_t render_finish_frame;
 
 
-
-
-HDC hdc = NULL;
+static HDC hdc = NULL;
 static HWND hwnd = NULL;
 static HINSTANCE hinstance;
 static HINSTANCE hprevinstance;
 static int showcmd;
 static input_t ginput;
+static b32 close_app_request = false;
 
 static u8 winkeys[] = {
 	0x57, // w
@@ -175,8 +174,8 @@ static LRESULT window_proc_clbk(
 			break;
 
 		case WM_DESTROY:
-			PostQuitMessage(0);
-			return FALSE;
+			close_app_request = true;
+			break;
 
 		default:
 			return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -186,7 +185,7 @@ static LRESULT window_proc_clbk(
 	return TRUE;
 }
 
-static BOOL dispatch_messages(void)
+static b32 update_events(void)
 {
 	static MSG msg;
 
@@ -197,9 +196,15 @@ static BOOL dispatch_messages(void)
 		DispatchMessage(&msg);
 	}
 
-	return TRUE;
+	return !close_app_request;
 }
 
+static void finish_frame_opengl(void)
+{
+	ogl_render_finish_frame();
+	if (SwapBuffers(hdc) == FALSE)
+		INVALID_CODE_PATH;
+}
 
 
 void render_init(const char* const winname)
@@ -211,7 +216,7 @@ void render_init(const char* const winname)
 	render_map = ogl_render_map;
 	render_ss = ogl_render_ss;
 	render_text = ogl_render_text;
-	render_finish_frame = ogl_render_finish_frame;
+	render_finish_frame = finish_frame_opengl;
 
 
 	const LPCSTR app_name = winname;
@@ -248,7 +253,7 @@ void render_init(const char* const winname)
 	UpdateWindow(hwnd);
 	
 	while (hdc == NULL) {
-		if (dispatch_messages() == FALSE)
+		if (update_events() == FALSE)
 			break;
 	}
 }
@@ -257,6 +262,8 @@ void render_term(void)
 {
 	log_dbg("TERMINATING RENDER");
 }
+
+
 
 void gproj_win32_log_write(
 	enum gproj_win32_log_handle handle,
@@ -297,7 +304,7 @@ int WINAPI WinMain(
 	timer_clk_t clk = timer_now();
 	timer_clk_t lastclk = clk;
 
-	while (dispatch_messages() != FALSE) {
+	while (update_events()) {
 		const timer_clk_t now = timer_now();
 		const float dt = (now - lastclk) / 1000.f;
 

@@ -40,6 +40,7 @@ enum input {
 
 	INPUT_BUTTON_NBUTTONS = 11
 #else
+	,
 	INPUT_BUTTON_NBUTTONS = 4
 #endif
 };

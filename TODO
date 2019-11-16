@@ -1,7 +1,1 @@
-- world scrolling
-- world scaling
-x add win32 platform
-- opengl rendering
-- code revision
-- improve debug system
-- improve steps above
+- revision TS/map manipulation and rendering

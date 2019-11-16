@@ -502,12 +502,14 @@ void ogl_render_ss(const int layer,
 
 void ogl_render_text(const char* const fmt, ...)
 {
+	/*
 	static char buffer[1024];
 	va_list args;
 	va_start(args, fmt);
 	vsprintf(buffer, fmt, args);
 	va_end(args);
 	log("%s", buffer);
+	*/
 }
 
 void ogl_render_finish_frame(void)
@@ -523,23 +525,6 @@ void ogl_render_finish_frame(void)
 
 	glDrawArrays(GL_QUADS, 0, ts_nverts);
 	glFlush();
-
-	#ifdef GPROJ_PLATFORM_SDL2
-
-	extern SDL_Window* sdl_window;
-
-	SDL_GL_SwapWindow(sdl_window);
-
-	#elif defined(GPROJ_PLATFORM_WIN32)
-	extern HDC hdc;
-
-
-	if (SwapBuffers(hdc) == FALSE)
-		INVALID_CODE_PATH;
-
-	#else
-	#error "Unknown Platform"
-	#endif
 
 	OGL_ASSERT_NO_ERROR();
 }
