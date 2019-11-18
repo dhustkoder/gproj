@@ -40,7 +40,7 @@ static s16 level_5_mapping[] = {
 struct world_meta levels[5] = {
 	{
 		.name = "First",
-		.map_meta = {
+		.tm_meta = {
 			.ts_path     = "world-ts.png",
 			.ts_img_size = { 512, 512 },
 			.map_size  = { 1, 2 },
@@ -49,7 +49,7 @@ struct world_meta levels[5] = {
 	},
 	{
 		.name = "Second",
-		.map_meta = {
+		.tm_meta = {
 			.ts_path = "world-ts.png",
 			.ts_img_size = { 512, 512 },
 			.map_size = { 2, 1 },
@@ -58,7 +58,7 @@ struct world_meta levels[5] = {
 	},
 	{
 		.name = "Third",
-		.map_meta = {
+		.tm_meta = {
 			.ts_path = "world-ts.png",
 			.ts_img_size = { 512, 512 },
 			.map_size = { 1, 3 },
@@ -67,7 +67,7 @@ struct world_meta levels[5] = {
 	},
 	{
 		.name = "Fourth",
-		.map_meta = {
+		.tm_meta = {
 			.ts_path = "world-ts.png",
 			.ts_img_size = { 512, 512 },
 			.map_size = { 12, 3 },
@@ -76,7 +76,7 @@ struct world_meta levels[5] = {
 	},
 	{
 		.name = "Fifth",
-		.map_meta = { 
+		.tm_meta = { 
 			.ts_path = "world-ts.png",
 			.ts_img_size = { 512, 512 },
 			.map_size = { 24, 10 },

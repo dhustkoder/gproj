@@ -10,7 +10,7 @@ extern void ogl_render_term(void);
 extern void ogl_render_load_ts(const char *path);
 extern void ogl_render_load_ss(const char *path);
 
-extern void ogl_render_map(const struct map_view *view);
+extern void ogl_render_tilemap(const struct vec2f* cam, const struct tilemap *map);
 
 extern void ogl_render_ss(int layer,
 					  const struct vec2f *restrict wpos,

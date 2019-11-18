@@ -21,7 +21,7 @@
 #define MAP_SCALE_MOD     (0.1f)
 #endif
 
-struct map_meta {
+struct tilemap_meta {
 	// ts file path
 	const char* ts_path;
 	// tile IDS in the tilesheet
@@ -32,7 +32,7 @@ struct map_meta {
 	struct vec2i ts_img_size;
 };
 
-struct map {
+struct tilemap {
 #ifdef GPROJ_DEBUG
 	// map tile size scale factor
 	f32 scale;
@@ -40,29 +40,15 @@ struct map {
 	// size in tiles
 	struct vec2i size;
 	// positions on tilesheet
-	struct vec2i data[MAP_MAX_X_TILES * MAP_MAX_Y_TILES];
-};
-
-struct map_view {
-#ifdef GPROJ_DEBUG
-	// map tile size scale factor
-	f32 scale;
-#endif
-	// size of the view area
-	struct vec2i size;
-	// screen begin position
-	struct vec2i scrpos;
-	// tiles to draw
-	struct vec2i data[MAP_MAX_X_TILES * MAP_MAX_Y_TILES];
+	struct vec2i tiles[MAP_MAX_X_TILES * MAP_MAX_Y_TILES];
 };
 
 
-extern void map_init(const struct map_meta* const meta,
-                     struct map* const map);
 
-extern void map_view_update(const struct vec2f* cam,
-                            const struct map* map,
-                            struct map_view* view);
+extern void tilemap_init(
+	const struct tilemap_meta* const meta,
+	struct tilemap* const map
+);
 
 
 #endif

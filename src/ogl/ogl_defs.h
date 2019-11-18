@@ -52,6 +52,8 @@ typedef void (OGLAPI *gl_void_proc_fn_t)();
 #define GL_LINK_STATUS     ((GLenum)0x8B82)
 #define GL_ARRAY_BUFFER    ((GLenum)0x8892)
 #define GL_DYNAMIC_DRAW    ((GLenum)0x88E8)
+#define GL_CLAMP_TO_EDGE   ((GLenum)0x812F)
+
 #define GL_TEXTURE0        ((GLenum)0x84C0)
 #define GL_TEXTURE1        ((GLenum)0x84C1)
 #define GL_TEXTURE2        ((GLenum)0x84C2)

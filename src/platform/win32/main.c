@@ -10,7 +10,7 @@ timer_hp_clk_t gproj_timer_hp_freq;
 
 render_load_ts_fn_t render_load_ts;
 render_load_ss_fn_t render_load_ss;
-render_map_fn_t render_map;
+render_tilemap_fn_t render_tilemap;
 render_ss_fn_t render_ss;
 render_text_fn_t render_text;
 render_finish_frame_fn_t render_finish_frame;
@@ -136,19 +136,17 @@ static void wm_update_keys(WPARAM key, UINT msg)
 	INPUT_SET_NEW_VALUE(ginput, buttons);
 }
 
+static struct vec2i winsize;
+
 static void wm_size(void)
 {
 	RECT rect;
 	GetClientRect(hwnd, &rect);
-	const DWORD width = rect.right - rect.left;
-	const DWORD height = rect.bottom - rect.top;
-	
-	glViewport(0, 0, width, height);
-	
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, width, height, 0, -1.0f, 1.0f);
+	winsize.x = rect.right - rect.left;
+	winsize.y = rect.bottom - rect.top;
 
+	
+	
 	
 	OGL_ASSERT_NO_ERROR();
 }
@@ -164,7 +162,7 @@ static LRESULT window_proc_clbk(
 
 		case WM_CREATE:
 			wm_create(hWnd);
-			break;
+			/* fallthrough */
 		case WM_SIZE:
 			wm_size();
 			break;
@@ -201,9 +199,32 @@ static b32 update_events(void)
 
 static void finish_frame_opengl(void)
 {
+
+	glViewport(0, 0, winsize.x, winsize.y);	
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, winsize.x, winsize.y, 0, -1.0f, 1.0f);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+
+
 	ogl_render_finish_frame();
+
 	if (SwapBuffers(hdc) == FALSE)
 		INVALID_CODE_PATH;
+
+	
+
+	glViewport(0, 0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT, 0, -1.0f, 1.0f);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 }
 
 
@@ -213,7 +234,7 @@ void render_init(const char* const winname)
 
 	render_load_ts = ogl_render_load_ts;
 	render_load_ss = ogl_render_load_ss;
-	render_map = ogl_render_map;
+	render_tilemap = ogl_render_tilemap;
 	render_ss = ogl_render_ss;
 	render_text = ogl_render_text;
 	render_finish_frame = finish_frame_opengl;
@@ -224,6 +245,7 @@ void render_init(const char* const winname)
 	WNDCLASS wc;
 	memset(&wc, 0, sizeof wc);
 
+	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = window_proc_clbk;
 	wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW); 
@@ -239,7 +261,7 @@ void render_init(const char* const winname)
 	hwnd = CreateWindow(
 		app_name,
 		app_name,
-		WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN|WS_CLIPSIBLINGS,
+		WS_CLIPCHILDREN|WS_CLIPSIBLINGS|WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT,
 		NULL, NULL,
@@ -249,7 +271,8 @@ void render_init(const char* const winname)
 
 	assert(hwnd != NULL);
 
-	ShowWindow(hwnd, showcmd);
+	
+	ShowWindow(hwnd, SW_MAXIMIZE);
 	UpdateWindow(hwnd);
 	
 	while (hdc == NULL) {

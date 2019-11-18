@@ -1,7 +1,7 @@
-#ifndef GPROJ_WORLD_H_
-#define GPROJ_WORLD_H_
+#ifndef GPROJ_WORLDMAN_H_
+#define GPROJ_WORLDMAN_H_
 #include "timer.h"
-#include "map.h"
+#include "tilemap.h"
 #include "actors.h"
 #include "input.h"
 
@@ -14,13 +14,12 @@
 
 struct world_meta {
 	const char* name;
-	struct map_meta map_meta;
+	struct tilemap_meta tm_meta;
 };
 
 struct world {
 	struct vec2f cam;
-	struct map map;
-	struct map_view map_view;
+	struct tilemap tm;
 };
 
 

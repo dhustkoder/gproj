@@ -2,11 +2,11 @@
 #define GPROJ_RENDER_H_
 #include <stdarg.h>
 #include "gmath.h"
-#include "map.h"
+#include "tilemap.h"
 
 
-#define GPROJ_SCR_WIDTH      (800)
-#define GPROJ_SCR_HEIGHT     (600)
+#define GPROJ_SCR_WIDTH      (16 * 64)
+#define GPROJ_SCR_HEIGHT     (9 * 64)
 #define GPROJ_RENDER_NLAYERS (1)
 #define GPROJ_TS_MAX_WIDTH   (S16_MAX - 1)
 #define GPROJ_TS_MAX_HEIGHT  (S16_MAX - 1)
@@ -30,7 +30,7 @@ typedef int render_flag_t;
 
 typedef void(*render_load_ts_fn_t)(const char *path);
 typedef void(*render_load_ss_fn_t)(const char *path);
-typedef void(*render_map_fn_t)(const struct map_view *view);
+typedef void(*render_tilemap_fn_t)(const struct vec2f* cam, const struct tilemap *tm);
 typedef void(*render_ss_fn_t)(int layer,
 			  const struct vec2f *restrict wpos,
 			  const struct vec2i *restrict wsize,
@@ -49,7 +49,7 @@ extern void render_term(void);
 
 extern render_load_ts_fn_t render_load_ts;
 extern render_load_ss_fn_t render_load_ss;
-extern render_map_fn_t render_map;
+extern render_tilemap_fn_t render_tilemap;
 extern render_ss_fn_t render_ss;
 extern render_text_fn_t render_text;
 extern render_finish_frame_fn_t render_finish_frame;

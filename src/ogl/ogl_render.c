@@ -164,12 +164,13 @@ static const GLchar* const vs_source = OGL_SL(
 	attribute vec2 tex_pos;
 
 	varying vec2 fs_tex_pos;
+
 	void main()
 	{
 		fs_tex_pos = tex_pos;
 		gl_Position = gl_ProjectionMatrix *
 		              gl_ModelViewMatrix *
-		              vec4(world_pos, 0.0, 1.0);
+		              vec4(world_pos, 1.0, 1.0);
 	}
 
 );
@@ -177,8 +178,11 @@ static const GLchar* const vs_source = OGL_SL(
 static const GLchar* const fs_source = OGL_SL(
 	varying vec2 fs_tex_pos;
 
+
 	uniform vec2 ts_tex_size;
 	uniform sampler2D textures;
+
+
 	void main()
 	{
 		gl_FragColor = texture2D(
@@ -339,8 +343,10 @@ static void init_textures(void)
 	glGenTextures(1, &ts_tex_id);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, ts_tex_id);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	glUniform1i(glGetUniformLocation(shader_program_id, "ts_texture"), 0);
 
 	OGL_ASSERT_NO_ERROR();
@@ -362,9 +368,8 @@ void ogl_render_init(void)
 	init_buffers();
 	init_textures();
 
-
-	glClearColor(0.0f, 0.0f, 0.0f, 0.5f); // Black Background
-
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT, 0, -1.0f, 1.0f);
@@ -442,23 +447,25 @@ void ogl_render_load_ss(const char* const path)
 
 
 
-void ogl_render_map(const struct map_view* const view)
+void ogl_render_tilemap(
+	const struct vec2f* const cam,
+	const struct tilemap* const tm
+)
 {
-	const struct vec2i size = view->size;
-	const struct vec2i pos = view->scrpos;
-	const struct vec2i* src = view->data;
+	const struct vec2i size = tm->size;
+	const struct vec2i* tile = tm->tiles;
 	struct ts_vertex* dst = ts_verts;
 
 	for (int h = 0; h < size.y; ++h) {
 		for (int w = 0; w < size.x; ++w) {
-			const GLfloat u = src->x;
-			const GLfloat v = src->y;
-			++src;
+			const GLfloat u = tile->x;
+			const GLfloat v = tile->y;
+			++tile;
 			if (u < 0)
 				continue;
 
-			const GLfloat x = (w * TILE_WIDTH) + pos.x;
-			const GLfloat y = (h * TILE_HEIGHT) + pos.y;
+			const GLfloat x = (w * TILE_WIDTH) + cam->x;
+			const GLfloat y = (h * TILE_HEIGHT) + cam->y;
 			dst->world_pos.x = x;
 			dst->world_pos.y = y;
 			dst->tex_pos.x   = u;
@@ -522,8 +529,9 @@ void ogl_render_finish_frame(void)
         	ts_verts,
 		GL_DYNAMIC_DRAW
 	);
-
+	
 	glDrawArrays(GL_QUADS, 0, ts_nverts);
+
 	glFlush();
 
 	OGL_ASSERT_NO_ERROR();

@@ -42,8 +42,8 @@ void worldman_load_world(const char* const name)
 	const int idx = search_meta(name);
 	const struct world_meta* const meta = &metas[idx];
 
-	map_init(&meta->map_meta, &world.map);
-	render_load_ts(meta->map_meta.ts_path);
+	tilemap_init(&meta->tm_meta, &world.tm);
+	render_load_ts(meta->tm_meta.ts_path);
 
 	loaded_world_name = name;
 	loaded_world_idx = idx;
@@ -70,33 +70,29 @@ void worldman_update_world(const input_t input, const timer_clk_t now, const flo
 			const int idx = (loaded_world_idx + 1) % nworlds;
 			worldman_load_world(metas[idx].name);
 		} else if (input&INPUT_BUTTON_WORLD_SCALE_DOWN &&
-		           world.map.scale > MAP_MIN_SCALE) {
-			world.map.scale -= MAP_SCALE_MOD;
+		           world.tm.scale > MAP_MIN_SCALE) {
+			world.tm.scale -= MAP_SCALE_MOD;
 		} else if (input&INPUT_BUTTON_WORLD_SCALE_UP &&
-		           world.map.scale < MAP_MAX_SCALE) {
-			world.map.scale += MAP_SCALE_MOD;
+		           world.tm.scale < MAP_MAX_SCALE) {
+			world.tm.scale += MAP_SCALE_MOD;
 		}
-		if (world.map.scale < MAP_MIN_SCALE)
-			world.map.scale = MAP_MIN_SCALE;
-		else if (world.map.scale > MAP_MAX_SCALE)
-			world.map.scale = MAP_MAX_SCALE;
+		if (world.tm.scale < MAP_MIN_SCALE)
+			world.tm.scale = MAP_MIN_SCALE;
+		else if (world.tm.scale > MAP_MAX_SCALE)
+			world.tm.scale = MAP_MAX_SCALE;
 	}
-#endif
 
-	map_view_update(&world.cam, &world.map, &world.map_view);
-
-#ifdef GPROJ_DEBUG
 	render_text("WORLD: %s", loaded_world_name);
 	render_text("WORLD CAM => (%.2f, %.2f)", world.cam.x, world.cam.y);
-	render_text("MAP VIEW SCALE => %.2f", world.map_view.scale);
-	render_text("MAP VIEW SIZE (%d, %d)",
-	            world.map_view.size.x, world.map_view.size.y);
+	render_text("MAP VIEW SCALE => %.2f", world.tm.scale);
+	render_text("MAP VIEW SIZE (%d, %d)", world.tm.size.x, world.tm.size.y);
+
 #endif
 
 }
 
 void worldman_send_render(void)
 {
-	render_map(&world.map_view);
+	render_tilemap(&world.cam, &world.tm);
 }
 
