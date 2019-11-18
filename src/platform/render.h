@@ -5,8 +5,8 @@
 #include "tilemap.h"
 
 
-#define GPROJ_SCR_WIDTH      (16 * 64)
-#define GPROJ_SCR_HEIGHT     (9 * 64)
+#define GPROJ_SCR_WIDTH      (16 * 120)
+#define GPROJ_SCR_HEIGHT     (9 * 120)
 #define GPROJ_RENDER_NLAYERS (1)
 #define GPROJ_TS_MAX_WIDTH   (S16_MAX - 1)
 #define GPROJ_TS_MAX_HEIGHT  (S16_MAX - 1)

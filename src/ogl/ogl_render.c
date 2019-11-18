@@ -295,11 +295,7 @@ static void init_buffers(void)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
 	glBufferData(
 		GL_ARRAY_BUFFER,
-
-		(sizeof(struct ts_vertex) *
-		MAP_MAX_X_TILES *
-		MAP_MAX_Y_TILES * 4),
-
+		sizeof(ts_verts),
 		NULL,
 		GL_DYNAMIC_DRAW
 	);
@@ -369,6 +365,8 @@ void ogl_render_init(void)
 	init_textures();
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	
+	glViewport(0, 0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -456,7 +454,6 @@ void ogl_render_tilemap(
 	const struct vec2i* tile = tm->tiles;
 	struct ts_vertex* dst = ts_verts;
 
-	ts_nverts = 0;
 	for (int h = 0; h < size.y; ++h) {
 		for (int w = 0; w < size.x; ++w) {
 			const GLfloat u = tile->x;
@@ -490,11 +487,10 @@ void ogl_render_tilemap(
 			dst->tex_pos.x   = u;
 			dst->tex_pos.y   = v + TILE_HEIGHT;
 			++dst;
-			ts_nverts += 4;
 		}
 	}
 
-	//ts_nverts = INDEX_OF(ts_verts, dst);
+	ts_nverts = INDEX_OF(ts_verts, dst);
 }
 
 void ogl_render_ss(const int layer,
