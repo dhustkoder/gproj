@@ -213,25 +213,28 @@ static void load_gl_procs(void)
 }
 
 
-static void compile_shader(GLuint* const id, GLenum type, const GLchar* source)
+static GLuint create_and_compile_shader(
+	const GLenum type,
+	const GLchar* const source
+)
 {
-	*id = glCreateShader(type);
+	const GLuint id = glCreateShader(type);
 
-	assert(*id != 0);
+	assert(id != 0);
 
 	const GLchar* src[] = { source };
 	const GLint length[] = { strlen(source) };
 
-	glShaderSource(*id, 1, src, length);
-	glCompileShader(*id);
+	glShaderSource(id, 1, src, length);
+	glCompileShader(id);
 
 
 #ifdef GPROJ_DEBUG
 	GLint status;
-	glGetShaderiv(*id, GL_COMPILE_STATUS, &status);
+	glGetShaderiv(id, GL_COMPILE_STATUS, &status);
 	if (status != GL_TRUE) {
 		glGetShaderInfoLog(
-			*id,
+			id,
 			SHADER_COMPILATION_INFO_BUFFER_SIZE,
 			NULL,
 			shader_compilation_info_buffer
@@ -247,12 +250,13 @@ static void compile_shader(GLuint* const id, GLenum type, const GLchar* source)
 
 	OGL_ASSERT_NO_ERROR();
 
+	return id;
 }
 
 static void init_shader_program(void)
 {
-	compile_shader(&vs_id, GL_VERTEX_SHADER, vs_source);
-	compile_shader(&fs_id, GL_FRAGMENT_SHADER, fs_source);
+	vs_id = create_and_compile_shader(GL_VERTEX_SHADER, vs_source);
+	fs_id = create_and_compile_shader(GL_FRAGMENT_SHADER, fs_source);
 
 	shader_program_id = glCreateProgram();
 	assert(shader_program_id != 0);
