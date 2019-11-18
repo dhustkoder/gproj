@@ -283,6 +283,8 @@ void render_init(const char* const winname)
 
 void render_term(void)
 {
+	ogl_render_term();
+	
 	log_dbg("TERMINATING RENDER");
 }
 
