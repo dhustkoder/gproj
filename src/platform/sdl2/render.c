@@ -6,7 +6,7 @@
 
 render_load_ts_fn_t render_load_ts;
 render_load_ss_fn_t render_load_ss;
-render_map_fn_t render_map;
+render_tilemap_fn_t render_tilemap;
 render_ss_fn_t render_ss;
 render_text_fn_t render_text;
 render_finish_frame_fn_t render_finish_frame;
@@ -49,7 +49,7 @@ static void init_opengl_mode(const char* winname)
 	target_render_term = ogl_render_term;
 	render_load_ts = ogl_render_load_ts;
 	render_load_ss = ogl_render_load_ss;
-	render_map = ogl_render_map;
+	render_tilemap = ogl_render_tilemap;
 	render_ss = ogl_render_ss;
 	render_text = ogl_render_text;
 	render_finish_frame = finish_frame_opengl;
@@ -72,7 +72,7 @@ static void init_sdl2_mode(const char* winname)
 	target_render_term = sdl2_render_term;
 	render_load_ts = sdl2_render_load_ts;
 	render_load_ss = sdl2_render_load_ss;
-	render_map = sdl2_render_map;
+	render_tilemap = sdl2_render_tilemap;
 	render_ss = sdl2_render_ss;
 	render_text = sdl2_render_text;
 	render_finish_frame = sdl2_render_finish_frame;

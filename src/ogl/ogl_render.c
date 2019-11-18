@@ -456,6 +456,7 @@ void ogl_render_tilemap(
 	const struct vec2i* tile = tm->tiles;
 	struct ts_vertex* dst = ts_verts;
 
+	ts_nverts = 0;
 	for (int h = 0; h < size.y; ++h) {
 		for (int w = 0; w < size.x; ++w) {
 			const GLfloat u = tile->x;
@@ -489,10 +490,11 @@ void ogl_render_tilemap(
 			dst->tex_pos.x   = u;
 			dst->tex_pos.y   = v + TILE_HEIGHT;
 			++dst;
+			ts_nverts += 4;
 		}
 	}
 
-	ts_nverts = INDEX_OF(ts_verts, dst);
+	//ts_nverts = INDEX_OF(ts_verts, dst);
 }
 
 void ogl_render_ss(const int layer,

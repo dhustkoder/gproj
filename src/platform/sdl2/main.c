@@ -78,8 +78,6 @@ static void platform_init(void)
 
 	
 	gproj_timer_hp_frequency = SDL_GetPerformanceFrequency();
-
-	return true;
 }
 
 static void platform_term(void)
@@ -160,10 +158,9 @@ int main(int argc, char** argv)
 	};
 
 
-
-
 	game_term();
 	platform_term();
+	return EXIT_SUCCESS;
 }
 
 

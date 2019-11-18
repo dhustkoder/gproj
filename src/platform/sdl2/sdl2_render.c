@@ -120,16 +120,16 @@ void sdl2_render_load_ss(const char* const path)
 	assert(tex_ss != NULL);
 }
 
-void sdl2_render_map(const struct map_view* const view)
+void sdl2_render_tilemap(const struct vec2f* const cam, const struct tilemap* const map)
 {
 
 	prepare_target_layer(0);
-	const struct vec2i cnt = view->size;
-	const struct vec2i pos = view->scrpos;
-	const struct vec2i* const tsmap = view->data;
+	const struct vec2i cnt = map->size;
+	const struct vec2i pos = { .x = cam->x, .y = cam->y };
+	const struct vec2i* const tiles = map->tiles;
 #ifdef GPROJ_DEBUG
-	const int tile_width = TILE_WIDTH * view->scale;
-	const int tile_height = TILE_HEIGHT * view->scale;
+	const int tile_width = TILE_WIDTH * map->scale;
+	const int tile_height = TILE_HEIGHT * map->scale;
 #else
 	const int tile_width = TILE_WIDTH;
 	const int tile_height = TILE_HEIGHT;
@@ -137,11 +137,11 @@ void sdl2_render_map(const struct map_view* const view)
 	for (int y = 0; y < cnt.y; ++y) {
 		for (int x = 0; x < cnt.x; ++x) {
 			const int offset = y * cnt.x + x;
-			const struct vec2i tspos = tsmap[offset];
-			if (tspos.x < 0) continue;
+			const struct vec2i uv = tiles[offset];
+			if (uv.x < 0) continue;
 			const SDL_Rect ts_rect = {
-				.x = tspos.x,
-				.y = tspos.y,
+				.x = uv.x,
+				.y = uv.y,
 				.w = TILE_WIDTH,
 				.h = TILE_HEIGHT
 			};
