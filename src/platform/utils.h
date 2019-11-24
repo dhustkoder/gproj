@@ -4,14 +4,13 @@
 #include <stddef.h>
 
 
-#define STATIC_ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
-#define INDEX_OF(array, ptr) (ptr - (&array[0]))
+#define STATIC_ARRAY_SIZE(array) (sizeof((array))/sizeof((array[0])))
+#define INDEX_OF(array, ptr) ((ptr) - (&((array)[0])))
 #define OFFSETOF(type, memb) offsetof(type, memb)
 #define STATIC_ASSERT(ident, cond)  \
 	struct static_assert_##ident {  \
 	u8 fake_array[(cond) ? 1 : -1]; \
 }
-
 
 
 #ifdef _MSC_VER

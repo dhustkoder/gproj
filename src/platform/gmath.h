@@ -1,6 +1,5 @@
 #ifndef GPROJ_GMATH_H_
 #define GPROJ_GMATH_H_
-
 #include "platform_defs.h"
 
 
@@ -26,4 +25,3 @@ struct rectf {
 
 
 #endif
-
