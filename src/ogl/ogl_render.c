@@ -248,7 +248,7 @@ static GLuint create_and_compile_shader(
 	}
 #endif
 
-	OGL_ASSERT_NO_ERROR();
+	OGL_ASSERT_NO_ERROR;
 
 	return id;
 }
@@ -280,7 +280,7 @@ static void init_shader_program(void)
 
 	glUseProgram(shader_program_id);
 
-	OGL_ASSERT_NO_ERROR();
+	OGL_ASSERT_NO_ERROR;
 }
 
 static void term_shader_program(void)
@@ -328,7 +328,7 @@ static void init_buffers(void)
 	glEnableVertexAttribArray(xy_loc);
 	glEnableVertexAttribArray(uv_loc);
 
-	OGL_ASSERT_NO_ERROR();
+	OGL_ASSERT_NO_ERROR;
 }
 
 static void term_buffers(void)
@@ -349,7 +349,7 @@ static void init_textures(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	glUniform1i(glGetUniformLocation(shader_program_id, "ts_texture"), 0);
 
-	OGL_ASSERT_NO_ERROR();
+	OGL_ASSERT_NO_ERROR;
 }
 
 static void term_textures(void)
@@ -391,7 +391,7 @@ void ogl_render_init(void)
 	);
 
 
-	OGL_ASSERT_NO_ERROR();
+	OGL_ASSERT_NO_ERROR;
 }
 
 void ogl_render_term(void)
@@ -438,7 +438,7 @@ void ogl_render_load_ts(const char* const path)
 	const GLint ts_tex_size_id = glGetUniformLocation(shader_program_id, "ts_tex_size");
 	glUniform2f(ts_tex_size_id, (GLfloat)x, (GLfloat)y);
 
-	OGL_ASSERT_NO_ERROR();
+	OGL_ASSERT_NO_ERROR;
 
 	stbi_image_free(data);
 }
@@ -536,7 +536,7 @@ void ogl_render_finish_frame(void)
 
 	glFlush();
 
-	OGL_ASSERT_NO_ERROR();
+	OGL_ASSERT_NO_ERROR;
 }
 
 

@@ -136,7 +136,7 @@ static void wm_update_keys(WPARAM key, UINT msg)
 	INPUT_SET_NEW_VALUE(ginput, buttons);
 }
 
-static struct vec2i winsize;
+static struct vec2f winsize;
 
 static void wm_size(void)
 {
@@ -145,10 +145,16 @@ static void wm_size(void)
 	winsize.x = rect.right - rect.left;
 	winsize.y = rect.bottom - rect.top;
 
+	glViewport(0, 0, winsize.x, winsize.y);	
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT, 0, -1.0f, 1.0f);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 	
 	
-	
-	OGL_ASSERT_NO_ERROR();
+	OGL_ASSERT_NO_ERROR;
 }
 
 static LRESULT window_proc_clbk(
@@ -199,32 +205,10 @@ static b32 update_events(void)
 
 static void finish_frame_opengl(void)
 {
-
-	glViewport(0, 0, winsize.x, winsize.y);	
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, winsize.x, winsize.y, 0, -1.0f, 1.0f);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-
-
 	ogl_render_finish_frame();
 
 	if (SwapBuffers(hdc) == FALSE)
 		INVALID_CODE_PATH;
-
-	
-
-	glViewport(0, 0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT, 0, -1.0f, 1.0f);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 }
 
 

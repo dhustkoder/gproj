@@ -33,7 +33,7 @@ typedef void (OGLAPI *gl_void_proc_fn_t)();
 
 
 #ifdef GPROJ_DEBUG
-#define OGL_ASSERT_NO_ERROR() { \
+#define OGL_ASSERT_NO_ERROR { \
 	const GLenum gl_error_code = glGetError(); \
 	if (gl_error_code != GL_NO_ERROR) { \
 		log_dbg("GL ERROR: %d", gl_error_code); \
@@ -41,7 +41,7 @@ typedef void (OGLAPI *gl_void_proc_fn_t)();
 	} \
 }
 #else
-#define OGL_ASSERT_NO_ERROR() ((void)0)
+#define OGL_ASSERT_NO_ERROR ((void)0)
 #endif
 
 
@@ -136,6 +136,7 @@ typedef void (OGLAPI *glActiveTexture_fn_t)(GLenum texture);
 typedef void (OGLAPI *glUniform1i_fn_t)(GLint location, GLint v0);
 typedef GLint (OGLAPI *glGetUniformLocation_fn_t)(GLuint program, const GLchar* name);
 typedef void (OGLAPI *glUniform2f_fn_t)(GLint location, GLfloat v0, GLfloat v1);
+
 #ifdef GPROJ_DEBUG
 /* shaders error check */
 typedef void  (OGLAPI *glGetShaderiv_fn_t)(GLuint shader, GLenum pname, GLint *params);
@@ -146,7 +147,7 @@ typedef void  (OGLAPI *glGetProgramInfoLog_fn_t)(GLuint programId,
                                                  GLsizei maxLength,
                                                  GLsizei *length,
                                                  GLchar  *infoLog);
-#endif
+#endif /* GPROJ_DEBUG */
 
 
 
@@ -188,14 +189,18 @@ extern glGetShaderiv_fn_t glGetShaderiv;
 extern glGetShaderInfoLog_fn_t glGetShaderInfoLog;
 extern glGetProgramiv_fn_t glGetProgramiv;
 extern glGetProgramInfoLog_fn_t glGetProgramInfoLog;
-#endif
+#endif /* GPROJ_DEBUG */
 
 
 
-#endif
+#endif /* GL_VERSION_2_0 */
 
 
 
-#endif
 
 
+
+
+
+
+#endif /* GPROJ_OGL_DEFS_H_ */

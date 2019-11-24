@@ -24,4 +24,5 @@ extern void ogl_render_text(const char *text, ...);
 extern void ogl_render_finish_frame(void);
 
 
+
 #endif
