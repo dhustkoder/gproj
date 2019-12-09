@@ -127,7 +127,8 @@ b32 update_events(void)
 				update_keys(&ev);
 				break;
 			case SDL_WINDOWEVENT:
-				// implement
+				if (ev.window.event == SDL_WINDOWEVENT_RESIZED) 
+					render_resize(ev.window.data1, ev.window.data2);
 				break;
 		}
 	}

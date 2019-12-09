@@ -6,11 +6,13 @@ UNAME_S=$(shell uname -s)
 #
 
 GPROJ_DEFINES=-DGPROJ_PLATFORM_SDL2
+
 ifeq ($(UNAME_S),Linux)
 	GPROJ_DEFINES+=-DGPROJ_OS_LINUX
 else
 	GPROJ_DEFINES+=-DGPROJ_OS_OSX -DGL_SILENCE_DEPRECATION
 endif
+
 PLATFORM_LSTR=sdl2
 PLATFORM_USTR=SDL2
 
@@ -61,7 +63,7 @@ CFLAGS=-std=c99 -Wpedantic -Wall -Wextra -Wshadow\
        $(GPROJ_DEFINES)
 
 PERFORMANCE_FLAGS=-O3 -march=native -ffast-math -ffunction-sections -fstrict-aliasing \
-				  -fdata-sections -fno-unwind-tables -fno-asynchronous-unwind-tables
+                  -fdata-sections -fno-unwind-tables -fno-asynchronous-unwind-tables
 
 
 CFLAGS_DEBUG=-ggdb -O0 -fsanitize=address -DDEBUG -DGPROJ_DEBUG -DGPROJ_PROFILING

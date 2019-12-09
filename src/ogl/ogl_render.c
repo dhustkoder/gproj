@@ -56,10 +56,7 @@ glGetProgramInfoLog_fn_t glGetProgramInfoLog;
 #endif
 
 
-#endif
 
-
-#ifndef GL_VERSION_2_0
 static GLchar* gl_proc_names[] = {
 	"glCreateShader",
 	"glShaderSource",
@@ -151,7 +148,7 @@ STATIC_ASSERT(
 	GL_PROCS_ARRAYS,
 	STATIC_ARRAY_SIZE(gl_proc_names) == STATIC_ARRAY_SIZE(gl_proc_ptrs)
 );
-#endif
+#endif /* GL_VERSION_2_0 */
 
 static GLuint vs_id;
 static GLuint fs_id;
@@ -214,7 +211,6 @@ static void load_gl_procs(void)
 	}
 	#endif
 }
-
 
 static GLuint create_and_compile_shader(
 	const GLenum type,
@@ -541,13 +537,13 @@ void ogl_render_resize(const int width, const int height)
 		return;
 
 	if (width >= GPROJ_SCR_WIDTH) {
-		//width_scale = ((double)width) / ((double)GPROJ_SCR_WIDTH);
+		width_scale = ((double)width) / ((double)GPROJ_SCR_WIDTH);
 	} else {
 		//INVALID_CODE_PATH;
 	}
 	
 	if (height >= GPROJ_SCR_HEIGHT) {
-		//height_scale = ((double)height) / ((double)GPROJ_SCR_HEIGHT);
+		height_scale = ((double)height) / ((double)GPROJ_SCR_HEIGHT);
 	} else {
 		//INVALID_CODE_PATH;
 	}

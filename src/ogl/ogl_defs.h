@@ -2,22 +2,27 @@
 #define GPROJ_OGL_DEFS_H_
 #include "platform_defs.h"
 
-#ifdef _MSC_VER
+#if defined(GPROJ_OS_WINDOWS)
 #include <windows.h>
+#include <GL/gl.h>
+#elif defined(GPROJ_OS_OSX)
+#include <OpenGL/gl.h>
+#elif defined(GPROJ_OS_LINUX)
+#define GL_GLEXT_PROTOTYPES
+#include <GL/gl.h>
+#else
+#error "Unknown OS"
+#endif
+
+
+#ifdef APIENTRY
 #define OGLAPI APIENTRY
 #else
 #define OGLAPI
 #endif
 
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
-
 
 typedef void (OGLAPI *gl_void_proc_fn_t)();
-
 
 
 #ifdef GPROJ_PLATFORM_SDL2
@@ -43,7 +48,6 @@ typedef void (OGLAPI *gl_void_proc_fn_t)();
 #else
 #define OGL_ASSERT_NO_ERROR ((void)0)
 #endif
-
 
 #ifndef GL_VERSION_2_0
 #define GL_FRAGMENT_SHADER ((GLenum)0x8B30)

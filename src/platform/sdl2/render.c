@@ -10,6 +10,7 @@ render_tilemap_fn_t render_tilemap;
 render_ss_fn_t render_ss;
 render_text_fn_t render_text;
 render_finish_frame_fn_t render_finish_frame;
+render_resize_fn_t render_resize;
 
 SDL_Window* sdl_window = NULL;
 SDL_GLContext* sdl_gl_context = NULL;
@@ -53,13 +54,14 @@ static void init_opengl_mode(const char* winname)
 	render_ss = ogl_render_ss;
 	render_text = ogl_render_text;
 	render_finish_frame = finish_frame_opengl;
+	render_resize = ogl_render_resize;
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 
-	init_sdl2_window(winname, SDL_WINDOW_OPENGL);
+	init_sdl2_window(winname, SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
 	sdl_gl_context = SDL_GL_CreateContext(sdl_window);
 	SDL_GL_MakeCurrent(sdl_window, sdl_gl_context);
 	assert(sdl_gl_context != NULL);
