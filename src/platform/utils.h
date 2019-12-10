@@ -12,12 +12,10 @@
 	u8 fake_array[(cond) ? 1 : -1]; \
 }
 
-
 #ifdef _MSC_VER
 // fucking MS please start supporting C99 properly!
 #define restrict __restrict
 #endif
-
 
 #define GPROJ_MACR_STRINGIFY(x) #x
 #define INVALID_CODE_PATH assert(0 && "INVALID CODE PATH AT " __FILE__ ":" GPROJ_MACR_STRINGIFY(__LINE__))

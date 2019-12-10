@@ -45,6 +45,7 @@ glActiveTexture_fn_t glActiveTexture;
 glUniform1i_fn_t glUniform1i;
 glGetUniformLocation_fn_t glGetUniformLocation;
 glUniform2f_fn_t glUniform2f;
+glUniform2i_fn_t glUniform2i;
 
 
 #ifdef GPROJ_DEBUG
@@ -90,7 +91,8 @@ static GLchar* gl_proc_names[] = {
 	,"glActiveTexture",
 	"glUniform1i",
 	"glGetUniformLocation",
-	"glUniform2f"
+	"glUniform2f",
+	"glUniform2i"
 
 	#ifdef GPROJ_DEBUG
 	,"glGetShaderiv",
@@ -133,7 +135,8 @@ static gl_void_proc_fn_t* gl_proc_ptrs[] = {
 	,&glActiveTexture,
 	&glUniform1i,
 	&glGetUniformLocation,
-	&glUniform2f
+	&glUniform2f,
+	&glUniform2i
 
 	#ifdef GPROJ_DEBUG
 	,&glGetShaderiv,
@@ -179,16 +182,14 @@ static const GLchar* const fs_source = OGL_SL(
 	varying vec2 fs_tex_pos;
 
 
-	uniform vec2 ts_tex_size;
+	uniform ivec2 ts_tex_size;
 	uniform sampler2D textures;
 
 
 	void main()
 	{
-		gl_FragColor = texture2D(
-			textures,
-			fs_tex_pos / ts_tex_size
-		);
+		vec2 tspos = vec2(fs_tex_pos / ts_tex_size);
+		gl_FragColor = texture2D(textures, tspos);
 	}
 
 );
@@ -199,6 +200,8 @@ static GLuint ts_tex_id;
 static struct ts_vertex ts_verts[MAP_MAX_X_TILES * MAP_MAX_Y_TILES * 4];
 static GLsizei ts_nverts = 0;
 
+static GLfloat width_scale = 1.0f;
+static GLfloat height_scale = 1.0f;
 
 
 static void load_gl_procs(void)
@@ -343,11 +346,6 @@ static void init_textures(void)
 	glGenTextures(1, &ts_tex_id);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, ts_tex_id);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	glUniform1i(glGetUniformLocation(shader_program_id, "ts_texture"), 0);
 
 	OGL_ASSERT_NO_ERROR;
 }
@@ -368,16 +366,8 @@ void ogl_render_init(void)
 	init_buffers();
 	init_textures();
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	
-	glViewport(0, 0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
-	
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT, 0, -1.0f, 1.0f);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	
+	ogl_render_resize(GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT);
 
 	const GLubyte* vendor = glGetString(GL_VENDOR);
 	const GLubyte* renderer = glGetString(GL_RENDERER);
@@ -422,6 +412,10 @@ void ogl_render_load_ts(const char* const path)
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, ts_tex_id);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 	glTexImage2D(
 		GL_TEXTURE_2D,
@@ -436,7 +430,7 @@ void ogl_render_load_ts(const char* const path)
 	);
 
 	const GLint ts_tex_size_id = glGetUniformLocation(shader_program_id, "ts_tex_size");
-	glUniform2f(ts_tex_size_id, (GLfloat)x, (GLfloat)y);
+	glUniform2i(ts_tex_size_id, x, y);
 
 	OGL_ASSERT_NO_ERROR;
 
@@ -456,8 +450,9 @@ void ogl_render_tilemap(
 {
 	const struct vec2i size = tm->size;
 	const struct vec2i* tile = tm->tiles;
-	struct ts_vertex* dst = ts_verts;
-
+	struct ts_vertex* dest = ts_verts;
+	const GLfloat tilew = TILE_WIDTH * width_scale * tm->scale;
+	const GLfloat tileh = TILE_HEIGHT * height_scale * tm->scale;
 	for (int h = 0; h < size.y; ++h) {
 		for (int w = 0; w < size.x; ++w) {
 			const GLfloat u = tile->x;
@@ -466,35 +461,34 @@ void ogl_render_tilemap(
 			if (u < 0)
 				continue;
 
-			const GLfloat x = (w * TILE_WIDTH) + cam->x;
-			const GLfloat y = (h * TILE_HEIGHT) + cam->y;
-			dst->world_pos.x = x;
-			dst->world_pos.y = y;
-			dst->tex_pos.x   = u;
-			dst->tex_pos.y   = v;
-			++dst;
+			const GLfloat x = (w * tilew) - cam->x;
+			const GLfloat y = (h * tileh) - cam->y;
 
-			dst->world_pos.x = x + TILE_WIDTH;
-			dst->world_pos.y = y;
-			dst->tex_pos.x   = u + TILE_WIDTH;
-			dst->tex_pos.y   = v;
-			++dst;
+			dest[0].world_pos.x = x;
+			dest[0].world_pos.y = y;
+			dest[0].tex_pos.x   = u;
+			dest[0].tex_pos.y   = v;
 
-			dst->world_pos.x = x + TILE_WIDTH;
-			dst->world_pos.y = y + TILE_HEIGHT;
-			dst->tex_pos.x   = u + TILE_WIDTH;
-			dst->tex_pos.y   = v + TILE_HEIGHT;
-			++dst;
+			dest[1].world_pos.x = x + tilew;
+			dest[1].world_pos.y = y;
+			dest[1].tex_pos.x   = u + TILE_WIDTH;
+			dest[1].tex_pos.y   = v;
 
-			dst->world_pos.x = x;
-			dst->world_pos.y = y + TILE_HEIGHT;
-			dst->tex_pos.x   = u;
-			dst->tex_pos.y   = v + TILE_HEIGHT;
-			++dst;
+			dest[2].world_pos.x = x + tilew;
+			dest[2].world_pos.y = y + tileh;
+			dest[2].tex_pos.x   = u + TILE_WIDTH;
+			dest[2].tex_pos.y   = v + TILE_HEIGHT;
+
+			dest[3].world_pos.x = x;
+			dest[3].world_pos.y = y + tileh;
+			dest[3].tex_pos.x   = u;
+			dest[3].tex_pos.y   = v + TILE_HEIGHT;
+			
+			dest += 4;
 		}
 	}
 
-	ts_nverts = INDEX_OF(ts_verts, dst);
+	ts_nverts = INDEX_OF(ts_verts, dest);
 }
 
 void ogl_render_ss(const int layer,
@@ -539,4 +533,35 @@ void ogl_render_finish_frame(void)
 	OGL_ASSERT_NO_ERROR;
 }
 
+void ogl_render_resize(const int width, const int height)
+{
+	log_dbg("OpenGL resizing %dx%d", width, height);
+
+	if (width == 0 || height == 0)
+		return;
+
+	if (width >= GPROJ_SCR_WIDTH) {
+		//width_scale = ((double)width) / ((double)GPROJ_SCR_WIDTH);
+	} else {
+		//INVALID_CODE_PATH;
+	}
+	
+	if (height >= GPROJ_SCR_HEIGHT) {
+		//height_scale = ((double)height) / ((double)GPROJ_SCR_HEIGHT);
+	} else {
+		//INVALID_CODE_PATH;
+	}
+
+	glViewport(0, 0, width, height);
+	
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, width, height, 0, 1.0, -1.0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+
+	OGL_ASSERT_NO_ERROR;
+}
 

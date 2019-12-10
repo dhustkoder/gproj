@@ -1,7 +1,9 @@
 build/
+Backup/
 objs/
 asm/
 compile_commands.json
+.clang_complete
 car.sh
 *.fns
 *.nes

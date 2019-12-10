@@ -14,6 +14,7 @@ render_tilemap_fn_t render_tilemap;
 render_ss_fn_t render_ss;
 render_text_fn_t render_text;
 render_finish_frame_fn_t render_finish_frame;
+render_resize_fn_t render_resize;
 
 
 static HDC hdc = NULL;
@@ -136,25 +137,13 @@ static void wm_update_keys(WPARAM key, UINT msg)
 	INPUT_SET_NEW_VALUE(ginput, buttons);
 }
 
-static struct vec2f winsize;
-
 static void wm_size(void)
 {
 	RECT rect;
 	GetClientRect(hwnd, &rect);
-	winsize.x = rect.right - rect.left;
-	winsize.y = rect.bottom - rect.top;
-
-	glViewport(0, 0, winsize.x, winsize.y);	
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, GPROJ_SCR_WIDTH, GPROJ_SCR_HEIGHT, 0, -1.0f, 1.0f);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	
-	
-	OGL_ASSERT_NO_ERROR;
+	const int w = rect.right - rect.left;
+	const int h = rect.bottom - rect.top;
+	render_resize(w, h);
 }
 
 static LRESULT window_proc_clbk(
@@ -222,6 +211,7 @@ void render_init(const char* const winname)
 	render_ss = ogl_render_ss;
 	render_text = ogl_render_text;
 	render_finish_frame = finish_frame_opengl;
+	render_resize = ogl_render_resize;
 
 
 	const LPCSTR app_name = winname;
@@ -236,8 +226,8 @@ void render_init(const char* const winname)
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1); 
 	wc.hInstance = hinstance;
 	wc.lpszClassName = app_name;
-    wc.lpszMenuName  = app_name; 
-    wc.lpszClassName = app_name; 
+	wc.lpszMenuName  = app_name; 
+	wc.lpszClassName = app_name; 
 	
 	if (RegisterClass(&wc) == 0)
 		INVALID_CODE_PATH;

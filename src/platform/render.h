@@ -5,8 +5,8 @@
 #include "tilemap.h"
 
 
-#define GPROJ_SCR_WIDTH      (800)
-#define GPROJ_SCR_HEIGHT     (600)
+#define GPROJ_SCR_WIDTH      (480)
+#define GPROJ_SCR_HEIGHT     (360)
 #define GPROJ_RENDER_NLAYERS (1)
 #define GPROJ_TS_MAX_WIDTH   (S16_MAX - 1)
 #define GPROJ_TS_MAX_HEIGHT  (S16_MAX - 1)
@@ -40,6 +40,7 @@ typedef void(*render_ss_fn_t)(int layer,
 			  const int cnt);
 typedef void(*render_text_fn_t)(const char *text, ...);
 typedef void(*render_finish_frame_fn_t)(void);
+typedef void(*render_resize_fn_t)(int widht, int height);
 
 
 extern void render_init(const char* winname);
@@ -53,6 +54,7 @@ extern render_tilemap_fn_t render_tilemap;
 extern render_ss_fn_t render_ss;
 extern render_text_fn_t render_text;
 extern render_finish_frame_fn_t render_finish_frame;
+extern render_resize_fn_t render_resize;
 
 
 

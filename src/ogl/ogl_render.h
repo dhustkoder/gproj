@@ -22,6 +22,7 @@ extern void ogl_render_ss(int layer,
 
 extern void ogl_render_text(const char *text, ...);
 extern void ogl_render_finish_frame(void);
+extern void ogl_render_resize(int width, int height);
 
 
 

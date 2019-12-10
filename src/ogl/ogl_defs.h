@@ -136,6 +136,7 @@ typedef void (OGLAPI *glActiveTexture_fn_t)(GLenum texture);
 typedef void (OGLAPI *glUniform1i_fn_t)(GLint location, GLint v0);
 typedef GLint (OGLAPI *glGetUniformLocation_fn_t)(GLuint program, const GLchar* name);
 typedef void (OGLAPI *glUniform2f_fn_t)(GLint location, GLfloat v0, GLfloat v1);
+typedef void (OGLAPI *glUniform2i_fn_t)(GLint location, GLint v0, GLint v1);
 
 #ifdef GPROJ_DEBUG
 /* shaders error check */
@@ -183,6 +184,7 @@ extern glActiveTexture_fn_t glActiveTexture;
 extern glUniform1i_fn_t glUniform1i;
 extern glGetUniformLocation_fn_t glGetUniformLocation;
 extern glUniform2f_fn_t glUniform2f;
+extern glUniform2i_fn_t glUniform2i;
 
 #ifdef GPROJ_DEBUG
 extern glGetShaderiv_fn_t glGetShaderiv;
