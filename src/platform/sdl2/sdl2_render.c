@@ -70,6 +70,8 @@ void sdl2_render_init(void)
 		assert(err == 0);
 	}
 
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+
 	SDL_SetTextureBlendMode(tex_txt, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderTarget(rend, NULL);
 	SDL_RenderClear(rend);
@@ -105,8 +107,6 @@ void sdl2_render_load_ts(const char* const path)
 
 	tex_ts = IMG_LoadTexture(rend, path);
 	assert(tex_ts != NULL);
-
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 }
 
 

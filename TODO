@@ -1,3 +1,4 @@
-- fix texture filtering problem when scaling or resizing window -- NEAREST works fine
-- fix opengl rendering window size bugs
+- add fatal error handling
+- review project directory structure
 - revision TS/map manipulation and rendering
+- fix texture filtering problem when scaling or resizing window -- NEAREST works fine
