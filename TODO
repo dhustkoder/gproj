@@ -1,2 +1,3 @@
+- fix opengl tile map scaling bug -- scale matrix needed
 - fix opengl rendering window size bugs
 - revision TS/map manipulation and rendering
