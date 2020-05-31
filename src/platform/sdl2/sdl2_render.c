@@ -105,6 +105,8 @@ void sdl2_render_load_ts(const char* const path)
 
 	tex_ts = IMG_LoadTexture(rend, path);
 	assert(tex_ts != NULL);
+
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 }
 
 
