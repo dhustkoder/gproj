@@ -1,4 +1,4 @@
-- add fatal error handling
 - review project directory structure
-- revision TS/map manipulation and rendering
+- add editor mode and compiler flag
+- develop the map editor
 - fix texture filtering problem when scaling or resizing window -- NEAREST works fine
