@@ -2,7 +2,7 @@
 ----- refactoring engine input
 -----
 
+- work on basic ui lib
+- work on a map editor
 
-- add editor mode and compiler flag
-- develop the map editor
 - fix texture filtering problem when scaling or resizing window -- NEAREST works fine
