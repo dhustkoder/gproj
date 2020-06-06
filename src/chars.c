@@ -52,6 +52,7 @@ void chars_term(void)
 
 void chars_update(const input_t input, const timer_clk_t now, const float dt)
 {
+	/*
 	if (input&INPUT_BUTTONS_GAME) {
 		if (input&INPUT_BUTTON_RIGHT) {
 			vel.x = +128;
@@ -72,6 +73,7 @@ void chars_update(const input_t input, const timer_clk_t now, const float dt)
 
 	actors_move(dt, &vel, &wpos, 1);
 	actors_animate(now, &timing, &animation, &spos, &ssize, 1);
+	*/
 }
 
 

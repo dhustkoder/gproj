@@ -21,44 +21,6 @@ timer_hp_clk_t gproj_timer_hp_frequency;
 
 
 
-static SDL_Scancode sdl_keys[] = {
-	SDL_SCANCODE_W,
-	SDL_SCANCODE_S,
-	SDL_SCANCODE_A,
-	SDL_SCANCODE_D
-
-#ifdef GPROJ_DEBUG
-	,
-	SDL_SCANCODE_K,
-	SDL_SCANCODE_J,
-	SDL_SCANCODE_H,
-	SDL_SCANCODE_L,
-	SDL_SCANCODE_M,
-	SDL_SCANCODE_N,
-	SDL_SCANCODE_B
-#endif
-};
-
-static input_t gproj_buttons[] = {
-	INPUT_BUTTON_UP,
-	INPUT_BUTTON_DOWN,
-	INPUT_BUTTON_LEFT,
-	INPUT_BUTTON_RIGHT
-
-#ifdef GPROJ_DEBUG
-	,
-	INPUT_BUTTON_CAM_UP,
-	INPUT_BUTTON_CAM_DOWN,
-	INPUT_BUTTON_CAM_LEFT,
-	INPUT_BUTTON_CAM_RIGHT,
-	INPUT_BUTTON_WORLD_SCALE_UP,
-	INPUT_BUTTON_WORLD_SCALE_DOWN,
-	INPUT_BUTTON_WORLD_FWD
-#endif
-};
-
-static input_t ginput;
-
 
 static void platform_init(void)
 {
@@ -91,32 +53,15 @@ static void platform_term(void)
 }
 
 
-
-
 static inline void update_keys(const SDL_Event* const ev)
 {
-	input_t buttons = ginput;
-
-	for (int idx = 0; idx < INPUT_BUTTON_NBUTTONS; ++idx) {
-		if (sdl_keys[idx] == ev->key.keysym.scancode) {
-			input_t bt = gproj_buttons[idx];
-			if (ev->type == SDL_KEYDOWN)
-				buttons |= bt;
-			else
-				buttons &= ~bt;
-			break;
-		}
-	}
-
-	INPUT_SET_NEW_VALUE(ginput, buttons);
+	log_dbg("Button Pressed: %d", ev->key.keysym.scancode);
 }
 
 
 b32 update_events(void)
 {
 	SDL_Event ev;
-
-	INPUT_UPDATE_OLD_VALUE(ginput);
 
 	while (SDL_PollEvent(&ev)) {
 		switch (ev.type) {
@@ -153,7 +98,7 @@ int main(int argc, char** argv)
 		const timer_clk_t now = timer_now();
 		const float dt = (now - lastclk) / 1000.f;
 
-		game_step(ginput, now, dt);
+		game_step(0, now, dt);
 		
 		lastclk = now;
 	};

@@ -70,7 +70,9 @@ void sdl2_render_init(void)
 		assert(err == 0);
 	}
 
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+	err = (int) SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+	if ((SDL_bool)err == SDL_FALSE)
+		INVALID_CODE_PATH;
 
 	SDL_SetTextureBlendMode(tex_txt, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderTarget(rend, NULL);

@@ -1,4 +1,8 @@
-- review project directory structure
+- review project directory structure / do a clearer division engine from game
+----- refactoring engine input
+-----
+
+
 - add editor mode and compiler flag
 - develop the map editor
 - fix texture filtering problem when scaling or resizing window -- NEAREST works fine

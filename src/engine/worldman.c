@@ -54,6 +54,7 @@ void worldman_update_world(const input_t input, const timer_clk_t now, const flo
 	assert(loaded_world_name != NULL);
 
 #ifdef GPROJ_DEBUG
+	/*
 	if (input&INPUT_BUTTONS_CAM) {
 		if (input&INPUT_BUTTON_CAM_RIGHT)
 			world.cam.x += WORLD_DEBUG_CAM_VELOCITY * dt;
@@ -81,6 +82,7 @@ void worldman_update_world(const input_t input, const timer_clk_t now, const flo
 		else if (world.tm.scale > MAP_MAX_SCALE)
 			world.tm.scale = MAP_MAX_SCALE;
 	}
+	*/
 
 	render_text("WORLD: %s", loaded_world_name);
 	render_text("WORLD CAM => (%.2f, %.2f)", world.cam.x, world.cam.y);

@@ -25,7 +25,7 @@ void game_init(void)
 
 void game_step(const input_t input, const timer_clk_t now, const float dt)
 {
-	profiler_block_start("frame time", 1);
+	profiler_block_start("frame time", 60);
 
 	worldman_update_world(input, now, dt);
 	worldman_send_render();
